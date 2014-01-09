@@ -7,7 +7,7 @@
       return;
     }
 
-    var cutoffPercent = obj.cutoff || 0.015,
+    var cutoffPercent = typeof obj.cutoff === 'undefined' ? 0.015 : obj.cutoff,
       parsedText = Tokenizer.tokenizeInput(obj.inputText); //create array of words only
 
     var wordCounts = function(wordarray) {
