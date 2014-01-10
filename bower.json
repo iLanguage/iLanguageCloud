@@ -1,0 +1,37 @@
+{
+  "name": "iLanguageCloud",
+  "version": "3.0.0",
+  "homepage": "https://github.com/iLanguage/iLanguageCloud",
+  "authors": [
+    "iLanguageCloud Contributors <opensource@ilanguage.ca>"
+  ],
+  "description": "Generate dynamic word clouds from text",
+  "main": "dist/ilanguage-cloud.min.js",
+  "keywords": [
+    "ilanguage",
+    "tag-cloud",
+    "word-cloud",
+    "cloud",
+    "svg"
+  ],
+  "license": "Apache 2.0",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "samples",
+    "test",
+    "libs",
+    "src",
+    "dist/main_bundle.js",
+    "dist/test_bundle.js",
+    "dist/vendor.js",
+    ".editorconfig",
+    ".gitattributes",
+    ".gitignore",
+    ".npmignore",
+    "Gruntfile",
+    "CONTRIBUTING.md",
+    "package.json"
+  ]
+}
