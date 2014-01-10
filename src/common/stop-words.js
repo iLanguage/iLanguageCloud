@@ -1,5 +1,5 @@
 (function(exports) {
-  var iLanguage = require('../../bower_components/ilanguage/dist/ilanguage.min').iLanguage;
+  var iLanguage = require('iLanguage');
   
   console.log(iLanguage);
   exports.StopWords = iLanguage.Lexicon.StopWords;

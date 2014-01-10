@@ -1,5 +1,5 @@
 (function(exports) {
-  var iLanguage = require('../../bower_components/ilanguage/dist/ilanguage.min').iLanguage;
+  var iLanguage = require('iLanguage');
   exports.Tokenizer = iLanguage.Corpus.Orthography.Tokenizer;
 
 })(typeof exports === 'undefined' ? this['Tokenizer'] = {} : exports);

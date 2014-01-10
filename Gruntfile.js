@@ -80,6 +80,10 @@ module.exports = function(grunt) {
             layoutCloud: {
               path: 'node_modules/d3.layout.cloud/d3.layout.cloud.js',
               exports: 'layoutCloud'
+            },
+            iLanguage: {
+              path: 'bower_components/ilanguage/dist/ilanguage.min.js',
+              exports: 'iLanguage'
             }
           }
         }
