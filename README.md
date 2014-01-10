@@ -12,7 +12,10 @@ iLanguageCloud().render(); // returns a wordcloud object with default options
 ```
 
 ### In the browser
-Download the [production version][min] or the [development version][max].
+
+Install the module with: `bower install ilanguage-cloud --save`
+
+Or, download the [production version][min] or the [development version][max].
 
 [min]: https://raw.github.com/iLanguage/iLanguageCloud/master/dist/ilanguage-cloud.min.js
 [max]: https://raw.github.com/iLanguage/iLanguageCloud/master/dist/ilanguage-cloud.js
