@@ -8,11 +8,15 @@ module.exports = function(grunt) {
   grunt.initConfig({
     // Metadata.
     pkg: grunt.file.readJSON('package.json'),
-    banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
+    d3Copyright: grunt.file.read('node_modules/d3/LICENSE'),
+    d3CloudCopyright: grunt.file.read('node_modules/d3.layout.cloud/LICENSE'),
+    banner: '/* <%= pkg.name %>.js - v<%= pkg.version %> - ' +
       '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
-      '<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
-      '* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
-      ' Licensed MIT */\n',
+      '<%= pkg.homepage ? "" + pkg.homepage + "\\n" : "" %>' +
+      '\nCopyright (c) 2012 - <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>.\n' +
+      'Licensed:  <%= pkg.licenses[0].type %> \n*/\n \n'+
+      '/* d3.layout.cloud.js \n<%= d3CloudCopyright %> */\n\n'+
+      '/* d3.js \n<%= d3Copyright %> */\n',
     // Task configuration.
     concat: {
       options: {
@@ -74,7 +78,7 @@ module.exports = function(grunt) {
           ignore: ['src/node/**/*.js'],
           shim: {
             layoutCloud: {
-              path: 'src/common/d3.layout.cloud.js',
+              path: 'node_modules/d3.layout.cloud/d3.layout.cloud.js',
               exports: 'layoutCloud'
             }
           }
@@ -96,7 +100,7 @@ module.exports = function(grunt) {
         options: {
           jshintrc: 'src/.jshintrc'
         },
-        src: ['src/**/*.js', '!src/common/d3.layout.cloud.js']
+        src: ['src/**/*.js']
       },
       test: {
         src: ['test/**/*.js']

@@ -1,15 +1,19 @@
 {
-  "name": "ilanguagecloud",
-  "version": "0.1.0",
-  "description": "Make dynamic wordclouds.",
+  "name": "ilanguage-cloud",
+  "version": "3.0.0",
+  "description": "Generate interactive wordclouds for any language, with automatic stop word detection and ability to export as svg or png.",
   "keywords": [
-    "jquery-plugin"
+    "ilanguage",
+    "tag cloud",
+    "cloud",
+    "word cloud",
+    "svg"
   ],
   "homepage": "https://github.com/iLanguage/iLanguageCloud",
-  "bugs": "https://github.com//ilanguagecloud/issues",
+  "bugs": "https://github.com/iLanguage/iLanguageCloud/issues",
   "author": {
-    "name": "",
-    "email": ""
+    "name": "iLanguageCloud Contributors",
+    "email": "opensource@ilanguage.ca"
   },
   "repository": {
     "type": "git",
@@ -17,7 +21,7 @@
   },
   "licenses": [
     {
-      "type": "MIT"
+      "type": "Apache 2.0"
     }
   ],
   "devDependencies": {
@@ -33,6 +37,7 @@
     "grunt": "~0.4.2",
     "canvas": "~1.1.2",
     "d3": "~3.3.11",
+    "d3.layout.cloud": "git://github.com/iLanguage/d3-cloud.git",
     "browserify": "~3.2.0",
     "grunt-browserify": "git+https://github.com/jmreidy/grunt-browserify.git"
   }
