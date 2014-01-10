@@ -1,1 +1,1 @@
-global.WordCloud = require('./ilanguagecloud').WordCloud;
+global.iLanguageCloud = require('./ilanguage-cloud').iLanguageCloud;
