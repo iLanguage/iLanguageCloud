@@ -30,7 +30,7 @@
     ".gitattributes",
     ".gitignore",
     ".npmignore",
-    "Gruntfile",
+    "Gruntfile.js",
     "CONTRIBUTING.md",
     "package.json"
   ]
