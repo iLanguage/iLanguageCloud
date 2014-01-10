@@ -3,13 +3,13 @@
  * https://github.com/iLanguage/iLanguageCloud
  *
  * Copyright (c) 2013
- * Licensed under the MIT license.
+ * Licensed under the Apache 2.0 license.
  */
 (function(exports) {
   var layoutCloud = require('layoutCloud');
   var StopWords = require('./stop-words');
 
-  var WordCloud = function(options) {
+  var iLanguageCloud = function(options) {
 
     var defaults = {
       element: 'cloud',
@@ -384,5 +384,5 @@
 
   };
 
-  exports.WordCloud = WordCloud;
-})(typeof exports === 'undefined' ? this['WordCloud'] = {} : exports);
+  exports.iLanguageCloud = iLanguageCloud;
+})(typeof exports === 'undefined' ? this['iLanguageCloud'] = {} : exports);
