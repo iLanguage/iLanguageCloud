@@ -7,7 +7,7 @@
  */
 (function(exports) {
   var layoutCloud = require('layoutCloud');
-  var StopWords = require('./stop-words');
+  var StopWords = require('./stop-words').StopWords;
 
   var iLanguageCloud = function(options) {
 
