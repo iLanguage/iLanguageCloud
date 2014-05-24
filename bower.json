@@ -35,6 +35,5 @@
     "package.json"
   ],
   "dependencies": {
-    "ilanguage": "~5.0.0"
   }
 }

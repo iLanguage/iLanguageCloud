@@ -6,8 +6,10 @@
  * Licensed under the Apache 2.0 license.
  */
 (function(exports) {
-  var layoutCloud = require('layoutCloud');
-  var StopWords = require('./stop-words').StopWords;
+  // var d3 = require('d3/d3');
+  // console.log("d3.layout", d3.layout);
+  var layoutCloud = require('d3.layout.cloud/d3.layout.cloud');
+  var StopWords = require('ilanguage/stop-words').StopWords;
 
   var iLanguageCloud = function(options) {
 
@@ -15,8 +17,8 @@
       element: 'cloud',
       text: "A cloud is a visible mass of condensed droplets or frozen crystals suspended in the atmosphere. Cloud(s) may also refer to: Contents  [hide]  1 Information Technology 2 Science 3 Fiction 4 Literature 5 Music 6 Other uses 7 See also Information Technology  Cloud computing, Internet-based development and use of computer technology stored on servers rather than the client computers Cloud (operating system), a browser-based operating system that will instantly be usable after turning on the PC, by the makers of gOS Tag cloud, a visual depiction of user-generated tags used typically to describe the content of web sites Cloud storage, a model of networked online storage Cloud.com, a company that develops open source cloud orchestration software CloudStack, an open source cloud computing software Science  Magellanic Clouds, irregular dwarf galaxies near our galaxy, the Milky Way Interstellar cloud, dense region between stars Molecular cloud, interstellar cloud containing molecules Electron cloud, analogy used to describe an electron that orbits around a nucleus Point cloud, in mathematics, a set of vertices in a three-dimensional coordinate system CLOUD, an experimental facility used to investigate the microphysics between galactic cosmic rays and clouds Cloud chamber, an experimental device used in early studies of particle physics Fiction  Cloud Strife, a character in Final Fantasy VII media Bou Keng Wan ('Cloud'), a Kung Fu character from the Hong Kong comic, Fung Wan Cloud (comics), a Marvel comic book character Cloudbase, the fictional skyborne headquarters of Spectrum, from the science fiction television series Captain Scarlet and the Mysterons Clouds (film), a 2000 film written and directed by Don Thompson and produced by Will Arntz Literature  The Clouds, a comedy by Aristophanes Clouds, a 1977 philosophical comedic play by British playwright Michael Frayn The Clouds, a 1797 play by the British writer Richard Cumberland The Cloud of Unknowing, a medieval mystical text Music  Clouds (60s rock band), a Scottish music group that operated in the late 1960s Clouds (Australian band), an indie rock group based in Sydney, Australia in the 1990s The Clouds (UK band), a British indie pop band from the 1980s Cloud (music), sound mass consisting of statistical clouds of microsounds 'Clouds', a song by Chaka Khan from Naughty 'Clouds', a song by Level 42 on the album Retroglide 'Clouds', a song by Spires That in the Sunset Rise on the album This Is Fire 'Clouds' (Zach Sobiech song) a song by Zach Sobiech Clouds (Joni Mitchell album), 1969 Clouds (Lee Ranaldo album), 1997 Clouds (Tiamat album), 1992 Clouds (EP), an EP by Nosound 'Cloudy', by Average White Band from the album Cut the Cake Other uses  Cloud (dancer), a b-boy, writer, and director from Florida Cloud (surname) Cloud, California, a former settlement in Kings County Clodoald (522–560), better known as Cloud or Saint Cloud, son of King Chlodomer of Orleans Saint-Cloud, a commune in the western suburbs of Paris, France Cloud (video game), a 2005 third-person computer puzzle game See also  The Cloud (disambiguation) Cloud Nine (disambiguation) Red Cloud (disambiguation) St. Cloud (disambiguation) White Cloud (disambiguation) McCloud (disambiguation)",
       font: 'FreeSans',
-      isAndroid: false,
-      stopWords: StopWords.defaults.english
+      isAndroid: false
+      // stopWords: StopWords.defaults.english
     };
 
     var cloud = options || {};
@@ -24,29 +26,17 @@
     for (var opt in defaults) {
       cloud[opt] = (opt in cloud) ? cloud[opt] : defaults[opt];
     }
-
-    if ((cloud.stopWords !== defaults.stopWords) && (cloud.stopWords !== false)) {
-      try {
-        cloud = StopWords.processStopWords(cloud);
-      } catch (e) {
-        cloud.stopWords = defaults.stopWords;
-      }
-    }
-
-    if (cloud.stopWords === true) {
-      try {
-        cloud = StopWords.processStopWords(cloud);
-      } catch (e) {
-        cloud.stopWords = defaults.stopWords;
-      }
-    }
+    // console.log("Preparing stopwords ", StopWords);
+    cloud.inputText = cloud.text;
+    cloud = StopWords.processStopWords(cloud);
+    cloud = StopWords.filterText(cloud);
 
     cloud.render = function(userOptions) {
 
       userOptions = userOptions || this;
 
       var element = userOptions.element,
-        textToTurnIntoACloud = userOptions.text,
+        textToTurnIntoACloud = userOptions.filteredText,
         cloudStopWords = userOptions.stopWords,
         userChosenFontFace = userOptions.font,
         isAndroid = userOptions.isAndroid;
@@ -63,7 +53,7 @@
       // D3 word cloud by Jason Davies see http://www.jasondavies.com/wordcloud/ for more details
       var fill = d3.scale.category20(),
         w = element.offsetWidth || 600,
-        h = window.innerHeight || 400,
+        h = userOptions.height || 400,
         words = [],
         max,
         scale = 1,
@@ -76,7 +66,7 @@
         wordSeparators = /[\s\u3031-\u3035\u309b\u309c\u30a0\u30fc\uff70]+/g,
         discard = /^(@|https?:)/;
 
-      var layout = d3.layout.cloud()
+      var layout = layoutCloud.cloud()
         .timeInterval(10)
         .size([w, h])
         .fontSize(function(d) {
@@ -113,10 +103,14 @@
         var cases = {};
 
         text.split(wordSeparators).forEach(function(word) {
-          if (discard.test(word)) { return; }
+          if (discard.test(word)) {
+            return;
+          }
           word = word.replace(punctuation, '');
 
-          if (stopWords.test(word.toLowerCase())) { return; }
+          if (stopWords.test(word.toLowerCase())) {
+            return;
+          }
           word = word.substr(0, maxLength);
 
           cases[word.toLowerCase()] = word;
@@ -201,17 +195,17 @@
           vis.transition()
             .duration(1000)
             .attr('transform', 'translate(' + [w >> 1, h >> 1] + ')scale(' + scale + ')');
-            // .each('end', function() {
-            //   setSVG();
-            //   setPNG();
-            // });
+          // .each('end', function() {
+          //   setSVG();
+          //   setPNG();
+          // });
         } else {
           vis.transition()
             .duration(3000);
-            // .each('end', function() {
-            //   setSVG();
-            //   setPNG();
-            // });
+          // .each('end', function() {
+          //   setSVG();
+          //   setPNG();
+          // });
         }
       }
 
@@ -294,8 +288,13 @@
 
       scale = d3.scale.linear();
 
-      function cross(a, b) { return a[0] * b[1] - a[1] * b[0]; }
-      function dot(a, b) { return a[0] * b[0] + a[1] * b[1]; }
+      function cross(a, b) {
+        return a[0] * b[1] - a[1] * b[0];
+      }
+
+      function dot(a, b) {
+        return a[0] * b[0] + a[1] * b[1];
+      }
 
       function update() {
         scale.domain([0, count - 1]).range([from, to]);
@@ -334,7 +333,7 @@
               d = (i ? to : from) + 90;
               var start = [-r * Math.cos(d * radians), -r * Math.sin(d * radians)],
                 m = [d3.event.x, d3.event.y],
-                delta = ~~(Math.atan2(cross(start, m), dot(start, m)) / radians);
+                delta = ~~ (Math.atan2(cross(start, m), dot(start, m)) / radians);
               d = Math.max(-90, Math.min(90, d + delta - 90)); // remove this for 360°
               delta = to - from;
               if (i) {
@@ -385,4 +384,5 @@
   };
 
   exports.iLanguageCloud = iLanguageCloud;
+  exports.StopWords = StopWords;
 })(typeof exports === 'undefined' ? this['iLanguageCloud'] = {} : exports);

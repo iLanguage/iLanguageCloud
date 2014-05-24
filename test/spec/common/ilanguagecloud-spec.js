@@ -41,7 +41,7 @@ https://github.com/pivotal/jasmine/wiki/Matchers
 
 */
 
-xdescribe('lib/ilanguage-cloud', function() {
+describe('lib/ilanguage-cloud', function() {
 
   describe('It has useful content for infoviz', function() {
 

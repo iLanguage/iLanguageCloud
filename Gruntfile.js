@@ -60,12 +60,12 @@ module.exports = function(grunt) {
     },
     browserify: {
       vendor: {
-        src: ['./node_modules/d3/d3.min.js'],
+        src: ['./node_modules/d3/d3.js'],
         dest: 'dist/vendor.js',
         options: {
           shim: {
             d3: {
-              path: './node_modules/d3/d3.min.js',
+              path: './node_modules/d3/d3.js',
               exports: 'd3'
             }
           }
@@ -75,13 +75,7 @@ module.exports = function(grunt) {
         src: ['src/common/app.js'],
         dest: 'dist/main_bundle.js',
         options: {
-          ignore: ['src/node/**/*.js'],
-          shim: {
-            layoutCloud: {
-              path: 'node_modules/d3.layout.cloud/d3.layout.cloud.js',
-              exports: 'layoutCloud'
-            }
-          }
+          ignore: ['src/node/**/*.js']
         }
       },
       test: {
