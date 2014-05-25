@@ -27,9 +27,43 @@
       cloud[opt] = (opt in cloud) ? cloud[opt] : defaults[opt];
     }
     // console.log("Preparing stopwords ", StopWords);
+    cloud.originalText = cloud.text;
     cloud.inputText = cloud.text;
-    cloud = StopWords.processStopWords(cloud);
-    cloud = StopWords.filterText(cloud);
+
+    var again = true;
+    var previousStopWords = cloud.stopWordsArray;
+    var userdefinedStopWords = cloud.stopWordsArray;
+    cloud.itterations = 0;
+    while (again) {
+      cloud = StopWords.processStopWords(cloud);
+      cloud = StopWords.filterText(cloud);
+      cloud.itterations++;
+
+      /* if the stop words aren't changing stop itterating */
+      console.log(previousStopWords + " -> " + cloud.stopWordsArray);
+      if (userdefinedStopWords || (previousStopWords && previousStopWords.toString() === cloud.stopWordsArray.toString())) {
+        again = false;
+        continue;
+      } else {
+        previousStopWords = cloud.stopWordsArray;
+      }
+
+      /* if the filtered text isnt significantly smaller, stop itterating */
+      var percentageReduction = cloud.filteredText.length / cloud.inputText.length;
+      console.log("Percentage of original text " + percentageReduction);
+      if (percentageReduction < 0.98) {
+        cloud.inputText = cloud.filteredText;
+        // cloud.stopWordsArray = null;
+      } else {
+        again = false;
+      }
+
+      /* let the stop words be regenerated */
+      if (again) {
+        cloud.stopWordsArray = null;
+      }
+
+    }
 
     cloud.render = function(userOptions) {
 
@@ -37,7 +71,7 @@
 
       var element = userOptions.element,
         textToTurnIntoACloud = userOptions.filteredText,
-        cloudStopWords = userOptions.stopWords,
+        cloudStopWords = userOptions.stopWordsRegExp,
         userChosenFontFace = userOptions.font,
         isAndroid = userOptions.isAndroid;
 
