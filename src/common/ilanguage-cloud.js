@@ -9,16 +9,16 @@
   // var d3 = require('d3/d3');
   // console.log("d3.layout", d3.layout);
   var layoutCloud = require('d3.layout.cloud/d3.layout.cloud');
-  var StopWords = require('ilanguage/stop-words').StopWords;
+  var NonContentWords = require('ilanguage/lexicon/NonContentWords').NonContentWords;
 
   var iLanguageCloud = function(options) {
 
     var defaults = {
       element: 'cloud',
-      text: "A cloud is a visible mass of condensed droplets or frozen crystals suspended in the atmosphere. Cloud(s) may also refer to: Contents  [hide]  1 Information Technology 2 Science 3 Fiction 4 Literature 5 Music 6 Other uses 7 See also Information Technology  Cloud computing, Internet-based development and use of computer technology stored on servers rather than the client computers Cloud (operating system), a browser-based operating system that will instantly be usable after turning on the PC, by the makers of gOS Tag cloud, a visual depiction of user-generated tags used typically to describe the content of web sites Cloud storage, a model of networked online storage Cloud.com, a company that develops open source cloud orchestration software CloudStack, an open source cloud computing software Science  Magellanic Clouds, irregular dwarf galaxies near our galaxy, the Milky Way Interstellar cloud, dense region between stars Molecular cloud, interstellar cloud containing molecules Electron cloud, analogy used to describe an electron that orbits around a nucleus Point cloud, in mathematics, a set of vertices in a three-dimensional coordinate system CLOUD, an experimental facility used to investigate the microphysics between galactic cosmic rays and clouds Cloud chamber, an experimental device used in early studies of particle physics Fiction  Cloud Strife, a character in Final Fantasy VII media Bou Keng Wan ('Cloud'), a Kung Fu character from the Hong Kong comic, Fung Wan Cloud (comics), a Marvel comic book character Cloudbase, the fictional skyborne headquarters of Spectrum, from the science fiction television series Captain Scarlet and the Mysterons Clouds (film), a 2000 film written and directed by Don Thompson and produced by Will Arntz Literature  The Clouds, a comedy by Aristophanes Clouds, a 1977 philosophical comedic play by British playwright Michael Frayn The Clouds, a 1797 play by the British writer Richard Cumberland The Cloud of Unknowing, a medieval mystical text Music  Clouds (60s rock band), a Scottish music group that operated in the late 1960s Clouds (Australian band), an indie rock group based in Sydney, Australia in the 1990s The Clouds (UK band), a British indie pop band from the 1980s Cloud (music), sound mass consisting of statistical clouds of microsounds 'Clouds', a song by Chaka Khan from Naughty 'Clouds', a song by Level 42 on the album Retroglide 'Clouds', a song by Spires That in the Sunset Rise on the album This Is Fire 'Clouds' (Zach Sobiech song) a song by Zach Sobiech Clouds (Joni Mitchell album), 1969 Clouds (Lee Ranaldo album), 1997 Clouds (Tiamat album), 1992 Clouds (EP), an EP by Nosound 'Cloudy', by Average White Band from the album Cut the Cake Other uses  Cloud (dancer), a b-boy, writer, and director from Florida Cloud (surname) Cloud, California, a former settlement in Kings County Clodoald (522–560), better known as Cloud or Saint Cloud, son of King Chlodomer of Orleans Saint-Cloud, a commune in the western suburbs of Paris, France Cloud (video game), a 2005 third-person computer puzzle game See also  The Cloud (disambiguation) Cloud Nine (disambiguation) Red Cloud (disambiguation) St. Cloud (disambiguation) White Cloud (disambiguation) McCloud (disambiguation)",
+      orthography: "A cloud is a visible mass of condensed droplets or frozen crystals suspended in the atmosphere. Cloud(s) may also refer to: Contents  [hide]  1 Information Technology 2 Science 3 Fiction 4 Literature 5 Music 6 Other uses 7 See also Information Technology  Cloud computing, Internet-based development and use of computer technology stored on servers rather than the client computers Cloud (operating system), a browser-based operating system that will instantly be usable after turning on the PC, by the makers of gOS Tag cloud, a visual depiction of user-generated tags used typically to describe the content of web sites Cloud storage, a model of networked online storage Cloud.com, a company that develops open source cloud orchestration software CloudStack, an open source cloud computing software Science  Magellanic Clouds, irregular dwarf galaxies near our galaxy, the Milky Way Interstellar cloud, dense region between stars Molecular cloud, interstellar cloud containing molecules Electron cloud, analogy used to describe an electron that orbits around a nucleus Point cloud, in mathematics, a set of vertices in a three-dimensional coordinate system CLOUD, an experimental facility used to investigate the microphysics between galactic cosmic rays and clouds Cloud chamber, an experimental device used in early studies of particle physics Fiction  Cloud Strife, a character in Final Fantasy VII media Bou Keng Wan ('Cloud'), a Kung Fu character from the Hong Kong comic, Fung Wan Cloud (comics), a Marvel comic book character Cloudbase, the fictional skyborne headquarters of Spectrum, from the science fiction television series Captain Scarlet and the Mysterons Clouds (film), a 2000 film written and directed by Don Thompson and produced by Will Arntz Literature  The Clouds, a comedy by Aristophanes Clouds, a 1977 philosophical comedic play by British playwright Michael Frayn The Clouds, a 1797 play by the British writer Richard Cumberland The Cloud of Unknowing, a medieval mystical text Music  Clouds (60s rock band), a Scottish music group that operated in the late 1960s Clouds (Australian band), an indie rock group based in Sydney, Australia in the 1990s The Clouds (UK band), a British indie pop band from the 1980s Cloud (music), sound mass consisting of statistical clouds of microsounds 'Clouds', a song by Chaka Khan from Naughty 'Clouds', a song by Level 42 on the album Retroglide 'Clouds', a song by Spires That in the Sunset Rise on the album This Is Fire 'Clouds' (Zach Sobiech song) a song by Zach Sobiech Clouds (Joni Mitchell album), 1969 Clouds (Lee Ranaldo album), 1997 Clouds (Tiamat album), 1992 Clouds (EP), an EP by Nosound 'Cloudy', by Average White Band from the album Cut the Cake Other uses  Cloud (dancer), a b-boy, writer, and director from Florida Cloud (surname) Cloud, California, a former settlement in Kings County Clodoald (522–560), better known as Cloud or Saint Cloud, son of King Chlodomer of Orleans Saint-Cloud, a commune in the western suburbs of Paris, France Cloud (video game), a 2005 third-person computer puzzle game See also  The Cloud (disambiguation) Cloud Nine (disambiguation) Red Cloud (disambiguation) St. Cloud (disambiguation) White Cloud (disambiguation) McCloud (disambiguation)",
       font: 'FreeSans',
       isAndroid: false
-      // stopWords: StopWords.defaults.english
+      // nonContentWords: NonContentWords.defaults.english
     };
 
     var cloud = options || {};
@@ -26,52 +26,85 @@
     for (var opt in defaults) {
       cloud[opt] = (opt in cloud) ? cloud[opt] : defaults[opt];
     }
-    // console.log("Preparing stopwords ", StopWords);
-    cloud.originalText = cloud.text;
-    cloud.inputText = cloud.text;
+    // console.log("Preparing stopwords ", NonContentWords);
+    cloud.originalText = cloud.orthography;
 
-    var again = true;
-    var previousStopWords = cloud.stopWordsArray;
-    var userdefinedStopWords = cloud.stopWordsArray;
-    cloud.itterations = 0;
-    while (again) {
-      cloud = StopWords.processStopWords(cloud);
-      cloud = StopWords.filterText(cloud);
-      cloud.itterations++;
+    cloud.runSegmenter = function(options) {
+      if (this.runningSegmenter) {
+        return this;
+      }
+      this.runningSegmenter = true;
+      console.log("runSegmenter");
+      this.runningSegmenter = false;
+      return this;
+    };
 
-      /* if the stop words aren't changing stop itterating */
-      console.log(previousStopWords + " -> " + cloud.stopWordsArray);
-      if (userdefinedStopWords || (previousStopWords && previousStopWords.toString() === cloud.stopWordsArray.toString())) {
-        again = false;
-        continue;
-      } else {
-        previousStopWords = cloud.stopWordsArray;
+    cloud.runWordFrequencyGenerator = function(options) {
+      if (this.runningWordFrequencyGenerator) {
+        return this;
+      }
+      this.runningWordFrequencyGenerator = true;
+      console.log("runWordFrequencyGenerator");
+      this.runningWordFrequencyGenerator = false;
+      return this;
+    };
+
+    cloud.runStemmer = function(options) {
+      if (this.runningStemmer) {
+        return this;
+      }
+      this.runningStemmer = true;
+      console.log("runStemmer");
+
+      var again = true;
+      var previousNonContentWords = this.nonContentWordsArray;
+      var userdefinedNonContentWords = this.nonContentWordsArray;
+      this.itterations = 0;
+      while (again) {
+        NonContentWords.processNonContentWords(this);
+        NonContentWords.filterText(this);
+        this.itterations++;
+
+        /* if the stop words aren't changing stop itterating */
+        console.log(previousNonContentWords + " -> " + this.nonContentWordsArray);
+        if (userdefinedNonContentWords || (previousNonContentWords && previousNonContentWords.toString() === this.nonContentWordsArray.toString())) {
+          again = false;
+          continue;
+        } else {
+          previousNonContentWords = this.nonContentWordsArray;
+        }
+
+        /* if the filtered text isnt significantly smaller, stop itterating */
+        var percentageReduction = this.filteredText.length / this.orthography.length;
+        console.log("Percentage of original text " + percentageReduction);
+        if (percentageReduction < 0.98) {
+          this.orthography = this.filteredText;
+          // this.nonContentWordsArray = null;
+        } else {
+          again = false;
+        }
+
+        /* let the stop words be regenerated */
+        if (again) {
+          this.nonContentWordsArray = null;
+        }
       }
 
-      /* if the filtered text isnt significantly smaller, stop itterating */
-      var percentageReduction = cloud.filteredText.length / cloud.inputText.length;
-      console.log("Percentage of original text " + percentageReduction);
-      if (percentageReduction < 0.98) {
-        cloud.inputText = cloud.filteredText;
-        // cloud.stopWordsArray = null;
-      } else {
-        again = false;
-      }
-
-      /* let the stop words be regenerated */
-      if (again) {
-        cloud.stopWordsArray = null;
-      }
-
-    }
+      this.runningStemmer = false;
+      return this;
+    };
 
     cloud.render = function(userOptions) {
-
+      if (this.runningRender) {
+        return this;
+      }
+      this.runningRender = true;
+      console.log("render");
       userOptions = userOptions || this;
 
       var element = userOptions.element,
         textToTurnIntoACloud = userOptions.filteredText,
-        cloudStopWords = userOptions.stopWordsRegExp,
+        cloudNonContentWords = userOptions.nonContentWordsRegExp,
         userChosenFontFace = userOptions.font,
         isAndroid = userOptions.isAndroid;
 
@@ -82,6 +115,11 @@
 
       if (element.length) {
         element = element[0];
+      }
+      if (!element) {
+        console.warn('Appending an element since none was specified');
+        element = document.createElement('div');
+        document.body.appendChild();
       }
 
       // D3 word cloud by Jason Davies see http://www.jasondavies.com/wordcloud/ for more details
@@ -95,7 +133,7 @@
         fontSize,
         maxLength = 30,
         fetcher = textToTurnIntoACloud,
-        stopWords = cloudStopWords,
+        nonContentWords = cloudNonContentWords,
         punctuation = /[!"&()*+,-\.\/:;<=>?\[\\\]^`\{|\}~]+/g,
         wordSeparators = /[\s\u3031-\u3035\u309b\u309c\u30a0\u30fc\uff70]+/g,
         discard = /^(@|https?:)/;
@@ -130,6 +168,7 @@
 
         words = [];
         layout.stop().words(tags.slice(0, max = Math.min(tags.length, +250))).start();
+        this.runningRender = false;
       }
 
       function parseText(text) {
@@ -142,7 +181,7 @@
           }
           word = word.replace(punctuation, '');
 
-          if (stopWords.test(word.toLowerCase())) {
+          if (nonContentWords.test(word.toLowerCase())) {
             return;
           }
           word = word.substr(0, maxLength);
@@ -409,6 +448,7 @@
       getAngles();
 
       hashchange();
+
       return this;
 
     };
@@ -418,5 +458,5 @@
   };
 
   exports.iLanguageCloud = iLanguageCloud;
-  exports.StopWords = StopWords;
+  exports.NonContentWords = NonContentWords;
 })(typeof exports === 'undefined' ? this['iLanguageCloud'] = {} : exports);
