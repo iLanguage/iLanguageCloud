@@ -24,7 +24,7 @@ describe('lib/word-cloud', function() {
 
   });
 
-  xdescribe('It has useful results for graphic designers', function() {
+  describe('It has useful results for graphic designers', function() {
 
     it('should generate batches of wordclouds', function() {
       expect(true).toBeTruthy();
@@ -70,133 +70,159 @@ describe('lib/word-cloud', function() {
 
   describe('It has useful content for infoviz', function() {
 
-    it('should do everything stopwords can do', function() {
+    describe('It automatically tries to make informative word clouds', function() {
 
-      expect(NonContentWords).toBeDefined();
+      it('should do everything stopwords can do', function() {
 
-      var textToTest = {
-        orthography: sampleText
-      };
-      expect(NonContentWords.LexemeFrequency.calculateNonContentWords(textToTest).nonContentWordsArray)
-        .toEqual(sampleTextNonContentWords);
+        expect(NonContentWords).toBeDefined();
+
+        var textToTest = {
+          orthography: sampleText
+        };
+        expect(NonContentWords.LexemeFrequency.calculateNonContentWords(textToTest).nonContentWordsArray)
+          .toEqual(sampleTextNonContentWords);
+      });
+
+      it('should automatically identify stopwords', function() {
+        var cloud = {
+          orthography: sampleText,
+          element: [],
+          height: 200
+          // nonContentWords: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
+          // |სა-, სტა-,იმის,-ში/
+        };
+        var stopwords = sampleTextNonContentWords;
+        cloud = iLanguageCloud(cloud).runSegmenter().runWordFrequencyGenerator().runStemmer();
+        expect(cloud.nonContentWordsArray).toEqual(stopwords);
+      });
+
+      it('should automatically identify unicode stopwords', function() {
+        var cloud = {
+          orthography: sampleUnicodeText,
+          element: [],
+          height: 200
+          // nonContentWords: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
+          // |სა-, სტა-,იმის,-ში/
+        };
+        var stopwords = sampleUnicodeTextNonContentWords;
+        cloud = iLanguageCloud(cloud).runSegmenter().runWordFrequencyGenerator().runStemmer();
+        expect(cloud.nonContentWordsArray).toEqual(stopwords);
+      });
+
+      it('should let the user specify the cuttoff for stopwords', function() {
+        var cloud = {
+          orthography: sampleLongUnicodeText,
+          element: [],
+          height: 200,
+          cutoff: 0.015
+          // nonContentWords: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
+          // |სა-, სტა-,იმის,-ში/
+        };
+        var stopwords = result5;
+        console.log("Testing filtered text recursion");
+        cloud = iLanguageCloud(cloud).runSegmenter().runWordFrequencyGenerator().runStemmer();
+        expect(cloud.nonContentWordsArray).toEqual(stopwords);
+      });
+
+      it('should recursively find stopwords until the text has been reduced by 90%', function() {
+        var cloud = {
+          orthography: sampleLongUnicodeText,
+          element: [],
+          height: 200,
+          // cutoff: 0.015
+          // nonContentWords: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
+          // |სა-, სტა-,იმის,-ში/
+        };
+        var stopwords = [ '1', '13', '16', '17', '2', '20', '24', '27', '29', '3', '4', '41', '5', '6', '7', '8', '_', 'i', 'ii', 'ა', 'აი', 'ალ', 'ამ', 'ან', 'არ', 'არა', 'არის', 'ბ', 'გ', 'გაზეთ', 'და', 'ეს', 'ვ', 'თუ', 'იმ', 'ის', 'კერძო', 'კი', 'ლ', 'მე', 'მიერ', 'მის', 'მისი', 'რა', 'რომ', 'სი', 'უნდა', 'შპს', 'წლის', '–', '“', '„', '„ა' ];
+        console.log("Testing filtered text recursion");
+        cloud = iLanguageCloud(cloud).runSegmenter().runWordFrequencyGenerator().runStemmer();
+        expect(cloud.nonContentWordsArray).toEqual(stopwords);
+        expect(cloud.itterations).toBe(1);
+      });
+
     });
 
-    it('should automatically identify stopwords', function() {
-      var cloud = {
-        orthography: sampleText,
-        element: [],
-        height: 200
-        // nonContentWords: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
-        // |სა-, სტა-,იმის,-ში/
-      };
-      var stopwords = sampleTextNonContentWords;
-      cloud = iLanguageCloud(cloud).runSegmenter().runWordFrequencyGenerator().runStemmer();
-      expect(cloud.nonContentWordsArray).toEqual(stopwords);
+    describe('It lets users specify stopwords and morphemes for informative word clouds', function() {
+
+      it('should accept space separated stopwords', function() {
+        var cloud = {
+          orthography: sampleUnicodeText,
+          element: [],
+          height: 200,
+          nonContentWordsArray: ["და", "აის", "არ", "მე", "მიერ", "თუ", "არა", "ფი", "ეს", "არის", "მის", "ან"]
+          // |სა-, სტა-,იმის,-ში/
+        };
+        var stopwords = ['და', 'აის', 'არ', 'მე', 'მიერ', 'თუ', 'არა', 'ფი', 'ეს', 'არის', 'მის', 'ან'];
+        cloud = iLanguageCloud(cloud).runSegmenter().runWordFrequencyGenerator().runStemmer();
+        expect(cloud.nonContentWordsArray).toEqual(stopwords);
+      });
+
+      it('should accept space regex stopwords', function() {
+        var cloud = {
+          orthography: sampleUnicodeText,
+          element: [],
+          height: 200,
+          nonContentWordsArray: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
+          // |სა-, სტა-,იმის,-ში/
+        };
+        var stopwords = ['და', 'აის', 'კასატორი', 'არ', 'მე', 'მიერ', 'თუ', 'არა', 'ფი', 'ეს', 'არის', 'მის', 'ან'];
+        cloud = iLanguageCloud(cloud).runSegmenter().runWordFrequencyGenerator().runStemmer();
+        expect(cloud.nonContentWordsArray).toEqual(stopwords);
+      });
+
+      it('should accept a list of prefixes', function() {
+        var cloud = {
+          orthography: sampleLongUnicodeText,
+          element: [],
+          height: 200,
+          cutoff: 0.015,
+          prefixesArray: ["სა-", "სტა-"]
+          // nonContentWords: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
+          // |სა-, სტა-,იმის,-ში/
+        };
+        cloud = iLanguageCloud(cloud).runSegmenter().runWordFrequencyGenerator().runStemmer();
+        expect(cloud.prefixesArray).toEqual(["სა-", "სტა-"]);
+      });
+
     });
 
-    it('should automatically identify unicode stopwords', function() {
-      var cloud = {
-        orthography: sampleUnicodeText,
-        element: [],
-        height: 200
-        // nonContentWords: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
-        // |სა-, სტა-,იმის,-ში/
-      };
-      var stopwords = sampleUnicodeTextNonContentWords;
-      cloud = iLanguageCloud(cloud).runSegmenter().runWordFrequencyGenerator().runStemmer();
-      expect(cloud.nonContentWordsArray).toEqual(stopwords);
+    describe('It lets users interactively clean the cloud', function() {
+
+      it('should be easy to remove words', function() {
+        expect(true).toBeTruthy();
+      });
+
+      it('should be easy to change the tokenization', function() {
+        expect(true).toBeTruthy();
+      });
+
+      it('should be render words in a sequence', function() {
+        expect(true).toBeTruthy();
+      });
+
+      it('should be able save/resume editing', function() {
+        expect(true).toBeTruthy();
+      });
+
+      it('should collaboratively save/resume editing', function() {
+        expect(true).toBeTruthy();
+      });
+
+      it('should produce an encrypted filtered text', function() {
+        expect(true).toBeTruthy();
+      });
+
+      it('should produce an anonymized filtered text', function() {
+        expect(true).toBeTruthy();
+      });
+
+      it('should produce the original human friendly text (with formatting)', function() {
+        expect(true).toBeTruthy();
+      });
+
+
     });
 
-    it('should accept space separated stopwords', function() {
-      var cloud = {
-        orthography: sampleUnicodeText,
-        element: [],
-        height: 200,
-        nonContentWordsArray: ["და", "აის", "არ", "მე", "მიერ", "თუ", "არა", "ფი", "ეს", "არის", "მის", "ან"]
-        // |სა-, სტა-,იმის,-ში/
-      };
-      var stopwords = ['და', 'აის', 'არ', 'მე', 'მიერ', 'თუ', 'არა', 'ფი', 'ეს', 'არის', 'მის', 'ან'];
-      cloud = iLanguageCloud(cloud).runSegmenter().runWordFrequencyGenerator().runStemmer();
-      expect(cloud.nonContentWordsArray).toEqual(stopwords);
-    });
-
-    it('should accept space regex stopwords', function() {
-      var cloud = {
-        orthography: sampleUnicodeText,
-        element: [],
-        height: 200,
-        nonContentWordsArray: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
-        // |სა-, სტა-,იმის,-ში/
-      };
-      var stopwords = ['და', 'აის', 'კასატორი', 'არ', 'მე', 'მიერ', 'თუ', 'არა', 'ფი', 'ეს', 'არის', 'მის', 'ან'];
-      cloud = iLanguageCloud(cloud).runSegmenter().runWordFrequencyGenerator().runStemmer();
-      expect(cloud.nonContentWordsArray).toEqual(stopwords);
-    });
-
-    it('should recursively find stopwords until the text has been reduced by 90%', function() {
-      var cloud = {
-        orthography: sampleLongUnicodeText,
-        element: [],
-        height: 200,
-        cutoff: 0.015
-        // nonContentWords: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
-        // |სა-, სტა-,იმის,-ში/
-      };
-      var stopwords = result5;
-      console.log("Testing filtered text recursion");
-      cloud = iLanguageCloud(cloud).runSegmenter().runWordFrequencyGenerator().runStemmer();
-      expect(cloud.nonContentWordsArray).toEqual(stopwords);
-      expect(cloud.itterations).toBe(2);
-    });
-
-    it('should accept a list of prefixes', function() {
-      var cloud = {
-        orthography: sampleLongUnicodeText,
-        element: [],
-        height: 200,
-        cutoff: 0.015,
-        prefixes: ["სა-", "სტა-"]
-        // nonContentWords: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
-        // |სა-, სტა-,იმის,-ში/
-      };
-      var stopwords = result5;
-      console.log("Testing filtered text recursion");
-      cloud = iLanguageCloud(cloud).runSegmenter().runWordFrequencyGenerator().runStemmer();
-      expect(cloud.nonContentWordsArray).toEqual(stopwords);
-      expect(cloud.itterations).toBe(2);
-    });
-
-    it('should be easy to remove words', function() {
-      expect(true).toBeTruthy();
-    });
-
-    it('should be easy to change the tokenization', function() {
-      expect(true).toBeTruthy();
-    });
-
-    it('should be render words in a sequence', function() {
-      expect(true).toBeTruthy();
-    });
-
-    it('should be able save/resume editing', function() {
-      expect(true).toBeTruthy();
-    });
-
-    it('should collaboratively save/resume editing', function() {
-      expect(true).toBeTruthy();
-    });
-
-    it('should produce an encrypted filtered text', function() {
-      expect(true).toBeTruthy();
-    });
-
-    it('should produce an anonymized filtered text', function() {
-      expect(true).toBeTruthy();
-    });
-
-    it('should produce the original human friendly text (with formatting)', function() {
-      expect(true).toBeTruthy();
-    });
 
   });
 
