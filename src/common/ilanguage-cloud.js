@@ -149,10 +149,10 @@
         .timeInterval(10)
         .size([w, h])
         .fontSize(function(d) {
-          return fontSize(+d.value);
+          return fontSize(+d.count);
         })
         .text(function(d) {
-          return d.key;
+          return d.orthography;
         })
         .on('end', draw);
 
@@ -180,7 +180,7 @@
 
       function parseWordFrequencies(cloud) {
         lexicalEntries = cloud.wordFrequencies;
-        var cases = {};
+        // var cases = {};
 
         // text.split(wordSeparators).forEach(function(word) {
         //   if (discard.test(word)) {
@@ -197,14 +197,14 @@
         //   lexicalEntries[word = word.toLowerCase()] = (lexicalEntries[word] || 0) + 1;
         // });
 
-        lexicalEntries = d3.entries(lexicalEntries).sort(function(a, b) {
-          //if nonfunctional give a really 0 ?
-          return b.value.count - a.value.count;
-        });
+        // lexicalEntries = d3.entries(lexicalEntries).sort(function(a, b) {
+        //   //if nonfunctional give a really 0 ?
+        //   return b.value.count - a.value.count;
+        // });
 
-        lexicalEntries.forEach(function(d) {
-          d.key = d.value.orthography;
-        });
+        // lexicalEntries.forEach(function(d) {
+        //   d.key = d.value.orthography;
+        // });
 
         generate();
       }
@@ -222,7 +222,7 @@
         words = data;
         var text = vis.selectAll('text')
           .data(words, function(d) {
-            return d.value.orthography)
+            return d.orthography;
           });
         text.transition()
           .duration(1000)
@@ -264,10 +264,10 @@
           return d.font;
         })
           .style('fill', function(d) {
-            return fill(d.value.orthography);
+            return fill(d.orthography);
           })
           .text(function(d) {
-            return d.value.orthography;
+            return d.orthography;
           });
 
         // Use transitions for in-browser effect only if we're not
