@@ -26,7 +26,7 @@
 
   var iLanguageCloud = function iLanguageCloud(options) {
     options = options || {};
-    if (!originalText) {
+    if (!options.originalText) {
       options.originalText = options.orthography;
     }
     options = lexiconFactory(options);
