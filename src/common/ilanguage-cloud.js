@@ -526,6 +526,9 @@
           underscorelessProperty;
         for (aproperty in this) {
           if (this.hasOwnProperty(aproperty) && typeof this[aproperty] !== "function") {
+            if (underscorelessProperty === 'id' || underscorelessProperty === 'rev') {
+              underscorelessProperty = '_' + underscorelessProperty;
+            }
             underscorelessProperty = aproperty.replace(/^_/, "");
             json[underscorelessProperty] = this[aproperty];
           }
@@ -535,10 +538,6 @@
             json[aproperty] = this.defaults[aproperty];
           }
         }
-        json._id = this.id;
-        delete json.id;
-        json._rev = this.rev;
-        delete json.rev;
 
         delete json.references;
         delete json.root;
