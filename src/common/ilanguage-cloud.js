@@ -26,7 +26,9 @@
 
   var iLanguageCloud = function iLanguageCloud(options) {
     options = options || {};
-    options.originalText = options.orthography;
+    if (!originalText) {
+      options.originalText = options.orthography;
+    }
     options = lexiconFactory(options);
     Document.apply(this, arguments);
   };
@@ -123,7 +125,7 @@
           cloudNonContentWords = userOptions.nonContentWordsRegExp,
           userChosenFontFace = userOptions.font,
           isAndroid = userOptions.isAndroid,
-          maxVocabSize = userOptions.maxVocabSize;
+          maxVocabSize = userOptions.maxVocabSize || defaults.maxVocabSize;
 
         //accept a dom element, or an id
         if (element.offsetWidth === undefined) {
@@ -164,9 +166,11 @@
             var fontsizeForThisWord = d.count * 10;
             if (d.categories && d.categories.indexOf('functionalWord') > -1) {
               fontsizeForThisWord = 0;
+            } else {
+              return fontSize(+d.count);
             }
             // fontsizeForThisWord = fontSize(fontsizeForThisWord);
-            console.log('fontsizeForThisWord ' + d.count + ' ' + fontsizeForThisWord + ' fontSize ' + fontSize(+d.count));
+            console.log('fontsizeForThisWord ' + d.count + ' ' + fontsizeForThisWord + ' scaled fontSize ' + fontSize(+d.count));
             return fontsizeForThisWord;
           })
           .text(function(d) {
@@ -187,9 +191,9 @@
           layout.font(userChosenFontFace).spiral('archimedean');
           fontSize = d3.scale.linear().domain([0, mostFrequentCount]).range([10, h * 0.25]);
 
-          if (lexicalEntries.length) {
-            fontSize.domain([+lexicalEntries[lexicalEntries.length - 1].value || 1, +lexicalEntries[0].value]);
-          }
+          // if (lexicalEntries.length) {
+          //   fontSize.domain([+lexicalEntries[lexicalEntries.length - 1].value || 1, +lexicalEntries[0].value]);
+          // }
 
           words = [];
           layout.stop().words(lexicalEntries.slice(0, max = Math.min(lexicalEntries.length, +maxVocabSize))).start();
@@ -526,10 +530,10 @@
           underscorelessProperty;
         for (aproperty in this) {
           if (this.hasOwnProperty(aproperty) && typeof this[aproperty] !== "function") {
+            underscorelessProperty = aproperty.replace(/^_/, "");
             if (underscorelessProperty === 'id' || underscorelessProperty === 'rev') {
               underscorelessProperty = '_' + underscorelessProperty;
             }
-            underscorelessProperty = aproperty.replace(/^_/, "");
             json[underscorelessProperty] = this[aproperty];
           }
         }
@@ -537,6 +541,13 @@
           if (!json[aproperty]) {
             json[aproperty] = this.defaults[aproperty];
           }
+        }
+
+        if (!json._id) {
+          delete json._id;
+        }
+        if (!json._rev) {
+          delete json._rev;
         }
 
         delete json.references;
