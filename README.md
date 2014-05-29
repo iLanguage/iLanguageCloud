@@ -52,7 +52,7 @@ Optionally, you can pass an options object to iLanguageCloud.
     element: 'cloud',
     text: 'A cloud is a visible mass of condensed droplets or frozen crystals suspended in the atmosphere.',
     font: 'FreeSans',
-    stopWords: 'a is by in of the or'
+    nonContentWords: 'a is by in of the or'
   };
 </script>
 <script src="ilanguage-cloud.min.js"></script>

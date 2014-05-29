@@ -1,4 +1,5 @@
 'use strict';
+var iLanguageClouds = require('../../../src/common/ilanguage-clouds').iLanguageClouds;
 
 /*
   ======== A Handy Little Jasmine Reference ========
@@ -41,7 +42,7 @@ https://github.com/pivotal/jasmine/wiki/Matchers
 
 */
 
-xdescribe('lib/ilanguage-cloud', function() {
+describe('lib/ilanguage-cloud', function() {
 
   describe('It has useful content for infoviz', function() {
 
@@ -64,6 +65,25 @@ xdescribe('lib/ilanguage-cloud', function() {
     it('should adapt to any language typology', function() {
       expect(true).toBeTruthy();
     });
+
+  });
+
+  describe('It can persist the users clouds across devices', function() {
+
+    it('should have a database', function() {
+      expect(iLanguageClouds).toBeDefined();
+    });
+
+    it('should open an existing database or a new one', function() {
+      var username = 'testingilanguageclouds';
+      var clouds = new iLanguageClouds({
+        username: username,
+        dbname: username + '-firstcorpus',
+        url: 'https://localhost:6984'
+      });
+      expect(clouds).toBeDefined();
+    });
+
 
   });
 
