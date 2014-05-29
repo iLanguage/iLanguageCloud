@@ -20,7 +20,7 @@
     orthography: "A cloud is a visible mass of condensed droplets or frozen crystals suspended in the atmosphere. Cloud(s) may also refer to: Contents  [hide]  1 Information Technology 2 Science 3 Fiction 4 Literature 5 Music 6 Other uses 7 See also Information Technology  Cloud computing, Internet-based development and use of computer technology stored on servers rather than the client computers Cloud (operating system), a browser-based operating system that will instantly be usable after turning on the PC, by the makers of gOS Tag cloud, a visual depiction of user-generated lexicalEntries used typically to describe the content of web sites Cloud storage, a model of networked online storage Cloud.com, a company that develops open source cloud orchestration software CloudStack, an open source cloud computing software Science  Magellanic Clouds, irregular dwarf galaxies near our galaxy, the Milky Way Interstellar cloud, dense region between stars Molecular cloud, interstellar cloud containing molecules Electron cloud, analogy used to describe an electron that orbits around a nucleus Point cloud, in mathematics, a set of vertices in a three-dimensional coordinate system CLOUD, an experimental facility used to investigate the microphysics between galactic cosmic rays and clouds Cloud chamber, an experimental device used in early studies of particle physics Fiction  Cloud Strife, a character in Final Fantasy VII media Bou Keng Wan ('Cloud'), a Kung Fu character from the Hong Kong comic, Fung Wan Cloud (comics), a Marvel comic book character Cloudbase, the fictional skyborne headquarters of Spectrum, from the science fiction television series Captain Scarlet and the Mysterons Clouds (film), a 2000 film written and directed by Don Thompson and produced by Will Arntz Literature  The Clouds, a comedy by Aristophanes Clouds, a 1977 philosophical comedic play by British playwright Michael Frayn The Clouds, a 1797 play by the British writer Richard Cumberland The Cloud of Unknowing, a medieval mystical text Music  Clouds (60s rock band), a Scottish music group that operated in the late 1960s Clouds (Australian band), an indie rock group based in Sydney, Australia in the 1990s The Clouds (UK band), a British indie pop band from the 1980s Cloud (music), sound mass consisting of statistical clouds of microsounds 'Clouds', a song by Chaka Khan from Naughty 'Clouds', a song by Level 42 on the album Retroglide 'Clouds', a song by Spires That in the Sunset Rise on the album This Is Fire 'Clouds' (Zach Sobiech song) a song by Zach Sobiech Clouds (Joni Mitchell album), 1969 Clouds (Lee Ranaldo album), 1997 Clouds (Tiamat album), 1992 Clouds (EP), an EP by Nosound 'Cloudy', by Average White Band from the album Cut the Cake Other uses  Cloud (dancer), a b-boy, writer, and director from Florida Cloud (surname) Cloud, California, a former settlement in Kings County Clodoald (522–560), better known as Cloud or Saint Cloud, son of King Chlodomer of Orleans Saint-Cloud, a commune in the western suburbs of Paris, France Cloud (video game), a 2005 third-person computer puzzle game See also  The Cloud (disambiguation) Cloud Nine (disambiguation) Red Cloud (disambiguation) St. Cloud (disambiguation) White Cloud (disambiguation) McCloud (disambiguation)",
     font: 'FreeSans',
     isAndroid: false,
-    maxVocabSize: 450
+    maxVocabSize: 500
     // nonContentWords: NonContentWords.defaults.english
   };
 
@@ -144,7 +144,7 @@
 
         // D3 word cloud by Jason Davies see http://www.jasondavies.com/wordcloud/ for more details
         var fill = d3.scale.category20(),
-          w = element.offsetWidth || 600,
+          w = userOptions.width || 800,
           h = userOptions.height || 400,
           words = [],
           max,
@@ -171,7 +171,7 @@
               // return fontSize(+d.count);
             }
             // fontsizeForThisWord = fontSize(fontsizeForThisWord);
-            console.log('fontsizeForThisWord ' + d.count + ' ' + fontsizeForThisWord + ' scaled fontSize ' + fontSize(+d.count));
+            // console.log('fontsizeForThisWord ' + d.count + ' ' + fontsizeForThisWord + ' scaled fontSize ' + fontSize(+d.count));
             return fontsizeForThisWord;
           })
           .text(function(d) {
@@ -192,9 +192,9 @@
           layout.font(userChosenFontFace).spiral('archimedean');
           fontSize = d3.scale.linear().domain([0, mostFrequentCount]).range([10, h * 0.25]);
 
-          // if (lexicalEntries.length) {
-          //   fontSize.domain([+lexicalEntries[lexicalEntries.length - 1].value || 1, +lexicalEntries[0].value]);
-          // }
+          if (lexicalEntries.length) {
+            fontSize.domain([+lexicalEntries[lexicalEntries.length - 1].value || 1, +lexicalEntries[0].value]);
+          }
 
           words = [];
           layout.stop().words(lexicalEntries.slice(0, max = Math.min(lexicalEntries.length, +maxVocabSize))).start();
@@ -202,7 +202,7 @@
         }
 
         function parseWordFrequencies(cloud) {
-          lexicalEntries = cloud.wordFrequencies;
+          lexicalEntries = cloud.wordFrequencies.concat([]);
           mostFrequentCount = lexicalEntries[0].count;
           // var cases = {};
 
@@ -550,7 +550,6 @@
         if (!json._rev) {
           delete json._rev;
         }
-
         delete json.references;
         delete json.root;
         delete json.precedenceRelations;
