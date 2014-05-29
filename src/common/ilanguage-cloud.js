@@ -116,7 +116,8 @@
         if (this.runningRender) {
           return this;
         }
-        this.runningRender = true;
+        var self = this;
+        self.runningRender = true;
         console.log("render");
         userOptions = userOptions || this;
 
@@ -167,7 +168,7 @@
             if (d.categories && d.categories.indexOf('functionalWord') > -1) {
               fontsizeForThisWord = 0;
             } else {
-              return fontSize(+d.count);
+              // return fontSize(+d.count);
             }
             // fontsizeForThisWord = fontSize(fontsizeForThisWord);
             console.log('fontsizeForThisWord ' + d.count + ' ' + fontsizeForThisWord + ' scaled fontSize ' + fontSize(+d.count));
@@ -197,7 +198,7 @@
 
           words = [];
           layout.stop().words(lexicalEntries.slice(0, max = Math.min(lexicalEntries.length, +maxVocabSize))).start();
-          this.runningRender = false;
+          self.runningRender = false;
         }
 
         function parseWordFrequencies(cloud) {
