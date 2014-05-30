@@ -274,6 +274,46 @@
               .style('font-size', function(d) {
                 return d.size + 'px';
               })
+              .on('click', function(d) {
+                if (typeof self.onWordClick === 'function') {
+                  self.onWordClick(d);
+                }
+              })
+              .on('mousedown', function(d) {
+                if (typeof self.onWordMousedown === 'function') {
+                  self.onWordMousedown(d);
+                }
+              })
+              .on('mouseup', function(d) {
+                if (typeof self.onWordMouseup === 'function') {
+                  self.onWordMouseup(d);
+                }
+              })
+              .on('mouseover', function(d) {
+                if (typeof self.onWordMouseover === 'function') {
+                  self.onWordMouseover(d);
+                }
+              })
+              .on('mousemove', function(d) {
+                if (typeof self.onWordMousemove === 'function') {
+                  self.onWordMouseover(d);
+                }
+              })
+              .on('mouseout', function(d) {
+                if (typeof self.onWordMouseout === 'function') {
+                  self.onWordMouseover(d);
+                }
+              })
+              .on('focusin', function(d) {
+                if (typeof self.onFocusin === 'function') {
+                  self.onWordFocusin(d);
+                }
+              })
+              .on('focusout', function(d) {
+                if (typeof self.onFocusout === 'function') {
+                  self.onWordFocusout(d);
+                }
+              })
               .style('opacity', 1e-6)
               .transition()
               .duration(500)
@@ -283,6 +323,46 @@
               .attr('text-anchor', 'middle')
               .attr('transform', function(d) {
                 return 'translate(' + [d.x, d.y] + ')rotate(' + d.rotate + ')';
+              })
+              .on('click', function(d) {
+                if (typeof self.onWordClick === 'function') {
+                  self.onWordClick(d);
+                }
+              })
+              .on('mousedown', function(d) {
+                if (typeof self.onWordMousedown === 'function') {
+                  self.onWordMousedown(d);
+                }
+              })
+              .on('mouseup', function(d) {
+                if (typeof self.onWordMouseup === 'function') {
+                  self.onWordMouseup(d);
+                }
+              })
+              .on('mouseover', function(d) {
+                if (typeof self.onWordMouseover === 'function') {
+                  self.onWordMouseover(d);
+                }
+              })
+              .on('mousemove', function(d) {
+                if (typeof self.onWordMousemove === 'function') {
+                  self.onWordMouseover(d);
+                }
+              })
+              .on('mouseout', function(d) {
+                if (typeof self.onWordMouseout === 'function') {
+                  self.onWordMouseover(d);
+                }
+              })
+              .on('focusin', function(d) {
+                if (typeof self.onFocusin === 'function') {
+                  self.onWordFocusin(d);
+                }
+              })
+              .on('focusout', function(d) {
+                if (typeof self.onFocusout === 'function') {
+                  self.onWordFocusout(d);
+                }
               })
               .style('opacity', 1)
               .style('font-size', function(d) {
