@@ -9,7 +9,7 @@
   // var d3 = require('d3/d3');
   // console.log("d3.layout", d3.layout);
   var layoutCloud = require('d3.layout.cloud/d3.layout.cloud');
-  var Document = require('ilanguage/document/Document').Document;
+  var Doc = require('ilanguage/document/Document').Document;
   var lexiconFactory = require('ilanguage/ilanguage').iLanguage.Lexicon.LexiconFactory;
   var LexemeFrequency = require('ilanguage/ilanguage').iLanguage.Lexicon.LexemeFrequency;
   var NonContentWords = require('ilanguage/ilanguage').iLanguage.Lexicon.NonContentWords;
@@ -29,11 +29,11 @@
     if (!options.originalText) {
       options.originalText = options.orthography;
     }
-    options = lexiconFactory(options);
-    Document.apply(this, arguments);
+    // options = lexiconFactory(options);
+    Doc.apply(this, arguments);
   };
 
-  iLanguageCloud.prototype = Object.create(Document.prototype, /** @lends iLanguageCloud.prototype */ {
+  iLanguageCloud.prototype = Object.create(Doc.prototype, /** @lends iLanguageCloud.prototype */ {
     constructor: {
       value: iLanguageCloud
     },
@@ -58,7 +58,7 @@
         }
         this.runningWordFrequencyGenerator = true;
         console.log("runWordFrequencyGenerator");
-        LexemeFrequency.calculateNonContentWords(this);
+        LexemeFrequency.calculateWordFrequencies(this);
         this.runningWordFrequencyGenerator = false;
         return this;
       }
@@ -74,38 +74,44 @@
 
         var again = true;
         var previousNonContentWords = this.nonContentWordsArray;
-        var userdefinedNonContentWords = this.nonContentWordsArray;
         this.itterations = 0;
         while (again) {
           NonContentWords.processNonContentWords(this);
           NonContentWords.filterText(this);
           this.itterations++;
+          /* don't bother iterating on small texts */
+          if (this.orthography.length < 100) {
+            again = false;
+          }
 
           /* if the stop words aren't changing stop itterating */
           console.log(previousNonContentWords + " -> " + this.nonContentWordsArray);
-          if (userdefinedNonContentWords || (previousNonContentWords && previousNonContentWords.toString() === this.nonContentWordsArray.toString())) {
+          if (this.userSpecifiedNonContentWords || (previousNonContentWords && previousNonContentWords.toString() === this.nonContentWordsArray.toString())) {
             again = false;
             continue;
           } else {
             previousNonContentWords = this.nonContentWordsArray;
           }
 
-          /* if the filtered text isnt significantly smaller, stop itterating */
+          /* if the filtered text isn't significantly smaller, stop itterating */
           var percentageReduction = this.filteredText.length / this.orthography.length;
           console.log("Percentage of original text " + percentageReduction);
           if (percentageReduction < 0.98) {
-            this.orthography = this.filteredText;
+            if (this.filteredText && this.filteredText.length > 100) {
+              // console.log('Iterating on filteredText' + this.filteredText);
+              // this.orthography = this.filteredText;
+            }
             // this.nonContentWordsArray = null;
           } else {
             again = false;
           }
 
           /* let the stop words be regenerated */
-          if (again) {
-            this.nonContentWordsArray = null;
-          }
+          // if (again) {
+          //   this.nonContentWordsArray = null;
+          // }
         }
-
+        this.orthography = this.originalText;
         this.runningStemmer = false;
         return this;
       }
@@ -562,7 +568,7 @@
   });
 
 
-  iLanguageCloud.Document = Document;
+  iLanguageCloud.Doc = Doc;
   exports.iLanguageCloud = iLanguageCloud;
   exports.NonContentWords = NonContentWords;
 })(typeof exports === 'undefined' ? this['iLanguageCloud'] = {} : exports);
