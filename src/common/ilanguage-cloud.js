@@ -131,6 +131,10 @@
         if (this.runningRender) {
           return this;
         }
+        // if (this.archived) {
+        //   console.log('Not rendering archived clouds...');
+        //   return this;
+        // }
         var self = this;
         self.runningRender = true;
         console.log("render");
@@ -182,7 +186,7 @@
             if (d.categories) {
               var categoriesString = d.categories.join(' ');
               if (categoriesString.indexOf('functionalWord') > -1 || categoriesString.indexOf('userRemovedWord') > -1) {
-                console.log('Hiding ' + d.orthography + ' ' + categoriesString);
+                // console.log('Hiding ' + d.orthography + ' ' + categoriesString);
                 fontsizeForThisWord = 0;
               }
             } else {
