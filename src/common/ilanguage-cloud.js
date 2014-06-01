@@ -67,7 +67,8 @@
         }
         this.runningWordFrequencyGenerator = true;
         console.log("runWordFrequencyGenerator");
-        LexemeFrequency.calculateWordFrequencies(this); /* TODO decide if this should be calculateNonContentWords */
+        this.wordFrequencies = null;
+        LexemeFrequency.calculateNonContentWords(this); /* TODO decide if this should be calculateNonContentWords */
         this.runningWordFrequencyGenerator = false;
         return this;
       }
