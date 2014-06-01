@@ -80,22 +80,27 @@ describe('lib/word-cloud', function() {
       expect(cloud.wordFrequencies !== originalWordFrequencies).toBeTruthy();
       expect(cloud.wordFrequencies).toEqual([{
         orthography: 'word',
-        count: 1
+        count: 1,
+        categories: ['functionalWord']
       }, {
         orthography: 'here',
-        count: 1
+        count: 1,
+        categories: ['functionalWord']
       }]);
       cloud.orthography = 'some different words';
       cloud.runWordFrequencyGenerator();
       expect(cloud.wordFrequencies).toEqual([{
         orthography: 'some',
-        count: 1
+        count: 1,
+        categories: ['functionalWord']
       }, {
         orthography: 'different',
-        count: 1
+        count: 1,
+        categories: ['buzzWord']
       }, {
         orthography: 'words',
-        count: 1
+        count: 1,
+        categories: ['functionalWord']
       }]);
 
     });
