@@ -10,3 +10,8 @@ td {
 tr {
   text-align: center;
 }
+
+#inputText{
+  width: 100%;
+  height: 20em;
+}
