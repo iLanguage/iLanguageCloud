@@ -1,5 +1,7 @@
 # iLanguageCloud
 
+[![Build Status](https://travis-ci.org/iLanguage/iLanguageCloud.png)](https://travis-ci.org/ilanguage/iLanguageCloud)
+
 Generate interactive wordclouds for any language, with automatic stop word detection and ability to export as svg or png.
 
 ## Getting Started
