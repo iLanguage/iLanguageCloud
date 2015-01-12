@@ -102,7 +102,7 @@ module.exports = function(grunt) {
     },
     watch: {
       all: {
-        files: ['src/**/*.js', 'test/spec/**/*.js', 'Gruntfile.js'],
+        files: ['src/**/*.js', 'test/spec/**/*.js', 'Gruntfile.js', 'node_modules/ilanguage/ilanguage.js'],
         tasks: ['debug']
       },
       web: {
