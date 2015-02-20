@@ -4,6 +4,9 @@
 
 Generate interactive wordclouds for any language, with automatic stop word detection and ability to export as svg or png.
 
+![screen shot 2014-05-23 at 02 07 45 pm](https://cloud.githubusercontent.com/assets/196199/3065420/31f27b7c-e262-11e3-9208-f5c58ca7177a.png)
+
+
 ## Getting Started
 ### On the server
 Install the module with: `npm install ilanguage-cloud`
