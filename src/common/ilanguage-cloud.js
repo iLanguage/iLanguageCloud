@@ -9,7 +9,7 @@
   // var d3 = require('d3/d3');
   // console.log("d3.layout", d3.layout);
   var layoutCloud = require('d3.layout.cloud/d3.layout.cloud');
-  var Doc = require('ilanguage/document/Document').Document;
+  var Doc = require('fielddb/api/FieldDBObject').FieldDBObject;
   var lexiconFactory = require('ilanguage/ilanguage').iLanguage.Lexicon.LexiconFactory;
   var LexemeFrequency = require('ilanguage/ilanguage').iLanguage.Lexicon.LexemeFrequency;
   var NonContentWords = require('ilanguage/ilanguage').iLanguage.Lexicon.NonContentWords;
