@@ -1,6 +1,6 @@
 {
   "name": "ilanguage-cloud",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Generate interactive wordclouds for any language, with automatic stop word detection and ability to export as svg or png.",
   "keywords": [
     "ilanguage",
