@@ -50,27 +50,41 @@
 describe("tagcloud", function() {
 
   it("should automatically detect if a user is making a tag cloud #66", function() {
-      expect(true).toBeTruthy();
-  });
+   var input = "benefits health doctor screening preventative care emergency";
+   input = "chicken swimming SQUIRRELS Tea Ice fishing TheBrowns";
+   input = "hope love peace believe strength courage support";
+   var shortSentence = "Hallo das ist eine Präsentation über Fliegen";
+   expect(input).toBeDefined(); 
+   expect(shortSentence).toBeDefined();
+   expect(true).toBeTruthy(); 
+ });
 
+  it("should automatically detect if a user is making a word cloud #66", function() {
+    expect(true).toBeTruthy();
+  });
+  
+  it("should automatically detect if a user is making a iLanguage cloud #66", function() {
+    expect(true).toBeTruthy();
+  });
+  
   it("should allow all the words typed to go into the cloud #66", function() {
-      expect(true).toBeTruthy();
+    expect(true).toBeTruthy();
   });
 
   it("should duplicate to fill space #66 ", function() {
-      expect(true).toBeTruthy();
+    expect(true).toBeTruthy();
   });
   it("It should work with Japanese #72 ", function() {
-      expect(true).toBeTruthy();
+    expect(true).toBeTruthy();
   });
   it("Should work on Chromebooks #73", function() {
-      expect(true).toBeTruthy();
+    expect(true).toBeTruthy();
   });
-   it("Should be able to move the words around #63", function() {
-      expect(true).toBeTruthy();
+  it("Should be able to move the words around #63", function() {
+    expect(true).toBeTruthy();
   });
-   it("Should be a kid friendly mode #69", function() {
-      expect(true).toBeTruthy();
+  it("Should be a kid friendly mode #69", function() {
+    expect(true).toBeTruthy();
   });
 
 
