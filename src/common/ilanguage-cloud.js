@@ -110,7 +110,7 @@
           }
 
           /* if the filtered text isn't significantly smaller, stop itterating */
-          var percentageReduction = this.filteredText.length / this.orthography.length;
+          var percentageReduction = this.filteredText ? this.filteredText.length : 0 / this.orthography.length;
           console.log("Percentage of original text " + percentageReduction);
           if (percentageReduction < 0.98) {
             if (this.filteredText && this.filteredText.length > 100) {
