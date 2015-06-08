@@ -140,11 +140,11 @@ describe('lib/word-cloud', function() {
       expect(true).toBeTruthy();
     });
 
-    it('should generate svgs for import into Inkscape/Illustrator', function() {
+    it('should generate svgs for import into Inkscape/Illustrator #70', function() {
       expect(true).toBeTruthy();
     });
 
-    it('should generate pngs for fast sharing/re-use', function() {
+    it('should generate pngs for fast sharing/re-use #70', function() {
       expect(true).toBeTruthy();
     });
 
@@ -156,7 +156,7 @@ describe('lib/word-cloud', function() {
       expect(true).toBeTruthy();
     });
 
-    it('should render within a custom svg outline/shape', function() {
+    it('should render within a custom svg outline/shape #67', function() {
       expect(true).toBeTruthy();
     });
 
