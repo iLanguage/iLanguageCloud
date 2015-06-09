@@ -9,7 +9,7 @@
   // var d3 = require('d3/d3');
   // console.log("d3.layout", d3.layout);
   var layoutCloud = require('d3.layout.cloud/d3.layout.cloud');
-  var Doc = require('ilanguage/document/Document').Document;
+  var Doc = require('fielddb/api/FieldDBObject').FieldDBObject;
   var lexiconFactory = require('ilanguage/ilanguage').iLanguage.Lexicon.LexiconFactory;
   var MorphemeSegmenter = require('ilanguage/ilanguage').iLanguage.Lexicon.MorphemeSegmenter;
   var LexemeFrequency = require('ilanguage/ilanguage').iLanguage.Lexicon.LexemeFrequency;
@@ -116,7 +116,7 @@
           }
 
           /* if the filtered text isn't significantly smaller, stop itterating */
-          var percentageReduction = this.filteredText.length / this.orthography.length;
+          var percentageReduction = this.filteredText ? this.filteredText.length : 0 / this.orthography.length;
           console.log("Percentage of original text " + percentageReduction);
           if (percentageReduction < 0.98) {
             if (this.filteredText && this.filteredText.length > 100) {
