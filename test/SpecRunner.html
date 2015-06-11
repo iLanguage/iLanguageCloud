@@ -12,11 +12,19 @@
 	<script type="text/javascript" src="bower_components/jasmine/lib/jasmine-core/jasmine-html.js"></script>
 	<script type="text/javascript" src="bower_components/jasmine/lib/jasmine-core/boot.js"></script>
 
-  <script type="text/javascript" src="../dist/vendor.js"></script>
-  <script type="text/javascript" src="../dist/main_bundle.js"></script>
+  <script type="text/javascript" src="../node_modules/fielddb/fielddb.js"></script>
+  <script type="text/javascript" src="../node_modules/ilanguage/ilanguage.js"></script>
+  <script type="text/javascript" src="../node_modules/d3/d3.js"></script>
+  <script type="text/javascript" src="../node_modules/d3.layout.cloud/d3.layout.cloud.js"></script>
+
+
+  <script type="text/javascript" src="../src/common/ilanguage-cloud.js"></script>
 
   <!-- include spec files here... -->
-  <script type="text/javascript" src="../dist/test_bundle.js"></script>
+  <script type="text/javascript" src="spec/common/dialect-spec.js"></script>
+  <script type="text/javascript" src="spec/common/tag-cloud-spec.js"></script>
+  <script type="text/javascript" src="spec/common/wordcloud-spec.js"></script>
+  <script type="text/javascript" src="spec/common/ilanguagecloud-spec.js"></script>
 
   <script type="text/javascript">
     // (function() {

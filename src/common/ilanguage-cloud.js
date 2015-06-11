@@ -8,13 +8,18 @@
 (function(exports) {
   // var d3 = require('d3/d3');
   // console.log("d3.layout", d3.layout);
-  var layoutCloud = require('d3.layout.cloud/d3.layout.cloud');
-  var Doc = require('fielddb/api/FieldDBObject').FieldDBObject;
-  var lexiconFactory = require('ilanguage/ilanguage').iLanguage.Lexicon.LexiconFactory;
-  var MorphemeSegmenter = require('ilanguage/ilanguage').iLanguage.Lexicon.MorphemeSegmenter;
-  var LexemeFrequency = require('ilanguage/ilanguage').iLanguage.Lexicon.LexemeFrequency;
-  var NonContentWords = require('ilanguage/ilanguage').iLanguage.Lexicon.NonContentWords;
-
+  var layoutCloud = exports.d3 ? exports.d3.layout :
+    require('d3.layout.cloud/d3.layout.cloud');
+  var Doc = exports.FieldDB ? exports.FieldDB.FieldDBObject :
+    require('fielddb/api/FieldDBObject').FieldDBObject;
+  var lexiconFactory = exports.iLanguage ? exports.iLanguage.Lexicon.LexiconFactory :
+    require('ilanguage/js/lexicon/LexiconFactory').LexiconFactory;
+  var MorphemeSegmenter = exports.iLanguage ? exports.iLanguage.Lexicon.MorphemeSegmenter :
+    require('ilanguage/js/lexicon/MorphemeSegmenter').MorphemeSegmenter;
+  var LexemeFrequency = exports.iLanguage ? exports.iLanguage.Lexicon.LexemeFrequency :
+    require('ilanguage/js/lexicon/LexemeFrequency').LexemeFrequency;
+  var NonContentWords = exports.iLanguage ? exports.iLanguage.Lexicon.NonContentWords :
+    require('ilanguage/js/lexicon/NonContentWords').NonContentWords;
 
   var defaults = {
     element: 'cloud',
@@ -439,8 +444,8 @@
           }
 
           text.style('font-family', function(d) {
-            return d.font;
-          })
+              return d.font;
+            })
             .style('fill', function(d) {
               return fill(d.orthography);
             })
@@ -575,8 +580,8 @@
             .attr('class', 'angle');
           line.exit().remove();
           line.attr('transform', function(d) {
-            return 'rotate(' + (90 + d) + ')';
-          })
+              return 'rotate(' + (90 + d) + ')';
+            })
             .attr('x2', function(d, i) {
               return !i || i === count - 1 ? -r - 5 : -r;
             });
@@ -592,7 +597,7 @@
                 d = (i ? to : from) + 90;
                 var start = [-r * Math.cos(d * radians), -r * Math.sin(d * radians)],
                   m = [d3.event.x, d3.event.y],
-                  delta = ~~ (Math.atan2(cross(start, m), dot(start, m)) / radians);
+                  delta = ~~(Math.atan2(cross(start, m), dot(start, m)) / radians);
                 d = Math.max(-90, Math.min(90, d + delta - 90)); // remove this for 360°
                 delta = to - from;
                 if (i) {
@@ -730,4 +735,4 @@
   iLanguageCloud.Doc = Doc;
   exports.iLanguageCloud = iLanguageCloud;
   exports.NonContentWords = NonContentWords;
-})(typeof exports === 'undefined' ? this['iLanguageCloud'] = {} : exports);
+})(typeof exports === 'undefined' ? this : exports);
