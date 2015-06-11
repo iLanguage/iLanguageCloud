@@ -1,5 +1,5 @@
 'use strict';
-var ILanguageCloud = iLanguageCloud || require('../../../src/common/ilanguage-cloud').iLanguageCloud;
+var ILanguageCloud = iLanguageCloud || require('../src/ilanguage-cloud').iLanguageCloud;
 
 /**
  <pre>

@@ -1,6 +1,6 @@
 'use strict';
-var iLanguageCloud = iLanguageCloud || require('../../../src/common/ilanguage-cloud').iLanguageCloud;
-var NonContentWords = NonContentWords || require('../../../src/common/ilanguage-cloud').NonContentWords;
+var iLanguageCloud = iLanguageCloud || require('../src/ilanguage-cloud').iLanguageCloud;
+var NonContentWords = NonContentWords || require('../src/ilanguage-cloud').NonContentWords;
 // var doc;
 // var skipCanvasBehavior = false;
 // try {
