@@ -13,7 +13,7 @@
   var Doc = exports.FieldDB ? exports.FieldDB.FieldDBObject :
     require('fielddb/api/FieldDBObject').FieldDBObject;
   var lexiconFactory = exports.iLanguage ? exports.iLanguage.Lexicon.LexiconFactory :
-    require('ilanguage/js/lexicon/LexiconFactory').LexiconFactory;
+    require('ilanguage/js/lexicon/Lexicon').LexiconFactory;
   var MorphemeSegmenter = exports.iLanguage ? exports.iLanguage.Lexicon.MorphemeSegmenter :
     require('ilanguage/js/lexicon/MorphemeSegmenter').MorphemeSegmenter;
   var LexemeFrequency = exports.iLanguage ? exports.iLanguage.Lexicon.LexemeFrequency :
