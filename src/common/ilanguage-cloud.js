@@ -11,6 +11,7 @@
   var layoutCloud = require('d3.layout.cloud/d3.layout.cloud');
   var Doc = require('fielddb/api/FieldDBObject').FieldDBObject;
   var lexiconFactory = require('ilanguage/ilanguage').iLanguage.Lexicon.LexiconFactory;
+  var MorphemeSegmenter = require('ilanguage/ilanguage').iLanguage.Lexicon.MorphemeSegmenter;
   var LexemeFrequency = require('ilanguage/ilanguage').iLanguage.Lexicon.LexemeFrequency;
   var NonContentWords = require('ilanguage/ilanguage').iLanguage.Lexicon.NonContentWords;
 
@@ -21,7 +22,11 @@
     font: 'FreeSans',
     isAndroid: false,
     maxVocabSize: 500,
-    clearPreviousSVG: true
+    clearPreviousSVG: true,
+    morphemeSegmentationOptions: {
+      algorithm: "MorphoParser",
+      maxIterations: 2
+    }
     // nonContentWords: NonContentWords.defaults.english
   };
 
@@ -61,6 +66,7 @@
             this.userDefinedMorphemeSegmentationReWriteRules[rule].target);
         }
         NonContentWords.filterText(this);
+        MorphemeSegmenter.runSegmenter(this);
         this.runningSegmenter = false;
         return this;
       }
