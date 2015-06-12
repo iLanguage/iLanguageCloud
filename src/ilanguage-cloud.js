@@ -60,7 +60,7 @@
           return this;
         }
         this.runningSegmenter = true;
-        console.log("runSegmenter");
+        // console.log("runSegmenter");
         this.morphemes = this.morphemes || this.orthography;
         for (var rule in this.userDefinedMorphemeSegmentationReWriteRules) {
           if (!this.userDefinedMorphemeSegmentationReWriteRules.hasOwnProperty(rule)) {
@@ -83,7 +83,7 @@
           return this;
         }
         this.runningWordFrequencyGenerator = true;
-        console.log("runWordFrequencyGenerator");
+        // console.log("runWordFrequencyGenerator");
         this.wordFrequencies = null;
         LexemeFrequency.calculateNonContentWords(this); /* TODO decide if this should be calculateNonContentWords */
         this.runningWordFrequencyGenerator = false;
@@ -97,7 +97,7 @@
           return this;
         }
         this.runningStemmer = true;
-        console.log("runStemmer");
+        // console.log("runStemmer");
 
         var again = true;
         var previousNonContentWords = this.nonContentWordsArray;
@@ -112,7 +112,7 @@
           }
 
           /* if the stop words aren't changing stop itterating */
-          console.log(previousNonContentWords + " -> " + this.nonContentWordsArray);
+          // console.log(previousNonContentWords + " -> " + this.nonContentWordsArray);
           if (this.userSpecifiedNonContentWords || (previousNonContentWords && previousNonContentWords.toString() === this.nonContentWordsArray.toString())) {
             again = false;
             continue;
@@ -122,7 +122,7 @@
 
           /* if the filtered text isn't significantly smaller, stop itterating */
           var percentageReduction = this.filteredText ? this.filteredText.length : 0 / this.orthography.length;
-          console.log("Percentage of original text " + percentageReduction);
+          // console.log("Percentage of original text " + percentageReduction);
           if (percentageReduction < 0.98) {
             if (this.filteredText && this.filteredText.length > 100) {
               // console.log('Iterating on filteredText' + this.filteredText);
@@ -155,7 +155,7 @@
         // }
         var self = this;
         self.runningRender = true;
-        console.log("render");
+        // console.log("render");
         userOptions = userOptions || {};
 
         var element = userOptions.element || this.element,
@@ -236,7 +236,7 @@
           try {
             layout.font(userChosenFontFace).spiral('archimedean');
           } catch (e) {
-            console.log(e); /* TODO handle this in node */
+            // console.log(e); /* TODO handle this in node */
           }
           fontSize = d3.scale.linear().domain([0, mostFrequentCount]).range([10, h * 0.25]);
 
@@ -248,8 +248,8 @@
           try {
             layout.stop().words(self.wordFrequencies.slice(0, max = Math.min(self.wordFrequencies.length, +maxVocabSize))).start();
           } catch (e) {
-            console.log(e); /* TODO handle this in node */
-            console.log('Simulating that the word frequencies contain d3 svg node layout info');
+            // console.log(e); /* TODO handle this in node */
+            // console.log('Simulating that the word frequencies contain d3 svg node layout info');
             self.wordFrequencies = self.wordFrequencies.map(function(d) {
               return {
                 categories: d.categories || [],
