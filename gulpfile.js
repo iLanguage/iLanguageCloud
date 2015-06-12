@@ -1,129 +1,141 @@
 'use strict';
 
-module.exports = function(grunt) {
-  // Show elapsed time at the end.
-  require('time-grunt')(grunt);
+var gulp = require('gulp');
+var plugins = require('gulp-load-plugins')();
 
-  // Project configuration.
-  grunt.initConfig({
-    // Metadata.
-    pkg: grunt.file.readJSON('package.json'),
-    d3Copyright: grunt.file.read('node_modules/d3/LICENSE'),
-    d3CloudCopyright: grunt.file.read('node_modules/d3.layout.cloud/LICENSE'),
-    banner: '/* <%= pkg.name %>.js - v<%= pkg.version %> - ' +
-      '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
-      '<%= pkg.homepage ? "" + pkg.homepage + "\\n" : "" %>' +
-      '\nCopyright (c) 2012 - <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>.\n' +
-      'Licensed:  <%= pkg.licenses[0].type %> \n*/\n \n'+
-      '/* d3.layout.cloud.js \n<%= d3CloudCopyright %> */\n\n'+
-      '/* d3.js \n<%= d3Copyright %> */\n',
-    // Task configuration.
-    concat: {
-      options: {
-        banner: '<%= banner %>',
-        stripBanners: true
-      },
-      dist: {
-        src: ['dist/vendor.js', 'dist/main_bundle.js'],
-        dest: 'dist/<%= pkg.name %>.js'
-      }
-    },
-    uglify: {
-      options: {
-        banner: '<%= banner %>'
-      },
-      dist: {
-        src: '<%= concat.dist.dest %>',
-        dest: 'dist/<%= pkg.name %>.min.js'
-      }
-    },
-    jasmine: {
-      src: 'dist/main_bundle.js',
-      options: {
-        specs: 'dist/test_bundle.js',
-        vendor: 'dist/vendor.js'
-      }
-    },
-    jasmine_node: {
-      specNameMatcher: 'spec',
-      projectRoot: './',
-      requirejs: false,
-      forceExit: false,
-      isVerbose: true,
-      showColors: true,
-      jUnit: {
-        report: true,
-        savePath: './build/reports/jasmine/',
-        consolidate: true,
-        useDotNotation: false
-      }
-    },
-    browserify: {
-      vendor: {
-        src: ['./node_modules/d3/d3.js'],
-        dest: 'dist/vendor.js',
-        options: {
-          shim: {
-            d3: {
-              path: './node_modules/d3/d3.js',
-              exports: 'd3'
-            }
-          }
-        }
-      },
-      src: {
-        src: ['src/common/app.js'],
-        dest: 'dist/main_bundle.js',
-        options: {
-          ignore: ['src/node/**/*.js']
-        }
-      },
-      test: {
-          src: ['test/spec/common/**/*.js', 'test/spec/browser/**/*.js'],
-          dest: 'dist/test_bundle.js'
-      }
-    },
-    jshint: {
-      options: {
-        jshintrc: '.jshintrc'
-      },
-      gruntfile: {
-        src: 'Gruntfile.js'
-      },
-      lib: {
-        options: {
-          jshintrc: 'src/.jshintrc'
-        },
-        src: ['src/**/*.js']
-      },
-      test: {
-        src: ['test/**/*.js']
-      }
-    },
-    watch: {
-      all: {
-        files: ['src/**/*.js', 'test/spec/**/*.js', 'Gruntfile.js', 'node_modules/ilanguage/ilanguage.js'],
-        tasks: ['debug']
-      },
-      web: {
-        files: ['src/**/*.js', 'test/spec/**/*.js', 'Gruntfile.js'],
-        tasks: ['debugweb']
-      }
-    }
-  });
+var browserify = require('browserify');
+// var vinylTransform = require('vinyl-transform');
+// var source = require('vinyl-source-stream');
+var uglify = require('gulp-uglify');
+var through2 = require('through2');
 
-  // These plugins provide necessary tasks.
-  grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-contrib-jasmine');
-  grunt.loadNpmTasks('grunt-jasmine-node');
-  grunt.loadNpmTasks('grunt-browserify');
+var packageJson = require('./package.json');
 
-  // Default task.
-  grunt.registerTask('test', ['jshint', 'jasmine_node', 'browserify', 'jasmine', 'concat', 'uglify']);
-  grunt.registerTask('default', ['jshint',  'browserify', 'jasmine', 'concat', 'uglify']);
-  grunt.registerTask('debug', ['jshint', 'jasmine_node', 'browserify', 'jasmine', 'concat']);
-  grunt.registerTask('debugweb', ['jshint', 'browserify', 'jasmine', 'concat']);
+var banner = function() {
+  var fs = require('fs');
+  var d3Copyright = fs.readFileSync('node_modules/d3/LICENSE');
+  var d3CloudCopyright = fs.readFileSync('node_modules/d3.layout.cloud/LICENSE');
+  var banner = '/* ' + packageJson.name + '.js - v' + packageJson.version + ' - ' +
+    new Date().toString() + '\n' +
+    packageJson.homepage +
+    '\nCopyright (c) 2012 - ' + new Date().getFullYear() +
+    ' ' + packageJson.author.name + '.\n' +
+    'Licensed:  ' + packageJson.license.type + ' \n*/\n \n' +
+    '/* d3.layout.cloud.js \n' + d3CloudCopyright + ' */\n\n' +
+    '/* d3.js \n' + d3Copyright + '*/\n';
+  return banner;
 };
+
+var paths = {
+  jshint: ['./gulpfile.js', './src/*.js'],
+  watch: ['./gulpfile.js', './src/**/*.js', './test/**/*.js', '!test/{temp,temp/**}'],
+  tests: ['./test/**/*-spec.js', '!test/{temp,temp/**}'],
+  source: ['./src/*.js']
+};
+
+var plumberConf = {};
+
+if (process.env.CI) {
+  plumberConf.errorHandler = function(err) {
+    throw err;
+  };
+}
+
+gulp.task('jshint', function() {
+  return gulp.src(paths.jshint)
+    .pipe(plugins.jshint('.jshintrc'))
+    .pipe(plugins.plumber(plumberConf))
+    .pipe(plugins.jscs())
+    .pipe(plugins.jshint.reporter('jshint-stylish'));
+});
+
+gulp.task('istanbul', function(cb) {
+  gulp.src(paths.source)
+    .pipe(plugins.istanbul()) // Covering files
+    .pipe(plugins.istanbul.hookRequire()) // Force `require` to return covered files
+    .on('finish', function() {
+      gulp.src(paths.tests)
+        .pipe(plugins.plumber(plumberConf))
+        .pipe(plugins.jasmine())
+        .pipe(plugins.istanbul.writeReports()) // Creating the reports after tests runned
+        .on('finish', function() {
+          process.chdir(__dirname);
+          cb();
+        });
+    });
+});
+
+gulp.task('bump', ['test'], function() {
+  var bumpType = plugins.util.env.type || 'patch'; // major.minor.patch
+
+  return gulp.src(['./package.json'])
+    .pipe(plugins.bump({
+      type: bumpType
+    }))
+    .pipe(gulp.dest('./'));
+});
+
+gulp.task('watch', ['test'], function() {
+  gulp.watch(paths.watch, ['test']);
+});
+
+/**
+https://medium.com/@sogko/gulp-browserify-the-gulp-y-way-bb359b3f9623
+https://github.com/substack/node-browserify/issues/1044
+*/
+
+gulp.task('browserify', function() {
+  var browserified = through2.obj(function(file, enc, next) {
+    var options = {
+      shim: {
+        d3: {
+          path: './node_modules/d3/d3.js',
+          exports: 'd3'
+        }
+      }
+    };
+    if (false) {
+      console.log("Old options", options);
+    }
+    browserify({
+        entries: [file.path],
+        standalone: "iLanguageCloud",
+        derequire: true
+      })
+      // .transform('stripify')  /* TODO export iLanguage */
+      .bundle(function(err, res) {
+        // assumes file.contents is a Buffer
+        file.contents = res;
+        if (false) {
+          file.contents.prepend(banner());
+        }
+        next(null, file);
+      });
+  });
+  // vinylTransform(function(filename) {
+  //   var b = browserify(filename);
+  //   return b.bundle();
+  // });
+
+  return gulp.src(['./src/app.js'])
+    .pipe(browserified)
+    .pipe(uglify())
+    .pipe(gulp.dest('./'));
+});
+
+
+/**
+https://medium.com/@sogko/gulp-browserify-the-gulp-y-way-bb359b3f9623
+*/
+// gulp.task('naivebrowserify', function() {
+//   return browserify('./src/ilanguage-cloud.js')
+//     .bundle()
+//     .pipe(source('ilanguage-cloud.min.js'))
+//     .pipe(gulp.dest('./'));
+// });
+
+gulp.task('test', ['jshint', 'istanbul']);
+
+gulp.task('release', ['bump']);
+
+gulp.task('default', ['test', 'browserify']);
