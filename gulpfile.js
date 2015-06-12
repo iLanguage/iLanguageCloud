@@ -138,4 +138,4 @@ gulp.task('test', ['jshint', 'istanbul']);
 
 gulp.task('release', ['bump']);
 
-gulp.task('default', ['test', 'browserify']);
+gulp.task('default', ['istanbul', 'browserify']);
