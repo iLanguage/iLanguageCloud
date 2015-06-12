@@ -26,7 +26,6 @@
     "fielddb": "*",
     "ilanguage": "*",
     "q": "^1.0.1",
-    "canvas": "~1.1.2",
     "d3": "~3.3.11",
     "d3.layout.cloud": "git://github.com/iLanguage/d3-cloud.git"
   },
