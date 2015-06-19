@@ -1,6 +1,6 @@
 'use strict';
-var iLanguageCloud = require('../../../src/common/ilanguage-cloud').iLanguageCloud;
-var NonContentWords = require('../../../src/common/ilanguage-cloud').NonContentWords;
+var iLanguageCloud = iLanguageCloud || require('../src/ilanguage-cloud').iLanguageCloud;
+var NonContentWords = NonContentWords || require('../src/ilanguage-cloud').NonContentWords;
 // var doc;
 // var skipCanvasBehavior = false;
 // try {
@@ -36,7 +36,7 @@ describe('lib/word-cloud', function() {
 
     it('should accept options', function() {
       var cloud = new iLanguageCloud({});
-      console.log(cloud);
+      // console.log(cloud);
       expect(cloud).toBeDefined();
     });
 
@@ -230,7 +230,7 @@ describe('lib/word-cloud', function() {
           // |სა-, სტა-,იმის,-ში/
         };
         var stopwords = result5;
-        console.log('Testing filtered text recursion');
+        // console.log('Testing filtered text recursion');
         cloud = new iLanguageCloud(cloud).runStemmer();
         expect(cloud.nonContentWordsArray).toEqual(stopwords);
       });
@@ -243,7 +243,7 @@ describe('lib/word-cloud', function() {
           // |სა-, სტა-,იმის,-ში/
         };
         var stopwords = ['1', '13', '16', '17', '2', '20', '24', '27', '29', '3', '4', '41', '5', '6', '7', '8', 'I', 'II', 'ა', 'ა-ის', 'აი', 'ალ', 'ამ', 'ან', 'არ', 'არა', 'არის', 'ბ', 'გ', 'გაზეთ', 'და', 'ე', 'ეს', 'ვ', 'თუ', 'იმ', 'ის', 'კერძო', 'კი', 'ლ', 'მე', 'მიერ', 'მის', 'მისი', 'რა', 'რომ', 'ს', 'სი', 'უნდა', 'ფ', 'შ', 'შპს', 'წლის'];
-        console.log('Testing filtered text recursion');
+        // console.log('Testing filtered text recursion');
         cloud = new iLanguageCloud(cloud).runStemmer();
         expect(cloud.nonContentWordsArray).toEqual(stopwords);
         expect(cloud.itterations).toBe(2);
@@ -329,7 +329,7 @@ describe('lib/word-cloud', function() {
           }],
           userRemovedWordsForThisDocumentRegExp: ['banana']
         };
-        console.log('cloud before running iLanguageCloud on it', cloud);
+        // console.log('cloud before running iLanguageCloud on it', cloud);
         cloud = new iLanguageCloud(cloud).runSegmenter().runStemmer();
 
         cloud.render();

@@ -6,15 +6,23 @@
  * Licensed under the Apache 2.0 license.
  */
 (function(exports) {
+  /* globals d3, document */
+  'use strict';
+
   // var d3 = require('d3/d3');
   // console.log("d3.layout", d3.layout);
-  var layoutCloud = require('d3.layout.cloud/d3.layout.cloud');
-  var Doc = require('fielddb/api/FieldDBObject').FieldDBObject;
-  var lexiconFactory = require('ilanguage/ilanguage').iLanguage.Lexicon.LexiconFactory;
-  var MorphemeSegmenter = require('ilanguage/ilanguage').iLanguage.Lexicon.MorphemeSegmenter;
-  var LexemeFrequency = require('ilanguage/ilanguage').iLanguage.Lexicon.LexemeFrequency;
-  var NonContentWords = require('ilanguage/ilanguage').iLanguage.Lexicon.NonContentWords;
-
+  var layoutCloud = exports.d3 ? exports.d3.layout :
+    require('d3.layout.cloud/d3.layout.cloud');
+  var Doc = exports.FieldDB ? exports.FieldDB.FieldDBObject :
+    require('fielddb/api/FieldDBObject').FieldDBObject;
+  // var lexiconFactory = exports.iLanguage ? exports.iLanguage.Lexicon.LexiconFactory :
+  //   require('ilanguage/js/lexicon/Lexicon').LexiconFactory;
+  var MorphemeSegmenter = exports.iLanguage ? exports.iLanguage.Lexicon.MorphemeSegmenter :
+    require('ilanguage/js/lexicon/MorphemeSegmenter').MorphemeSegmenter;
+  var LexemeFrequency = exports.iLanguage ? exports.iLanguage.Lexicon.LexemeFrequency :
+    require('ilanguage/js/lexicon/LexemeFrequency').LexemeFrequency;
+  var NonContentWords = exports.iLanguage ? exports.iLanguage.Lexicon.NonContentWords :
+    require('ilanguage/js/lexicon/NonContentWords').NonContentWords;
 
   var defaults = {
     element: 'cloud',
@@ -51,11 +59,12 @@
 
     runSegmenter: {
       value: function(options) {
+        this.debug("Running runSegmenter ", options);
         if (this.runningSegmenter) {
           return this;
         }
         this.runningSegmenter = true;
-        console.log("runSegmenter");
+        // console.log("runSegmenter");
         this.morphemes = this.morphemes || this.orthography;
         for (var rule in this.userDefinedMorphemeSegmentationReWriteRules) {
           if (!this.userDefinedMorphemeSegmentationReWriteRules.hasOwnProperty(rule)) {
@@ -74,11 +83,12 @@
 
     runWordFrequencyGenerator: {
       value: function(options) {
+        this.debug("Running runWordFrequencyGenerator ", options);
         if (this.runningWordFrequencyGenerator) {
           return this;
         }
         this.runningWordFrequencyGenerator = true;
-        console.log("runWordFrequencyGenerator");
+        // console.log("runWordFrequencyGenerator");
         this.wordFrequencies = null;
         LexemeFrequency.calculateNonContentWords(this); /* TODO decide if this should be calculateNonContentWords */
         this.runningWordFrequencyGenerator = false;
@@ -88,11 +98,12 @@
 
     runStemmer: {
       value: function(options) {
+        this.debug("Running runStemmer ", options);
         if (this.runningStemmer) {
           return this;
         }
         this.runningStemmer = true;
-        console.log("runStemmer");
+        // console.log("runStemmer");
 
         var again = true;
         var previousNonContentWords = this.nonContentWordsArray;
@@ -107,7 +118,7 @@
           }
 
           /* if the stop words aren't changing stop itterating */
-          console.log(previousNonContentWords + " -> " + this.nonContentWordsArray);
+          // console.log(previousNonContentWords + " -> " + this.nonContentWordsArray);
           if (this.userSpecifiedNonContentWords || (previousNonContentWords && previousNonContentWords.toString() === this.nonContentWordsArray.toString())) {
             again = false;
             continue;
@@ -117,7 +128,7 @@
 
           /* if the filtered text isn't significantly smaller, stop itterating */
           var percentageReduction = this.filteredText ? this.filteredText.length : 0 / this.orthography.length;
-          console.log("Percentage of original text " + percentageReduction);
+          // console.log("Percentage of original text " + percentageReduction);
           if (percentageReduction < 0.98) {
             if (this.filteredText && this.filteredText.length > 100) {
               // console.log('Iterating on filteredText' + this.filteredText);
@@ -148,9 +159,11 @@
         //   console.log('Not rendering archived clouds...');
         //   return this;
         // }
-        var self = this;
+        var self = this,
+          draw;
+
         self.runningRender = true;
-        console.log("render");
+        // console.log("render");
         userOptions = userOptions || {};
 
         var element = userOptions.element || this.element,
@@ -191,7 +204,7 @@
           scale = 1,
           mostFrequentCount,
           fontSize,
-          maxLength = 30,
+          // maxLength = 30,
           fetcher = this;
 
         var layout = layoutCloud.cloud()
@@ -226,12 +239,13 @@
 
         var background = svg.append('g'),
           vis = svg.append('g').attr('transform', 'translate(' + [w >> 1, h >> 1] + ')');
+        this.debug(" the background is set to ", background);
 
-        function generate() {
+        var generate = function() {
           try {
             layout.font(userChosenFontFace).spiral('archimedean');
           } catch (e) {
-            console.log(e); /* TODO handle this in node */
+            // console.log(e); /* TODO handle this in node */
           }
           fontSize = d3.scale.linear().domain([0, mostFrequentCount]).range([10, h * 0.25]);
 
@@ -243,8 +257,8 @@
           try {
             layout.stop().words(self.wordFrequencies.slice(0, max = Math.min(self.wordFrequencies.length, +maxVocabSize))).start();
           } catch (e) {
-            console.log(e); /* TODO handle this in node */
-            console.log('Simulating that the word frequencies contain d3 svg node layout info');
+            // console.log(e); /* TODO handle this in node */
+            // console.log('Simulating that the word frequencies contain d3 svg node layout info');
             self.wordFrequencies = self.wordFrequencies.map(function(d) {
               return {
                 categories: d.categories || [],
@@ -272,9 +286,10 @@
             });
           }
           self.runningRender = false;
-        }
+        };
 
-        function parseWordFrequencies(cloud) {
+        var parseWordFrequencies = function(cloud) {
+          this.debug("Running parseWordFrequencies ", cloud);
           // self.wordFrequencies = JSON.parse(JSON.stringify(cloud.wordFrequencies)); /* this means we cant update the nodes form a client */
           // self.wordFrequencies = cloud.wordFrequencies; /* TODO or is it the click that is returning a copy, not the node itself... */
           mostFrequentCount = self.wordFrequencies[0].count;
@@ -305,13 +320,13 @@
           // });
 
           generate();
-        }
+        };
 
-        function hashchange() {
+        var hashchange = function() {
           parseWordFrequencies(fetcher);
-        }
+        };
 
-        function draw(shufledData, bounds) {
+        draw = function(shufledData, bounds) {
           scale = bounds ? Math.min(
             w / Math.abs(bounds[1].x - w / 2),
             w / Math.abs(bounds[0].x - w / 2),
@@ -439,8 +454,8 @@
           }
 
           text.style('font-family', function(d) {
-            return d.font;
-          })
+              return d.font;
+            })
             .style('fill', function(d) {
               return fill(d.orthography);
             })
@@ -466,7 +481,7 @@
             //   setPNG();
             // });
           }
-        }
+        };
 
         // Converts a given word cloud to image/png.
         // function setPNG() {
@@ -547,17 +562,17 @@
 
         scale = d3.scale.linear();
 
-        function cross(a, b) {
+        var cross = function(a, b) {
           return a[0] * b[1] - a[1] * b[0];
-        }
+        };
 
-        function dot(a, b) {
+        var dot = function(a, b) {
           return a[0] * b[0] + a[1] * b[1];
-        }
+        };
 
-        function update() {
+        var update = function() {
           scale.domain([0, count - 1]).range([from, to]);
-          var step = (to - from) / count;
+          // var step = (to - from) / count;
 
           var path = angles.selectAll('path.angle')
             .data([{
@@ -575,8 +590,8 @@
             .attr('class', 'angle');
           line.exit().remove();
           line.attr('transform', function(d) {
-            return 'rotate(' + (90 + d) + ')';
-          })
+              return 'rotate(' + (90 + d) + ')';
+            })
             .attr('x2', function(d, i) {
               return !i || i === count - 1 ? -r - 5 : -r;
             });
@@ -592,7 +607,7 @@
                 d = (i ? to : from) + 90;
                 var start = [-r * Math.cos(d * radians), -r * Math.sin(d * radians)],
                   m = [d3.event.x, d3.event.y],
-                  delta = ~~ (Math.atan2(cross(start, m), dot(start, m)) / radians);
+                  delta = ~~(Math.atan2(cross(start, m), dot(start, m)) / radians);
                 d = Math.max(-90, Math.min(90, d + delta - 90)); // remove this for 360°
                 delta = to - from;
                 if (i) {
@@ -622,14 +637,14 @@
             var value = scale(~~(Math.random() * count));
             return value;
           });
-        }
+        };
 
-        function getAngles() {
+        var getAngles = function() {
           count = +2;
           from = Math.max(-90, Math.min(90, +0));
           to = Math.max(-90, Math.min(90, +90));
           update();
-        }
+        };
 
         getAngles();
 
@@ -726,8 +741,7 @@
 
   });
 
-
   iLanguageCloud.Doc = Doc;
   exports.iLanguageCloud = iLanguageCloud;
   exports.NonContentWords = NonContentWords;
-})(typeof exports === 'undefined' ? this['iLanguageCloud'] = {} : exports);
+})(typeof exports === 'undefined' ? this : exports);

@@ -8,11 +8,11 @@
 (function(exports) {
   // var d3 = require('d3/d3');
   // console.log("d3.layout", d3.layout);
-  var Database = require('ilanguage/database/Database').Database;
-
+  var Database = exports.FieldDB ? exports.FieldDB.Database :
+    require('fielddb/api/corpus/Database').Database;
 
   var iLanguageClouds = function iLanguageClouds(options) {
-    // console.log("In iLanguageClouds ", options);
+    this.debug("In iLanguageClouds ", options);
     Database.apply(this, arguments);
   };
 
@@ -24,4 +24,4 @@
 
   exports.iLanguageClouds = iLanguageClouds;
 
-})(typeof exports === 'undefined' ? this['iLanguageClouds'] = {} : exports);
+})(typeof exports === 'undefined' ? this : exports);
