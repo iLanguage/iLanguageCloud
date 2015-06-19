@@ -6,14 +6,17 @@
  * Licensed under the Apache 2.0 license.
  */
 (function(exports) {
+  /* globals d3, document */
+  'use strict';
+
   // var d3 = require('d3/d3');
   // console.log("d3.layout", d3.layout);
   var layoutCloud = exports.d3 ? exports.d3.layout :
     require('d3.layout.cloud/d3.layout.cloud');
   var Doc = exports.FieldDB ? exports.FieldDB.FieldDBObject :
     require('fielddb/api/FieldDBObject').FieldDBObject;
-  var lexiconFactory = exports.iLanguage ? exports.iLanguage.Lexicon.LexiconFactory :
-    require('ilanguage/js/lexicon/Lexicon').LexiconFactory;
+  // var lexiconFactory = exports.iLanguage ? exports.iLanguage.Lexicon.LexiconFactory :
+  //   require('ilanguage/js/lexicon/Lexicon').LexiconFactory;
   var MorphemeSegmenter = exports.iLanguage ? exports.iLanguage.Lexicon.MorphemeSegmenter :
     require('ilanguage/js/lexicon/MorphemeSegmenter').MorphemeSegmenter;
   var LexemeFrequency = exports.iLanguage ? exports.iLanguage.Lexicon.LexemeFrequency :
@@ -56,6 +59,7 @@
 
     runSegmenter: {
       value: function(options) {
+        this.debug("Running runSegmenter ", options);
         if (this.runningSegmenter) {
           return this;
         }
@@ -79,6 +83,7 @@
 
     runWordFrequencyGenerator: {
       value: function(options) {
+        this.debug("Running runWordFrequencyGenerator ", options);
         if (this.runningWordFrequencyGenerator) {
           return this;
         }
@@ -93,6 +98,7 @@
 
     runStemmer: {
       value: function(options) {
+        this.debug("Running runStemmer ", options);
         if (this.runningStemmer) {
           return this;
         }
@@ -153,7 +159,9 @@
         //   console.log('Not rendering archived clouds...');
         //   return this;
         // }
-        var self = this;
+        var self = this,
+          draw;
+
         self.runningRender = true;
         // console.log("render");
         userOptions = userOptions || {};
@@ -196,7 +204,7 @@
           scale = 1,
           mostFrequentCount,
           fontSize,
-          maxLength = 30,
+          // maxLength = 30,
           fetcher = this;
 
         var layout = layoutCloud.cloud()
@@ -231,8 +239,9 @@
 
         var background = svg.append('g'),
           vis = svg.append('g').attr('transform', 'translate(' + [w >> 1, h >> 1] + ')');
+        this.debug(" the background is set to ", background);
 
-        function generate() {
+        var generate = function() {
           try {
             layout.font(userChosenFontFace).spiral('archimedean');
           } catch (e) {
@@ -277,9 +286,10 @@
             });
           }
           self.runningRender = false;
-        }
+        };
 
-        function parseWordFrequencies(cloud) {
+        var parseWordFrequencies = function(cloud) {
+          this.debug("Running parseWordFrequencies ", cloud);
           // self.wordFrequencies = JSON.parse(JSON.stringify(cloud.wordFrequencies)); /* this means we cant update the nodes form a client */
           // self.wordFrequencies = cloud.wordFrequencies; /* TODO or is it the click that is returning a copy, not the node itself... */
           mostFrequentCount = self.wordFrequencies[0].count;
@@ -310,13 +320,13 @@
           // });
 
           generate();
-        }
+        };
 
-        function hashchange() {
+        var hashchange = function() {
           parseWordFrequencies(fetcher);
-        }
+        };
 
-        function draw(shufledData, bounds) {
+        draw = function(shufledData, bounds) {
           scale = bounds ? Math.min(
             w / Math.abs(bounds[1].x - w / 2),
             w / Math.abs(bounds[0].x - w / 2),
@@ -471,7 +481,7 @@
             //   setPNG();
             // });
           }
-        }
+        };
 
         // Converts a given word cloud to image/png.
         // function setPNG() {
@@ -552,17 +562,17 @@
 
         scale = d3.scale.linear();
 
-        function cross(a, b) {
+        var cross = function(a, b) {
           return a[0] * b[1] - a[1] * b[0];
-        }
+        };
 
-        function dot(a, b) {
+        var dot = function(a, b) {
           return a[0] * b[0] + a[1] * b[1];
-        }
+        };
 
-        function update() {
+        var update = function() {
           scale.domain([0, count - 1]).range([from, to]);
-          var step = (to - from) / count;
+          // var step = (to - from) / count;
 
           var path = angles.selectAll('path.angle')
             .data([{
@@ -627,14 +637,14 @@
             var value = scale(~~(Math.random() * count));
             return value;
           });
-        }
+        };
 
-        function getAngles() {
+        var getAngles = function() {
           count = +2;
           from = Math.max(-90, Math.min(90, +0));
           to = Math.max(-90, Math.min(90, +90));
           update();
-        }
+        };
 
         getAngles();
 
@@ -730,7 +740,6 @@
     }
 
   });
-
 
   iLanguageCloud.Doc = Doc;
   exports.iLanguageCloud = iLanguageCloud;

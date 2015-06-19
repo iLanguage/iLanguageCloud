@@ -12,7 +12,7 @@
     require('fielddb/api/corpus/Database').Database;
 
   var iLanguageClouds = function iLanguageClouds(options) {
-    // console.log("In iLanguageClouds ", options);
+    this.debug("In iLanguageClouds ", options);
     Database.apply(this, arguments);
   };
 

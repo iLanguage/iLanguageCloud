@@ -123,7 +123,6 @@ gulp.task('browserify', function() {
     .pipe(gulp.dest('./'));
 });
 
-
 /**
 https://medium.com/@sogko/gulp-browserify-the-gulp-y-way-bb359b3f9623
 */
