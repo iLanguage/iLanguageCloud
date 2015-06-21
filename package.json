@@ -23,14 +23,15 @@
     "type": "Apache 2.0"
   },
   "dependencies": {
-    "fielddb": "*",
-    "ilanguage": "*",
+    "fielddb": "git://github.com/OpenSourceFieldlinguistics/FieldDB.git",
+    "ilanguage": "git://github.com/iLanguage/iLanguage.git",
     "q": "^1.0.1",
     "d3": "~3.3.11",
     "d3.layout.cloud": "git://github.com/iLanguage/d3-cloud.git"
   },
   "devDependencies": {
     "browserify": "^10.2.4",
+    "del": "^1.2.0",
     "grunt-contrib-watch": "~0.5.2",
     "gulp": "^3.8.8",
     "gulp-bump": "^0.1.11",
@@ -49,6 +50,7 @@
   "scripts": {
     "test": "gulp test",
     "cover": "gulp istanbul",
+    "postinstall": "npm link d3.layout.cloud; npm link fielddb; npm link ilanguage; exit 0;",
     "build": "browserify src/app.js -o ilanguage-cloud.min.js"
   }
 }
