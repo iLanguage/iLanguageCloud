@@ -21,7 +21,7 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "fielddb": "git://github.com/OpenSourceFieldlinguistics/FieldDB.git",
+    "fielddb": "git://github.com/cesine/FieldDB.git",
     "ilanguage": "git://github.com/iLanguage/iLanguage.git",
     "q": "^1.0.1",
     "d3": "~3.3.11",
@@ -50,6 +50,6 @@
     "test": "gulp test",
     "cover": "gulp istanbul",
     "postinstall": "npm link d3.layout.cloud; npm link fielddb; npm link ilanguage; exit 0;",
-    "build": "browserify src/app.js -o ilanguage-cloud.min.js"
+    "build": "browserify src/app.js -o dist/ilanguage-cloud.min.js"
   }
 }
