@@ -9,10 +9,8 @@
   /* globals d3, document */
   'use strict';
 
-  var d3 = exports.d3 ? exports.d3 : require('d3/d3');
+  var d3 = exports.d3 ? exports.d3 : require('d3.layout.cloud/d3.layout.cloud').d3;
   // console.log("d3.layout", d3.layout);
-  var layoutCloud = d3 ? d3.layout :
-    require('d3.layout.cloud/d3.layout.cloud');
   var Doc = exports.FieldDB ? exports.FieldDB.FieldDBObject :
     require('fielddb/api/FieldDBObject').FieldDBObject;
   // var lexiconFactory = exports.iLanguage ? exports.iLanguage.Lexicon.LexiconFactory :
@@ -51,6 +49,8 @@
     // options = lexiconFactory(options);
     Doc.apply(this, arguments);
   };
+
+  iLanguageCloud.d3 = d3;
 
   iLanguageCloud.prototype = Object.create(Doc.prototype, /** @lends iLanguageCloud.prototype */ {
     constructor: {
@@ -201,7 +201,7 @@
           }
 
           // D3 word cloud by Jason Davies see http://www.jasondavies.com/wordcloud/ for more details
-          var fill = d3.scale.category20(),
+          var fill = iLanguageCloud.d3.scale.category20(),
             w = userOptions.width || this.width || 800,
             h = userOptions.height || this.height || 400,
             shuffledWords = [],
@@ -209,9 +209,9 @@
             scale = 1,
             mostFrequentCount,
             fontSize;
-            // maxLength = 30,
+          // maxLength = 30,
 
-          var layout = layoutCloud.cloud()
+          var layout = iLanguageCloud.d3.layout.cloud()
             .timeInterval(10)
             .size([w, h])
             .fontSize(function(d) {
@@ -235,7 +235,7 @@
             })
             .on('end', draw);
 
-          var svg = d3.select(element).append('svg')
+          var svg = iLanguageCloud.d3.select(element).append('svg')
             .attr('width', w)
             .attr('height', h)
             .attr('version', '1.1')
@@ -251,7 +251,7 @@
             } catch (e) {
               // console.log(e); /* TODO handle this in node */
             }
-            fontSize = d3.scale.linear().domain([0, mostFrequentCount]).range([10, h * 0.25]);
+            fontSize = iLanguageCloud.d3.scale.linear().domain([0, mostFrequentCount]).range([10, h * 0.25]);
 
             // if (self.wordFrequencies.length) {
             //   fontSize.domain([+self.wordFrequencies[self.wordFrequencies.length - 1].count || 1, +self.wordFrequencies[0].count]);
@@ -262,7 +262,7 @@
               layout.stop().words(self.wordFrequencies.slice(0, max = Math.min(self.wordFrequencies.length, +maxVocabSize))).start();
             } catch (e) {
               // console.log(e); /* TODO handle this in node */
-              // console.log('Simulating that the word frequencies contain d3 svg node layout info');
+              // console.log('Simulating that the word frequencies contain iLanguageCloud.d3 svg node layout info');
               self.wordFrequencies = self.wordFrequencies.map(function(d) {
                 return {
                   categories: d.categories || [],
@@ -317,7 +317,7 @@
             //   self.wordFrequencies[word = word.toLowerCase()] = (self.wordFrequencies[word] || 0) + 1;
             // });
 
-            // self.wordFrequencies = d3.entries(self.wordFrequencies).sort(function(a, b) {
+            // self.wordFrequencies = iLanguageCloud.d3.entries(self.wordFrequencies).sort(function(a, b) {
             //   //if nonfunctional give a really 0 ?
             //   return b.value.count - a.value.count;
             // });
@@ -515,7 +515,7 @@
           // }
 
           // function setSVG() {
-          //   var currentSVG = d3.select('svg');
+          //   var currentSVG = iLanguageCloud.d3.select('svg');
           //   var currentSVGEscaped = btoa(unescape(encodeURIComponent(currentSVG.node().parentNode.innerHTML)));
           //   var currentSVGOut = 'data:image/svg+xml;charset=utf-8;base64,' + currentSVGEscaped;
 
@@ -527,7 +527,7 @@
             px = 35,
             py = 20;
 
-          var angles = d3.select('#angles').append('svg')
+          var angles = iLanguageCloud.d3.select('#angles').append('svg')
             .attr('width', 2 * (r + px))
             .attr('height', r + 1.5 * py)
             .append('g')
@@ -565,9 +565,9 @@
             from,
             to,
             count,
-            arc = d3.svg.arc().innerRadius(0).outerRadius(r);
+            arc = iLanguageCloud.d3.svg.arc().innerRadius(0).outerRadius(r);
 
-          scale = d3.scale.linear();
+          scale = iLanguageCloud.d3.scale.linear();
 
           var cross = function(a, b) {
             return a[0] * b[1] - a[1] * b[0];
@@ -592,7 +592,7 @@
             path.attr('d', arc);
 
             var line = angles.selectAll('line.angle')
-              .data(d3.range(count).map(scale));
+              .data(iLanguageCloud.d3.range(count).map(scale));
             line.enter().append('line')
               .attr('class', 'angle');
             line.exit().remove();
@@ -609,11 +609,11 @@
             drag.enter().append('path')
               .attr('class', 'drag')
               .attr('d', 'M-9.5,0L-3,3.5L-3,-3.5Z')
-              .call(d3.behavior.drag()
+              .call(iLanguageCloud.d3.behavior.drag()
                 .on('drag', function(d, i) {
                   d = (i ? to : from) + 90;
                   var start = [-r * Math.cos(d * radians), -r * Math.sin(d * radians)],
-                    m = [d3.event.x, d3.event.y],
+                    m = [iLanguageCloud.d3.event.x, iLanguageCloud.d3.event.y],
                     delta = ~~(Math.atan2(cross(start, m), dot(start, m)) / radians);
                   d = Math.max(-90, Math.min(90, d + delta - 90)); // remove this for 360°
                   delta = to - from;
