@@ -19,9 +19,7 @@
     "type": "git",
     "url": "https://github.com/iLanguage/iLanguageCloud"
   },
-  "license": {
-    "type": "Apache 2.0"
-  },
+  "license": "Apache-2.0",
   "dependencies": {
     "fielddb": "git://github.com/OpenSourceFieldlinguistics/FieldDB.git",
     "ilanguage": "git://github.com/iLanguage/iLanguage.git",
@@ -41,6 +39,7 @@
     "gulp-jshint": "^1.8.4",
     "gulp-load-plugins": "^0.6.0",
     "gulp-plumber": "^0.6.5",
+    "gulp-rename": "^1.2.2",
     "gulp-uglify": "^1.2.0",
     "gulp-util": "^3.0.1",
     "jasmine-node": "~1.11.0",
