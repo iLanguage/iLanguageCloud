@@ -173,7 +173,15 @@ describe('lib/word-cloud', function() {
     });
 
     it('should be render words randomly', function() {
-      expect(true).toBeTruthy();
+      var cloud = new iLanguageCloud({
+        orthography: sampleText,
+        caseSensitivity: false
+      });
+      expect(cloud).toBeDefined();
+      cloud.render();
+      expect(cloud.wordFrequencies.length).toEqual(274);
+      expect(document.getElementsByTagName("svg")).toBeDefined();
+      expect(document.getElementsByTagName("svg")[0]).toBeDefined();
     });
 
   });
