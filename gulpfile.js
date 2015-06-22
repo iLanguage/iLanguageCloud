@@ -107,7 +107,7 @@ gulp.task('browserify', ['clean'], function() {
         // outfile: 'ilanguage-cloud.js',
         extension: '.min.js',
         entries: [file.path],
-        standalone: "iLanguageCloud",
+        // standalone: "iLanguageCloud",
         derequire: true
       })
       // .transform('stripify')  /* TODO export iLanguage */
