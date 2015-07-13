@@ -9,7 +9,8 @@
   /* globals d3, document */
   'use strict';
 
-  var d3 = exports.d3 ? exports.d3 : require('d3.layout.cloud/d3.layout.cloud').d3;
+  var d3 = exports.d3 ? exports.d3 : require('d3');
+  var cloudviz = exports.d3 ? exports.d3 : require('d3.layout.cloud');
   // console.log("d3.layout", d3.layout);
   var Doc = exports.FieldDB ? exports.FieldDB.FieldDBObject :
     require('fielddb/api/FieldDBObject').FieldDBObject;
