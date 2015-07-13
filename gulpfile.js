@@ -111,14 +111,14 @@ gulp.task('browserify', ['clean'], function() {
         derequire: true
       })
       // .transform('stripify')  /* TODO export iLanguage */
-      .bundle(function(err, res) {
-        // assumes file.contents is a Buffer
-        file.contents = res;
-        if (false) {
-          file.contents.prepend(banner());
-        }
-        next(null, file);
-      });
+      // .bundle(function(err, res) {
+      //   // assumes file.contents is a Buffer
+      //   file.contents = res;
+      //   if (false) {
+      //     file.contents.prepend(banner());
+      //   }
+      //   next(null, file);
+      // });
   });
   // vinylTransform(function(filename) {
   //   var b = browserify(filename);
