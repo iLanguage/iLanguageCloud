@@ -22,9 +22,9 @@
   "license": "Apache-2.0",
   "dependencies": {
     "d3": "^3.5.6",
-    "d3.layout.cloud": "git://github.com/iLanguage/d3-cloud.git",
-    "fielddb": "git://github.com/cesine/FieldDB.git",
-    "ilanguage": "git://github.com/iLanguage/iLanguage.git",
+    "d3.layout.cloud": "https://github.com/iLanguage/d3-cloud.git",
+    "fielddb": "https://github.com/cesine/FieldDB.git",
+    "ilanguage": "https://github.com/iLanguage/iLanguage.git",
     "q": "^1.0.1"
   },
   "optionalDependencies": {
