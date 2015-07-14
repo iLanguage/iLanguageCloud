@@ -6,7 +6,7 @@
  * Licensed under the Apache 2.0 license.
  */
 (function(exports) {
-  /* globals d3, document */
+  /* globals document */
   'use strict';
 
   /* Using D3's new browser version  */
@@ -33,36 +33,7 @@
     }
   }
   var cloudviz = exports.d3 ? exports.d3 : require('d3.layout.cloud/src/d3.layout.cloud');
-  // console.log("d3.layout", d3.layout);
-
-
-  /* Merging old and new way
-  var d3 = exports.d3 ? exports.d3 : require('d3');
-  try {
-    document.createElement("canvas").getContext("2d")
-  } catch (exception) {
-    // var canvas = global.canvas = require("canvas-browserify");
-    var document = require("jsdom").jsdom("<body></body>");
-    global.document = global.document || document;
-    console.log("loaded canvas browserify ", exception.stack);
-  }
-
-  // var cloudviz;
-  // try {
-  //   cloudviz = exports.d3 ? exports.d3 : require('d3.layout.cloud/src/d3.layout.cloud');
-  // } catch (e) {
-  //   console.log(e.stack);
-  // }
-  // var d3 = require('d3/d3');
-  // console.log("d3.layout", d3.layout);
-  var cloudviz = exports.d3 ? exports.d3 : require('d3.layout.cloud/src/d3.layout.cloud');
-  */
-
-  /* Using old workaround way
-  // var d3 = require('d3/d3');
-  // console.log("d3.layout", d3.layout);
-  var layoutCloud = require('d3.layout.cloud/d3.layout.cloud');
-  */
+  console.log("Loaded d3-cloud", !!cloudviz);
 
   var Doc = exports.FieldDB ? exports.FieldDB.FieldDBObject :
     require('fielddb/api/FieldDBObject').FieldDBObject;
@@ -226,9 +197,15 @@
             maxVocabSize = userOptions.maxVocabSize || this.maxVocabSize || defaults.maxVocabSize,
             clearPreviousSVG = userOptions.clearPreviousSVG || this.clearPreviousSVG || defaults.clearPreviousSVG;
 
+          var localDocument;
+          if (userOptions.document) {
+            localDocument = userOptions.document;
+          } else {
+            localDocument = document;
+          }
           //accept a dom element, or an id
           if (element && element.ownerDocument === undefined) {
-            element = document.getElementById(element);
+            element = localDocument.getElementById(element);
           }
 
           if (element && element.length) {
@@ -236,12 +213,6 @@
           }
           if (!element) {
             console.warn('Appending an element since none was specified', element);
-            var localDocument;
-            if (userOptions.document) {
-              localDocument = userOptions.document;
-            } else {
-              localDocument = document;
-            }
             element = localDocument.createElement('div');
             localDocument.body.appendChild(element);
           }
