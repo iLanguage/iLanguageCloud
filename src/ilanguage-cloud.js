@@ -13,14 +13,23 @@
   try {
     var d3 = exports.d3 ? exports.d3 : require('d3');
     global.d3 = global.d3 || d3;
-  } catch (exception) {
+  } catch (exception1) {
     console.log('There was a problem setting d3', d3);
   }
   try {
     document.createElement("canvas").getContext('2d');
-  } catch (exception) {
-    var Canvas = exports.Canvas ? exports.Canvas : require('canvas-browserify');
-    global.Canvas = global.Canvas || Canvas;
+  } catch (exception2) {
+    try {
+      var Canvas = exports.Canvas ? exports.Canvas : require('canvas-browserify');
+      global.Canvas = global.Canvas || Canvas;
+    } catch (exception3) {
+      global.Canvas = global.Canvas || function() {
+        this.getContext = function() {
+          return {};
+        };
+      };
+      console.log('Mocking Canvas. If you have a Mac or Linux computer you should install canvas-browserify, canvas and Cairo. See https://www.npmjs.com/package/canvas#installation for instructions. ');
+    }
   }
   var cloudviz = exports.d3 ? exports.d3 : require('d3.layout.cloud/src/d3.layout.cloud');
   // console.log("d3.layout", d3.layout);

@@ -112,6 +112,10 @@ gulp.task('browserify', ['clean'], function() {
       })
       // .transform('stripify')  /* TODO export iLanguage */
       .bundle(function(err, res) {
+        if (err) {
+          console.log("unable to browserify. ", err.stack, res);
+          return;
+        }
         // assumes file.contents is a Buffer
         file.contents = res;
         if (false) {

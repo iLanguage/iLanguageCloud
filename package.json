@@ -27,9 +27,11 @@
     "ilanguage": "git://github.com/iLanguage/iLanguage.git",
     "q": "^1.0.1"
   },
+  "optionalDependencies": {
+    "canvas-browserify": "^1.1.1"
+  },
   "devDependencies": {
     "browserify": "^10.2.6",
-    "canvas-browserify": "^1.1.1",
     "del": "^1.2.0",
     "gulp": "^3.9.0",
     "gulp-bump": "^0.3.1",
