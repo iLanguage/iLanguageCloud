@@ -9,13 +9,24 @@
   /* globals d3, document */
   'use strict';
 
-  /* Using D3's new AMD 
-  var d3 = exports.d3 ? exports.d3 : require('d3');
-  var cloudviz = exports.d3 ? exports.d3 : require('d3.layout.cloud');
+  /* Using D3's new browser version  */
+  try {
+    var d3 = exports.d3 ? exports.d3 : require('d3');
+    global.d3 = global.d3 || d3;
+  } catch (exception) {
+    console.log('There was a problem setting d3', d3);
+  }
+  try {
+    document.createElement("canvas").getContext('2d');
+  } catch (exception) {
+    var Canvas = exports.Canvas ? exports.Canvas : require('canvas-browserify');
+    global.Canvas = global.Canvas || Canvas;
+  }
+  var cloudviz = exports.d3 ? exports.d3 : require('d3.layout.cloud/src/d3.layout.cloud');
   // console.log("d3.layout", d3.layout);
-  */
- 
-  /* Merging old and new way */
+
+
+  /* Merging old and new way
   var d3 = exports.d3 ? exports.d3 : require('d3');
   try {
     document.createElement("canvas").getContext("2d")
@@ -35,6 +46,7 @@
   // var d3 = require('d3/d3');
   // console.log("d3.layout", d3.layout);
   var cloudviz = exports.d3 ? exports.d3 : require('d3.layout.cloud/src/d3.layout.cloud');
+  */
 
   /* Using old workaround way
   // var d3 = require('d3/d3');
@@ -242,6 +254,7 @@
             fontSize;
           // maxLength = 30,
 
+          console.log('d3  cloud loaded: ', !!iLanguageCloud.d3.layout.cloud)
           var layout = iLanguageCloud.d3.layout.cloud()
             .timeInterval(10)
             .size([w, h])
@@ -689,7 +702,7 @@
           hashchange();
 
         } catch (e) {
-          console.warn("There was a problem rendering this cloud ", this, e, e.stack);
+          console.warn("There was a problem rendering this cloud ", this.orthography, e, e.stack);
         }
         return this;
 
