@@ -28,7 +28,8 @@
     "q": "^1.0.1"
   },
   "optionalDependencies": {
-    "canvas-browserify": "^1.1.1"
+    "canvas-browserify": "^1.1.1",
+    "jsdom": "^3.0.0"
   },
   "devDependencies": {
     "browserify": "^10.2.6",
