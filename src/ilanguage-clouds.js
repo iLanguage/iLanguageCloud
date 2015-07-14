@@ -8,15 +8,15 @@
 (function(exports) {
   // var d3 = require('d3/d3');
   // console.log("d3.layout", d3.layout);
-  var Database = exports.FieldDB ? exports.FieldDB.Database :
-    require('fielddb/api/corpus/Database').Database;
+  var Corpus = exports.FieldDB ? exports.FieldDB.Corpus :
+    require('fielddb/api/corpus/Corpus').Corpus;
 
   var iLanguageClouds = function iLanguageClouds(options) {
     this.debug("In iLanguageClouds ", options);
-    Database.apply(this, arguments);
+    Corpus.apply(this, arguments);
   };
 
-  iLanguageClouds.prototype = Object.create(Database.prototype, /** @lends iLanguageClouds.prototype */ {
+  iLanguageClouds.prototype = Object.create(Corpus.prototype, /** @lends iLanguageClouds.prototype */ {
     constructor: {
       value: iLanguageClouds
     }
