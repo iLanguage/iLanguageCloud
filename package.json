@@ -51,7 +51,6 @@
   "scripts": {
     "test": "gulp test",
     "cover": "gulp istanbul",
-    "postinstall": "npm link d3.layout.cloud; npm link fielddb; npm link ilanguage; exit 0;",
     "build": "browserify src/app.js -o dist/ilanguage-cloud.min.js"
   }
 }
