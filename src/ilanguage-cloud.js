@@ -10,8 +10,22 @@
   'use strict';
 
   var d3 = exports.d3 ? exports.d3 : require('d3');
-  var cloudviz = exports.d3 ? exports.d3 : require('d3.layout.cloud');
+  try {
+    document.createElement("canvas").getContext("2d")
+  } catch (exception) {
+    var canvas = require('canvas-browserify');
+    console.log("loaded canvas browserify ", exception.stack);
+  }
+  // var cloudviz;
+  // try {
+  //   cloudviz = exports.d3 ? exports.d3 : require('d3.layout.cloud/src/d3.layout.cloud');
+  // } catch (e) {
+  //   console.log(e.stack);
+  // }
+  // var d3 = require('d3/d3');
   // console.log("d3.layout", d3.layout);
+  var cloudviz = exports.d3 ? exports.d3 : require('d3.layout.cloud/src/d3.layout.cloud');
+
   var Doc = exports.FieldDB ? exports.FieldDB.FieldDBObject :
     require('fielddb/api/FieldDBObject').FieldDBObject;
   // var lexiconFactory = exports.iLanguage ? exports.iLanguage.Lexicon.LexiconFactory :
