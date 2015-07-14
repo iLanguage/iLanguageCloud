@@ -35,8 +35,10 @@
   var cloudviz = exports.d3 ? exports.d3 : require('d3.layout.cloud/src/d3.layout.cloud');
   console.log("Loaded d3-cloud", !!cloudviz);
 
-  var Doc = exports.FieldDB ? exports.FieldDB.FieldDBObject :
-    require('fielddb/api/FieldDBObject').FieldDBObject;
+  var Datum = exports.FieldDB ? exports.FieldDB.Datum :
+    require('fielddb/api/datum/Datum').Datum;
+  var DatumFields = exports.FieldDB ? exports.FieldDB.DatumFields :
+    require('fielddb/api/datum/DatumFields').DatumFields;
   // var lexiconFactory = exports.iLanguage ? exports.iLanguage.Lexicon.LexiconFactory :
   //   require('ilanguage/js/lexicon/Lexicon').LexiconFactory;
   var MorphemeSegmenter = exports.iLanguage ? exports.iLanguage.Lexicon.MorphemeSegmenter :
@@ -70,13 +72,21 @@
     this.runningRender = false;
     this.runningStemmer = false;
     this.runningWordFrequencyGenerator = false;
+    this.fields = new DatumFields([{
+      id: "morphemes"
+    }, {
+      id: "orthography"
+    }]);
     // options = lexiconFactory(options);
-    Doc.apply(this, arguments);
+    // if (this.application.corpus) {
+    //   options = this.application.corpus.newDoc(options);
+    // }
+    Datum.apply(this, arguments);
   };
 
   iLanguageCloud.d3 = locald3;
 
-  iLanguageCloud.prototype = Object.create(Doc.prototype, /** @lends iLanguageCloud.prototype */ {
+  iLanguageCloud.prototype = Object.create(Datum.prototype, /** @lends iLanguageCloud.prototype */ {
     constructor: {
       value: iLanguageCloud
     },
@@ -776,7 +786,7 @@
 
   });
 
-  iLanguageCloud.Doc = Doc;
+  iLanguageCloud.Doc = Datum;
   exports.iLanguageCloud = iLanguageCloud;
   exports.NonContentWords = NonContentWords;
 })(typeof exports === 'undefined' ? this : exports);
