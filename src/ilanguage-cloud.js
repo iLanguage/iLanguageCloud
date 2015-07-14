@@ -10,11 +10,12 @@
   'use strict';
 
   /* Using D3's new browser version  */
+  var locald3;
   try {
-    var d3 = exports.d3 ? exports.d3 : require('d3');
-    global.d3 = global.d3 || d3;
+    locald3 = exports.d3 ? exports.d3 : require('d3');
+    global.d3 = global.d3 || locald3;
   } catch (exception1) {
-    console.log('There was a problem setting d3', d3);
+    console.log('There was a problem setting d3', locald3);
   }
   try {
     document.createElement("canvas").getContext('2d');
@@ -102,7 +103,7 @@
     Doc.apply(this, arguments);
   };
 
-  iLanguageCloud.d3 = d3;
+  iLanguageCloud.d3 = locald3;
 
   iLanguageCloud.prototype = Object.create(Doc.prototype, /** @lends iLanguageCloud.prototype */ {
     constructor: {
@@ -263,7 +264,7 @@
             fontSize;
           // maxLength = 30,
 
-          console.log('d3  cloud loaded: ', !!iLanguageCloud.d3.layout.cloud)
+          console.log('d3  cloud loaded: ', !!iLanguageCloud.d3.layout.cloud);
           var layout = iLanguageCloud.d3.layout.cloud()
             .timeInterval(10)
             .size([w, h])
