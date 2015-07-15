@@ -6,7 +6,7 @@
  * Licensed under the Apache 2.0 license.
  */
 (function(exports) {
-  /* globals document */
+  /* globals document, localStorage, btoa, unescape */
   'use strict';
 
   /* Using D3's new browser version  */
@@ -193,8 +193,7 @@
         //   console.log('Not rendering archived clouds...');
         //   return this;
         // }
-        var self = this,
-          draw;
+        var self = this;
 
         try {
           self.runningRender = true;
@@ -226,480 +225,92 @@
             element = localDocument.createElement('div');
             localDocument.body.appendChild(element);
           }
-
-          if (clearPreviousSVG) {
-            element.innerHTML = '';
-          }
-          if (!this.wordFrequencies || !this.wordFrequencies.length) {
-            this.runWordFrequencyGenerator();
-          }
-
           // D3 word cloud by Jason Davies see http://www.jasondavies.com/wordcloud/ for more details
-          var fill = iLanguageCloud.d3.scale.category20(),
-            w = userOptions.width || this.width || 800,
-            h = userOptions.height || this.height || 400,
-            shuffledWords = [],
-            max,
-            scale = 1,
-            mostFrequentCount,
-            fontSize;
+          var width = userOptions.width || this.width || 800,
+            height = userOptions.height || this.height || 400;
           // maxLength = 30,
 
-          console.log('d3  cloud loaded: ', !!iLanguageCloud.d3.layout.cloud);
-          var layout = iLanguageCloud.d3.layout.cloud()
-            .timeInterval(10)
-            .size([w, h])
-            .fontSize(function(d) {
-              // var fontsize = fontSize(d.count) * 10;
-              var fontsizeForThisWord = fontSize(+d.count);
-              if (d.categories) {
-                var categoriesString = d.categories.join(' ');
-                if (categoriesString.indexOf('functionalWord') > -1 || categoriesString.indexOf('userRemovedWord') > -1) {
-                  // console.log('Hiding ' + d.orthography + ' ' + categoriesString);
-                  fontsizeForThisWord = 0;
-                }
-              } else {
-                // return fontSize(+d.count);
-              }
-              // fontsizeForThisWord = fontSize(fontsizeForThisWord);
-              // console.log('fontsizeForThisWord ' + d.count + ' ' + fontsizeForThisWord + ' scaled fontSize ');
-              return Math.min(fontsizeForThisWord, 70);
-            })
-            .text(function(d) {
-              return d.orthography;
-            })
-            .on('end', draw);
+          var SEED = 2;
 
-          var svg = iLanguageCloud.d3.select(element).append('svg')
-            .attr('width', w)
-            .attr('height', h)
-            .attr('version', '1.1')
-            .attr('xmlns', 'http://www.w3.org/2000/svg');
-
-          var background = svg.append('g'),
-            vis = svg.append('g').attr('transform', 'translate(' + [w >> 1, h >> 1] + ')');
-          this.debug(" the background is set to ", background);
-
-          var generate = function() {
-            try {
-              layout.font(userChosenFontFace).spiral('archimedean');
-            } catch (e) {
-              // console.log(e); /* TODO handle this in node */
-            }
-            fontSize = iLanguageCloud.d3.scale.linear().domain([0, mostFrequentCount]).range([10, h * 0.25]);
-
-            // if (self.wordFrequencies.length) {
-            //   fontSize.domain([+self.wordFrequencies[self.wordFrequencies.length - 1].count || 1, +self.wordFrequencies[0].count]);
-            // }
-
-            shuffledWords = [];
-            try {
-              layout.stop().words(self.wordFrequencies.slice(0, max = Math.min(self.wordFrequencies.length, +maxVocabSize))).start();
-            } catch (e) {
-              // console.log(e); /* TODO handle this in node */
-              // console.log('Simulating that the word frequencies contain iLanguageCloud.d3 svg node layout info');
-              self.wordFrequencies = self.wordFrequencies.map(function(d) {
-                return {
-                  categories: d.categories || [],
-                  alternates: d.alternates || [],
-                  count: d.count,
-                  hasText: true,
-                  height: 0,
-                  orthography: d.orthography,
-                  padding: 1,
-                  rotate: 0,
-                  size: 0,
-                  style: "normal",
-                  text: d.text,
-                  weight: "normal",
-                  width: 32,
-                  x: -242,
-                  x0: -16,
-                  x1: 16,
-                  xoff: 544,
-                  y: 15,
-                  y0: 0,
-                  y1: -1,
-                  yoff: 438
-                };
-              });
-            }
-            self.runningRender = false;
-          };
-
-          var parseWordFrequencies = function(cloud) {
-            self.debug("Running parseWordFrequencies ", cloud);
+          if (!self.wordFrequencies || !self.wordFrequencies.length) {
+            self.runWordFrequencyGenerator();
             // self.wordFrequencies = JSON.parse(JSON.stringify(cloud.wordFrequencies)); /* this means we cant update the nodes form a client */
             // self.wordFrequencies = cloud.wordFrequencies; /* TODO or is it the click that is returning a copy, not the node itself... */
-            mostFrequentCount = 0;
-            if (self.wordFrequencies && self.wordFrequencies[0] && self.wordFrequencies[0].count) {
-              mostFrequentCount = self.wordFrequencies[0].count;
-            }
-            // var cases = {};
+          }
+          // maxVocabSize = Math.min(width/10, self.wordFrequencies.length);
 
-            // text.split(wordSeparators).forEach(function(word) {
-            //   if (discard.test(word)) {
-            //     return;
-            //   }
-            //   word = word.replace(punctuation, '');
-
-            //   if (nonContentWords.test(word.toLowerCase())) {
-            //     return;
-            //   }
-            //   word = word.substr(0, maxLength);
-
-            //   cases[word.toLowerCase()] = word;
-            //   self.wordFrequencies[word = word.toLowerCase()] = (self.wordFrequencies[word] || 0) + 1;
-            // });
-
-            // self.wordFrequencies = iLanguageCloud.d3.entries(self.wordFrequencies).sort(function(a, b) {
-            //   //if nonfunctional give a really 0 ?
-            //   return b.value.count - a.value.count;
-            // });
-
-            // self.wordFrequencies.forEach(function(d) {
-            //   d.key = d.value.orthography;
-            // });
-
-            generate();
-          };
-
-          var hashchange = function() {
-            parseWordFrequencies(self);
-          };
-
-          draw = function(shufledData, bounds) {
-            scale = bounds ? Math.min(
-              w / Math.abs(bounds[1].x - w / 2),
-              w / Math.abs(bounds[0].x - w / 2),
-              h / Math.abs(bounds[1].y - h / 2),
-              h / Math.abs(bounds[0].y - h / 2)) / 2 : 1;
-            shuffledWords = shufledData;
-            var text = vis.selectAll('text')
-              .data(shuffledWords, function(d) {
-                return d.orthography;
-              });
-            text.transition()
-              .duration(1000)
-              .attr('transform', function(d) {
-                return 'translate(' + [d.x, d.y] + ')rotate(' + d.rotate + ')';
-              })
-              .style('font-size', function(d) {
-                return d.size + 'px';
-              });
-
-            // Use transitions for in-browser effect only if we're not
-            // on our Android webview.
-            if (!isAndroid) {
-              text.enter().append('text')
-                .attr('text-anchor', 'middle')
-                .attr('transform', function(d) {
-                  return 'translate(' + [d.x, d.y] + ')rotate(' + d.rotate + ')';
-                })
-                .style('font-size', function(d) {
-                  return d.size + 'px';
-                })
-                .on('click', function(d) {
-                  if (typeof self.onWordClick === 'function') {
-                    return self.onWordClick(d);
-                  }
-                })
-                .on('mousedown', function(d) {
-                  if (typeof self.onWordMousedown === 'function') {
-                    return self.onWordMousedown(d);
-                  }
-                })
-                .on('mouseup', function(d) {
-                  if (typeof self.onWordMouseup === 'function') {
-                    return self.onWordMouseup(d);
-                  }
-                })
-                .on('mouseover', function(d) {
-                  if (typeof self.onWordMouseover === 'function') {
-                    return self.onWordMouseover(d);
-                  }
-                })
-                .on('mousemove', function(d) {
-                  if (typeof self.onWordMousemove === 'function') {
-                    return self.onWordMouseover(d);
-                  }
-                })
-                .on('mouseout', function(d) {
-                  if (typeof self.onWordMouseout === 'function') {
-                    return self.onWordMouseover(d);
-                  }
-                })
-                .on('focusin', function(d) {
-                  if (typeof self.onFocusin === 'function') {
-                    return self.onWordFocusin(d);
-                  }
-                })
-                .on('focusout', function(d) {
-                  if (typeof self.onFocusout === 'function') {
-                    return self.onWordFocusout(d);
-                  }
-                })
-                .style('opacity', 1e-6)
-                .transition()
-                .duration(500)
-                .style('opacity', 1);
-            } else {
-              text.enter().append('text')
-                .attr('text-anchor', 'middle')
-                .attr('transform', function(d) {
-                  return 'translate(' + [d.x, d.y] + ')rotate(' + d.rotate + ')';
-                })
-                .on('click', function(d) {
-                  if (typeof self.onWordClick === 'function') {
-                    self.onWordClick(d);
-                  }
-                })
-                .on('mousedown', function(d) {
-                  if (typeof self.onWordMousedown === 'function') {
-                    self.onWordMousedown(d);
-                  }
-                })
-                .on('mouseup', function(d) {
-                  if (typeof self.onWordMouseup === 'function') {
-                    self.onWordMouseup(d);
-                  }
-                })
-                .on('mouseover', function(d) {
-                  if (typeof self.onWordMouseover === 'function') {
-                    self.onWordMouseover(d);
-                  }
-                })
-                .on('mousemove', function(d) {
-                  if (typeof self.onWordMousemove === 'function') {
-                    self.onWordMouseover(d);
-                  }
-                })
-                .on('mouseout', function(d) {
-                  if (typeof self.onWordMouseout === 'function') {
-                    self.onWordMouseover(d);
-                  }
-                })
-                .on('focusin', function(d) {
-                  if (typeof self.onFocusin === 'function') {
-                    self.onWordFocusin(d);
-                  }
-                })
-                .on('focusout', function(d) {
-                  if (typeof self.onFocusout === 'function') {
-                    self.onWordFocusout(d);
-                  }
-                })
-                .style('opacity', 1)
-                .style('font-size', function(d) {
-                  return d.size + 'px';
-                });
-            }
-
-            text.style('font-family', function(d) {
-                return d.font;
-              })
-              .style('fill', function(d) {
-                return fill(d.orthography);
-              })
-              .text(function(d) {
-                return d.orthography;
-              });
-
-            // Use transitions for in-browser effect only if we're not
-            // on our Android webview.
-            if (!isAndroid) {
-              vis.transition()
-                .duration(1000)
-                .attr('transform', 'translate(' + [w >> 1, h >> 1] + ')scale(' + scale + ')');
-              // .each('end', function() {
-              //   setSVG();
-              //   setPNG();
-              // });
-            } else {
-              vis.transition()
-                .duration(3000);
-              // .each('end', function() {
-              //   setSVG();
-              //   setPNG();
-              // });
-            }
-          };
-
-          // Converts a given word cloud to image/png.
-          // function setPNG() {
-          //   var canvas = document.createElement('canvas'),
-          //     c = canvas.getContext('2d');
-          //   canvas.width = w;
-          //   canvas.height = h;
-          //   c.translate(w >> 1, h >> 1);
-          //   c.scale(scale, scale);
-          //   shuffledWords.forEach(function(word, i) {
-          //     c.save();
-          //     c.translate(word.x, word.y);
-          //     c.rotate(word.rotate * Math.PI / 180);
-          //     c.textAlign = 'center';
-          //     c.fillStyle = fill(word.value.orthography);
-          //     c.font = word.size + 'px ' + word.font;
-          //     c.fillText(word.value.orthography, 0, 0);
-          //     c.restore();
-          //   });
-          //   var currentPNG = canvas.toDataURL('image/png');
-          //   var currentPNGdata = currentPNG.match(/[^,]*$/)[0];
-          //   localStorage.setItem('currentPNG', currentPNG);
-          //   localStorage.setItem('currentPNGdata', currentPNGdata);
-          // }
-
-          // function setSVG() {
-          //   var currentSVG = iLanguageCloud.d3.select('svg');
-          //   var currentSVGEscaped = btoa(unescape(encodeURIComponent(currentSVG.node().parentNode.innerHTML)));
-          //   var currentSVGOut = 'data:image/svg+xml;charset=utf-8;base64,' + currentSVGEscaped;
-
-          //   localStorage.setItem('currentSVG', currentSVGOut);
-          //   localStorage.setItem('currentSVGdata', currentSVGEscaped);
-          // }
-
-          var r = 40.5,
-            px = 35,
-            py = 20;
-
-          var angles = iLanguageCloud.d3.select('#angles').append('svg')
-            .attr('width', 2 * (r + px))
-            .attr('height', r + 1.5 * py)
-            .append('g')
-            .attr('transform', 'translate(' + [r + px, r + py] + ')');
-
-          angles.append('path')
-            .style('fill', 'none')
-            .attr('d', ['M', -r, 0, 'A', r, r, 0, 0, 1, r, 0].join(' '));
-
-          angles.append('line')
-            .attr('x1', -r - 7)
-            .attr('x2', r + 7);
-
-          angles.append('line')
-            .attr('y2', -r - 7);
-
-          angles.selectAll('text')
-            .data([-90, 0, 90])
-            .enter().append('text')
-            .attr('dy', function(d, i) {
-              return i === 1 ? null : '.3em';
+          console.log('d3  cloud loaded: ', !!iLanguageCloud.d3.layout.cloud);
+          // Ask d3-cloud to make an cloud object for us
+          self.layout = iLanguageCloud.d3.layout.cloud();
+          // Configure our cloud with d3 chaining
+          self.layout
+            .size([width, height])
+            .words(self.wordFrequencies)
+            // .words(self.wordFrequencies.slice(0, maxVocabSize))
+            .padding(5)
+            .rotate(function(word) {
+              if (word.rotate === null || word.rotate === undefined) {
+                word.rotate = ~~(Math.random() * 2) * 90;
+              }
+              return word.rotate;
             })
-            .attr('text-anchor', function(d, i) {
-              return ['end', 'middle', 'start'][i];
-            })
-            .attr('transform', function(d) {
-              d += 90;
-              return 'rotate(' + d + ')translate(' + -(r + 10) + ')rotate(' + -d + ')translate(2)';
-            })
-            .text(function(d) {
-              return d + '°';
+            .font(userChosenFontFace)
+            .on("end", function(words) {
+              iLanguageCloud.reproduceableDrawFunction(self.wordFrequencies, element, clearPreviousSVG, width, height, userChosenFontFace, self);
             });
 
-          var radians = Math.PI / 180,
-            from,
-            to,
-            count,
-            arc = iLanguageCloud.d3.svg.arc().innerRadius(0).outerRadius(r);
-
-          scale = iLanguageCloud.d3.scale.linear();
-
-          var cross = function(a, b) {
-            return a[0] * b[1] - a[1] * b[0];
-          };
-
-          var dot = function(a, b) {
-            return a[0] * b[0] + a[1] * b[1];
-          };
-
-          var update = function() {
-            scale.domain([0, count - 1]).range([from, to]);
-            // var step = (to - from) / count;
-
-            var path = angles.selectAll('path.angle')
-              .data([{
-                startAngle: from * radians,
-                endAngle: to * radians
-              }]);
-            path.enter().insert('path', 'circle')
-              .attr('class', 'angle')
-              .style('fill', '#fc0');
-            path.attr('d', arc);
-
-            var line = angles.selectAll('line.angle')
-              .data(iLanguageCloud.d3.range(count).map(scale));
-            line.enter().append('line')
-              .attr('class', 'angle');
-            line.exit().remove();
-            line.attr('transform', function(d) {
-                return 'rotate(' + (90 + d) + ')';
-              })
-              .attr('x2', function(d, i) {
-                return !i || i === count - 1 ? -r - 5 : -r;
-              });
-
-            var drag = angles.selectAll('path.drag')
-              .data([from, to]);
-
-            drag.enter().append('path')
-              .attr('class', 'drag')
-              .attr('d', 'M-9.5,0L-3,3.5L-3,-3.5Z')
-              .call(iLanguageCloud.d3.behavior.drag()
-                .on('drag', function(d, i) {
-                  d = (i ? to : from) + 90;
-                  var start = [-r * Math.cos(d * radians), -r * Math.sin(d * radians)],
-                    m = [iLanguageCloud.d3.event.x, iLanguageCloud.d3.event.y],
-                    delta = ~~(Math.atan2(cross(start, m), dot(start, m)) / radians);
-                  d = Math.max(-90, Math.min(90, d + delta - 90)); // remove this for 360°
-                  delta = to - from;
-                  if (i) {
-                    to = d;
-                    if (delta > 360) {
-                      from += delta - 360;
-                    } else if (delta < 0) {
-                      from = to;
-                    }
-                  } else {
-                    from = d;
-                    if (delta > 360) {
-                      to += 360 - delta;
-                    } else if (delta < 0) {
-                      to = from;
-                    }
-                  }
-                  update();
-                })
-                .on('dragend', generate));
-
-            drag.attr('transform', function(d) {
-              return 'rotate(' + (d + 90) + ')translate(-' + r + ')';
-            });
-
-            layout.rotate(function() {
-              var value = scale(~~(Math.random() * count));
-              return value;
-            });
-          };
-
-          var getAngles = function() {
-            count = +2;
-            from = Math.max(-90, Math.min(90, +0));
-            to = Math.max(-90, Math.min(90, +90));
-            update();
-          };
-
-          getAngles();
-
-          hashchange();
+          self.layout.start();
 
         } catch (e) {
-          console.warn("There was a problem rendering this cloud ", this.orthography, e, e.stack);
+          console.warn('There was a problem rendering self cloud ', self.orthography, e, e.stack);
         }
         return this;
 
       }
     },
 
+    // Converts a given word cloud to image/png.
+    setPNG: {
+      value: function() {
+        // var scale = bounds ? Math.min(
+        //   this.width / Math.abs(bounds[1].x - this.width / 2),
+        //   this.width / Math.abs(bounds[0].x - this.width / 2),
+        //   this.height / Math.abs(bounds[1].y - this.height / 2),
+        //   this.height / Math.abs(bounds[0].y - this.height / 2)) / 2 : 1;
+
+        var canvas = document.createElement('canvas'),
+          c = canvas.getContext('2d');
+        canvas.width = this.width;
+        canvas.height = this.height;
+        c.translate(this.width >> 1, this.height >> 1);
+        // c.scale(scale, scale);
+        this.wordFrequencies.forEach(function(word, i) {
+          c.save();
+          c.translate(word.x, word.y);
+          c.rotate(word.rotate * Math.PI / 180);
+          c.textAlign = 'center';
+          c.fillStyle = word.color;
+          c.font = word.count + 'px ' + word.font;
+          c.fillText(word.orthography, 0, 0);
+          c.restore();
+        });
+        var currentPNG = canvas.toDataURL('image/png');
+        var currentPNGdata = currentPNG.match(/[^,]*$/)[0];
+        localStorage.setItem('currentPNG', currentPNG);
+        localStorage.setItem('currentPNGdata', currentPNGdata);
+      }
+    },
+
+    setSVG: {
+      value: function() {
+        var currentSVG = iLanguageCloud.d3.select('svg');
+        var currentSVGEscaped = btoa(unescape(encodeURIComponent(currentSVG.node().parentNode.innerHTML)));
+        var currentSVGOut = 'data:image/svg+xml;charset=utf-8;base64,' + currentSVGEscaped;
+
+        localStorage.setItem('currentSVG', currentSVGOut);
+        localStorage.setItem('currentSVGdata', currentSVGEscaped);
+      }
+    },
     toJSONLimited: {
       value: function() {
         // return {
@@ -724,7 +335,7 @@
           underscorelessProperty;
         for (aproperty in this) {
           if (this.hasOwnProperty(aproperty) && typeof this[aproperty] !== "function") {
-            underscorelessProperty = aproperty.replace(/^_/, "");
+            underscorelessProperty = aproperty.replace(/^_/, '');
             json[underscorelessProperty] = this[aproperty];
           }
         }
@@ -745,7 +356,7 @@
           underscorelessProperty;
         for (aproperty in this) {
           if (this.hasOwnProperty(aproperty) && typeof this[aproperty] !== "function" && aproperty.indexOf('running') === -1) {
-            underscorelessProperty = aproperty.replace(/^_/, "");
+            underscorelessProperty = aproperty.replace(/^_/, '');
             if (underscorelessProperty === 'id' || underscorelessProperty === 'rev') {
               underscorelessProperty = '_' + underscorelessProperty;
             }
@@ -766,6 +377,7 @@
         }
         delete json.references;
         delete json.root;
+        delete json.layout;
         delete json.precedenceRelations;
         delete json.element;
         delete json.saving;
@@ -783,8 +395,108 @@
         return json;
       }
     }
-
   });
+
+  // Declare our own draw function which will be called on the "end" event 
+  iLanguageCloud.reproduceableDrawFunction = function(wordFrequencies, element, clearPreviousSVG, width, height, userChosenFontFace, context) {
+    if (clearPreviousSVG && element && element.children) {
+      element.innerHTML = '';
+    }
+
+    var mostFrequentCount = 0;
+    if (context.wordFrequencies && context.wordFrequencies[0] && context.wordFrequencies[0].count) {
+      mostFrequentCount = context.wordFrequencies[0].count;
+    }
+
+    var svg = iLanguageCloud.d3.select(element).append("svg");
+    var colorFunction = iLanguageCloud.d3.scale.category20();
+
+    svg.attr('width', width)
+      .attr('height', height)
+      .attr('version', '1.1')
+      .attr('xmlns', 'http://www.w3.org/2000/svg')
+      .append('g')
+      // .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
+      .selectAll('text')
+      .data(context.wordFrequencies)
+      .enter().append('text')
+      .style('font-size', function(word) {
+        if (!word.fontSize) {
+          word.fontSize = iLanguageCloud.d3.scale.linear().domain([0, mostFrequentCount]).range([10, height * 0.25])(word.count) ;
+          if (word.categories) {
+            var categoriesString = word.categories.join(' ');
+            if (categoriesString.indexOf('functionalWord') > -1 || categoriesString.indexOf('userRemovedWord') > -1) {
+              // console.log('Hiding ' + word.orthography + ' ' + categoriesString);
+              word.fontSize = 0;
+            }
+          }
+        }
+        console.log('word.fontSize ' + word.count + ' ' + Math.min(word.fontSize, 70) + ' scaled fontSize ');
+        return Math.min(word.fontSize, 70) + "px";
+      })
+      .style('font-family', userChosenFontFace)
+      .style('fill', function(word, i) {
+        if (!word.color) {
+          word.color = colorFunction(i);
+        }
+        return word.color;
+      })
+      .attr('text-anchor', 'middle')
+      .attr('transform', function(word) {
+        if (!word.transform) {
+          if (word.rotate === null || word.rotate === undefined) {
+            word.rotate = ~~(Math.random() * 2) * 90;
+          }
+          word.transform = 'translate(' + [word.x, word.y] + ')rotate(' + word.rotate + ')';
+        }
+        return word.transform;
+      })
+      .text(function(word) {
+        return word.orthography;
+      })
+      .on('click', function(word) {
+        if (typeof context.onWordClick === 'function') {
+          return context.onWordClick(word);
+        }
+      })
+      .on('mousedown', function(word) {
+        if (typeof context.onWordMousedown === 'function') {
+          return context.onWordMousedown(word);
+        }
+      })
+      .on('mouseup', function(word) {
+        if (typeof context.onWordMouseup === 'function') {
+          return context.onWordMouseup(word);
+        }
+      })
+      .on('mouseover', function(word) {
+        if (typeof context.onWordMouseover === 'function') {
+          return context.onWordMouseover(word);
+        }
+      })
+      .on('mousemove', function(word) {
+        if (typeof context.onWordMousemove === 'function') {
+          return context.onWordMouseover(word);
+        }
+      })
+      .on('mouseout', function(word) {
+        if (typeof context.onWordMouseout === 'function') {
+          return context.onWordMouseover(word);
+        }
+      })
+      .on('focusin', function(word) {
+        if (typeof context.onFocusin === 'function') {
+          return context.onWordFocusin(word);
+        }
+      })
+      .on('focusout', function(word) {
+        if (typeof context.onFocusout === 'function') {
+          return context.onWordFocusout(word);
+        }
+      });
+
+    context.runningRender = false;
+  };
 
   iLanguageCloud.Doc = Datum;
   exports.iLanguageCloud = iLanguageCloud;
