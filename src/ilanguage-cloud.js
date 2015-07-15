@@ -201,8 +201,9 @@
           userOptions = userOptions || {};
 
           var element = userOptions.element || this.element,
+            userChosenRandomSeed = userOptions.randomSeed || this.randomSeed || Math.random() * 10,
             userChosenFontFace = userOptions.font || this.font,
-            isAndroid = userOptions.isAndroid || this.isAndroid,
+            // isAndroid = userOptions.isAndroid || this.isAndroid,
             maxVocabSize = userOptions.maxVocabSize || this.maxVocabSize || defaults.maxVocabSize,
             clearPreviousSVG = userOptions.clearPreviousSVG || this.clearPreviousSVG || defaults.clearPreviousSVG;
 
@@ -230,20 +231,21 @@
             height = userOptions.height || this.height || 400;
           // maxLength = 30,
 
-          var SEED = 2;
-
           if (!self.wordFrequencies || !self.wordFrequencies.length) {
             self.runWordFrequencyGenerator();
             // self.wordFrequencies = JSON.parse(JSON.stringify(cloud.wordFrequencies)); /* this means we cant update the nodes form a client */
             // self.wordFrequencies = cloud.wordFrequencies; /* TODO or is it the click that is returning a copy, not the node itself... */
           }
-          // maxVocabSize = Math.min(width/10, self.wordFrequencies.length);
-
+          maxVocabSize = Math.min(width / 10, self.wordFrequencies.length);
+          console.log('TODO use randomSeed to regenerate cloud', userChosenRandomSeed);
           console.log('d3  cloud loaded: ', !!iLanguageCloud.d3.layout.cloud);
           // Ask d3-cloud to make an cloud object for us
           self.layout = iLanguageCloud.d3.layout.cloud();
           // Configure our cloud with d3 chaining
           self.layout
+            // .random(function() {
+            //   return myRandomGenerator.random();
+            // })
             .size([width, height])
             .words(self.wordFrequencies)
             // .words(self.wordFrequencies.slice(0, maxVocabSize))
@@ -256,7 +258,7 @@
             })
             .font(userChosenFontFace)
             .on("end", function(words) {
-              iLanguageCloud.reproduceableDrawFunction(self.wordFrequencies, element, clearPreviousSVG, width, height, userChosenFontFace, self);
+              iLanguageCloud.reproduceableDrawFunction(words, element, clearPreviousSVG, width, height, userChosenFontFace, self);
             });
 
           self.layout.start();
@@ -284,7 +286,7 @@
         canvas.height = this.height;
         c.translate(this.width >> 1, this.height >> 1);
         // c.scale(scale, scale);
-        this.wordFrequencies.forEach(function(word, i) {
+        this.wordFrequencies.forEach(function(word) {
           c.save();
           c.translate(word.x, word.y);
           c.rotate(word.rotate * Math.PI / 180);
@@ -397,7 +399,7 @@
     }
   });
 
-  // Declare our own draw function which will be called on the "end" event 
+  // Declare our own draw function which will be called on the "end" event
   iLanguageCloud.reproduceableDrawFunction = function(wordFrequencies, element, clearPreviousSVG, width, height, userChosenFontFace, context) {
     if (clearPreviousSVG && element && element.children) {
       element.innerHTML = '';
@@ -422,7 +424,7 @@
       .enter().append('text')
       .style('font-size', function(word) {
         if (!word.fontSize) {
-          word.fontSize = iLanguageCloud.d3.scale.linear().domain([0, mostFrequentCount]).range([10, height * 0.25])(word.count) ;
+          word.fontSize = iLanguageCloud.d3.scale.linear().domain([0, mostFrequentCount]).range([10, height * 0.25])(word.count);
           if (word.categories) {
             var categoriesString = word.categories.join(' ');
             if (categoriesString.indexOf('functionalWord') > -1 || categoriesString.indexOf('userRemovedWord') > -1) {
