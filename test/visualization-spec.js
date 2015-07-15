@@ -8,12 +8,16 @@
     virtualdocument = document;
     iLanguageCloud = iLanguageCloud || require('../src/ilanguage-cloud').iLanguageCloud;
   } catch (e) {
-    virtualdocument = require('jsdom').jsdom('<body></body>');
-    global.document = global.document || virtualdocument;
+    try {
+      virtualdocument = require('jsdom').jsdom('<body></body>');
+      global.document = global.document || virtualdocument;
+    } catch (e) {
+      console.warn('You dont have jsdom installed, if you have python on your system, please install it npm install jsdom', e.stack);
+    }
     iLanguageCloud = iLanguageCloud || require('../src/ilanguage-cloud').iLanguageCloud;
   }
 
-   var myFewWordsFactory = function(textToUseSoTestingCloudsAreDifferentButGeneratedTheSame) {
+  var myFewWordsFactory = function(textToUseSoTestingCloudsAreDifferentButGeneratedTheSame) {
     return textToUseSoTestingCloudsAreDifferentButGeneratedTheSame.split(" ")
       .map(function(word) {
         return {
@@ -34,13 +38,16 @@
       expect(iLanguageCloud.d3.layout.cloud).toBeDefined();
     });
 
-    it('should be render words in an svg', function() {
-      var cloud = iLanguageCloud.d3.layout.cloud();
-      expect(cloud).toBeDefined();
-      cloud.words(myFewWordsFactory("render words in an svg"));
-      expect(cloud.words().length).toEqual(5);
-      expect(virtualdocument.getElementsByTagName('svg')).toBeDefined();
-      // expect(virtualdocument.getElementsByTagName('svg')[0]).toBeDefined();
-    });
+    if (virtualdocument) {
+      it('should be render words in an svg', function() {
+        var cloud = iLanguageCloud.d3.layout.cloud();
+        expect(cloud).toBeDefined();
+        cloud.words(myFewWordsFactory("render words in an svg"));
+        expect(cloud.words().length).toEqual(5);
+        expect(virtualdocument.getElementsByTagName('svg')).toBeDefined();
+        // expect(virtualdocument.getElementsByTagName('svg')[0]).toBeDefined();
+      });
+    }
+
 
   });
