@@ -206,16 +206,15 @@ describe('lib/word-cloud', function() {
           caseSensitivity: false
         };
         expect(NonContentWords.LexemeFrequency.calculateNonContentWords(textToTest).nonContentWordsArray)
-          .toEqual(sampleTextNonContentWordsNodeOrder);
+          .toEqual(sampleTextNonContentWordsBrowserOrder);
       });
 
       it('should automatically identify stopwords if caseSensitivity is not specified', function() {
         var cloud = {
           orthography: sampleText
         };
-        var stopwords = sampleTextNonContentWordsNodeOrder;
         cloud = new iLanguageCloud(cloud).runStemmer();
-        expect(cloud.nonContentWordsArray).toEqual(stopwords);
+        expect(cloud.nonContentWordsArray).toEqual(sampleTextNonContentWordsBrowserOrder);
       });
 
       it('should automatically identify stopwords if caseSensitivity is lower', function() {
@@ -223,18 +222,16 @@ describe('lib/word-cloud', function() {
           orthography: sampleText,
           caseSensitivity: 'lower'
         };
-        var stopwords = sampleTextNonContentWordsLowercase;
         cloud = new iLanguageCloud(cloud).runStemmer();
-        expect(cloud.nonContentWordsArray).toEqual(stopwords);
+        expect(cloud.nonContentWordsArray).toEqual(sampleTextNonContentWordsLowercase);
       });
 
       it('should automatically identify unicode stopwords', function() {
         var cloud = {
           orthography: sampleUnicodeText,
         };
-        var stopwords = sampleUnicodeTextNonContentWords;
         cloud = new iLanguageCloud(cloud).runStemmer();
-        expect(cloud.nonContentWordsArray).toEqual(stopwords);
+        expect(cloud.nonContentWordsArray).toEqual(sampleUnicodeTextNonContentWords);
       });
 
       xit('should let the user specify the cuttoff for stopwords', function() {
@@ -244,10 +241,9 @@ describe('lib/word-cloud', function() {
             // nonContentWords: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
             // |სა-, სტა-,იმის,-ში/
         };
-        var stopwords = result5;
         // console.log('Testing filtered text recursion');
         cloud = new iLanguageCloud(cloud).runStemmer();
-        expect(cloud.nonContentWordsArray).toEqual(stopwords);
+        expect(cloud.nonContentWordsArray).toEqual(result5);
       });
 
       xit('should recursively find stopwords until the text has been reduced by 90%', function() {
@@ -275,9 +271,8 @@ describe('lib/word-cloud', function() {
           nonContentWordsArray: result6
             // |სა-, სტა-,იმის,-ში/
         };
-        var stopwords = result6;
         cloud = new iLanguageCloud(cloud).runStemmer();
-        expect(cloud.nonContentWordsArray).toEqual(stopwords);
+        expect(cloud.nonContentWordsArray).toEqual(result6);
       });
 
       it('should accept a regex of stopwords', function() {
@@ -289,9 +284,8 @@ describe('lib/word-cloud', function() {
           nonContentWordsArray: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
             // |სა-, სტა-,იმის,-ში/
         };
-        var stopwords = result6;
         cloud = new iLanguageCloud(cloud).runStemmer();
-        expect(cloud.nonContentWordsArray).toEqual(stopwords);
+        expect(cloud.nonContentWordsArray).toEqual(result6);
       });
 
       it('should accept a list of prefixes', function() {
@@ -455,11 +449,6 @@ describe('lib/word-cloud', function() {
       it('should produce the original human friendly text (with formatting)', function() {
         expect(true).toBeTruthy();
       });
-
-
     });
-
-
   });
-
 });

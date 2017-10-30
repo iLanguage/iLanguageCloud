@@ -1,6 +1,6 @@
 # iLanguageCloud
 
-[![Build Status](https://travis-ci.org/iLanguage/iLanguageCloud.png)](https://travis-ci.org/iLanguage/iLanguageCloud)
+[![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-url]][daviddm-image]
 
 Generate interactive wordclouds for any language, with automatic stop word detection and ability to export as svg or png.
 
@@ -95,4 +95,12 @@ In lieu of a formal styleguide, take care to maintain the existing coding style.
 
 ## License
  
-Copyright (c) 2012-2014 iLanguageCloud Contributors. Licensed under the Apache 2.0 license.
+Copyright (c) 2012-2017 iLanguageCloud Contributors. Licensed under the Apache 2.0 license.
+
+
+[npm-url]: https://npmjs.org/package/ilanguage-cloud
+[npm-image]: https://badge.fury.io/js/ilanguage-cloud.svg
+[travis-url]: https://travis-ci.org/iLanguage/iLanguageCloud
+[travis-image]: https://travis-ci.org/iLanguage/iLanguageCloud.svg?branch=master
+[daviddm-url]: https://david-dm.org/iLanguage/iLanguageCloud.svg?theme=shields.io
+[daviddm-image]: https://david-dm.org/iLanguage/iLanguageCloud
