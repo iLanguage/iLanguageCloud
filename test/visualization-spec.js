@@ -5,7 +5,8 @@
     virtualdocument = document;
     iLanguageCloud = iLanguageCloud || require('../src/ilanguage-cloud').iLanguageCloud;
   } catch (e) {
-    virtualdocument = require("jsdom").jsdom("<body></body>");
+    var JSDOM = require("jsdom").JSDOM;
+    virtualdocument = new JSDOM("<!DOCTYPE html><body></body>").window.document;
     global.document = global.document || virtualdocument;
     iLanguageCloud = iLanguageCloud || require('../src/ilanguage-cloud').iLanguageCloud;
   }
