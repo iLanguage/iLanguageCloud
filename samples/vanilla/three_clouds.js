@@ -34,7 +34,7 @@ var opts3 = {
   onWordClick: onWordClick
 };
 
-// var cloudToSave = new iLanguageCloud({
+// var cloudToSave = new ILanguageCloud({
 //       orthography: newWordCloud,
 //       archived: false,
 //       nonContentWordsArray: [],
@@ -51,11 +51,11 @@ var opts3 = {
 //       enteredByUser: angular.extend({}, navigator)
 //     });
 
-var cloud = new iLanguageCloud(opts).runStemmer();
+var cloud = new ILanguageCloud(opts).runStemmer();
 console.log("This is all the new info added to the text ", cloud);
-var cloud2 = new iLanguageCloud(opts2).runStemmer();
+var cloud2 = new ILanguageCloud(opts2).runStemmer();
 console.log("This is all the new info added to the text ", cloud2);
-var cloud3 = new iLanguageCloud(opts3).runStemmer();
+var cloud3 = new ILanguageCloud(opts3).runStemmer();
 console.log("This is all the new info added to the text ", cloud3);
 
 // timeout(function() {
@@ -65,7 +65,7 @@ cloud3.render();
 // }, 2000);
 //
 document.getElementById("inputText").onblur = function(event) {
-  cloud = new iLanguageCloud({
+  cloud = new ILanguageCloud({
     element: 'cloud',
     orthography: event.target.value,
     font: 'FreeSans',

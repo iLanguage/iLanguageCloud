@@ -2,13 +2,13 @@
 'use strict';
 
 var d3;
-var iLanguageCloud;
+var ILanguageCloud;
 var virtualdocument;
 
 if (typeof document !== 'undefined') {
   virtualdocument = document;
   d3 = d3;
-  iLanguageCloud = iLanguageCloud || require('../src/ilanguage-cloud').iLanguageCloud;
+  ILanguageCloud = ILanguageCloud || require('../src/ilanguage-cloud').ILanguageCloud;
 } else {
   d3 = require("d3");
   try {
@@ -19,7 +19,7 @@ if (typeof document !== 'undefined') {
     console.warn('You dont have jsdom installed, if you have python on your system, please install it npm install jsdom', e.stack);
   }
   global.d3 = global.d3 || d3;
-  iLanguageCloud = iLanguageCloud || require('../src/ilanguage-cloud').iLanguageCloud;
+  ILanguageCloud = ILanguageCloud || require('../src/ilanguage-cloud').ILanguageCloud;
 }
 
 var myFewWordsFactory = function(textToUseSoTestingCloudsAreDifferentButGeneratedTheSame) {
@@ -35,18 +35,18 @@ var myFewWordsFactory = function(textToUseSoTestingCloudsAreDifferentButGenerate
 describe('It should provide a visualization', function() {
 
   it('should wrap d3', function() {
-    expect(iLanguageCloud.d3).toBeDefined();
-    expect(iLanguageCloud.d3.layout).toBeDefined();
+    expect(ILanguageCloud.d3).toBeDefined();
+    expect(ILanguageCloud.d3.layout).toBeDefined();
   });
 
   it('should add cloud to d3', function() {
-    expect(iLanguageCloud.d3.layout.cloud).toBeDefined();
-    expect(iLanguageCloud.cloudviz).toBeDefined();
+    expect(ILanguageCloud.d3.layout.cloud).toBeDefined();
+    expect(ILanguageCloud.cloudviz).toBeDefined();
   });
 
   if (virtualdocument) {
-    it('should be render iLanguageCloud in an svg', function() {
-      var cloud = new iLanguageCloud({
+    it('should be render ILanguageCloud in an svg', function() {
+      var cloud = new ILanguageCloud({
         orthography: "this is a small cloud",
         caseSensitivity: false
       });
@@ -60,7 +60,7 @@ describe('It should provide a visualization', function() {
     });
 
     it('should be render words in an svg', function() {
-      var cloud = new iLanguageCloud.d3.layout.cloud();
+      var cloud = new ILanguageCloud.d3.layout.cloud();
       expect(cloud).toBeDefined();
       cloud.words(myFewWordsFactory("render words in an svg"));
       expect(cloud.words().length).toEqual(5);

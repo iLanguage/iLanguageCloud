@@ -11,17 +11,17 @@
   var Corpus = exports.FieldDB ? exports.FieldDB.Corpus :
     require('fielddb/api/corpus/Corpus').Corpus;
 
-  var iLanguageClouds = function iLanguageClouds(options) {
-    this.debug("In iLanguageClouds ", options);
+  var ILanguageClouds = function ILanguageClouds(options) {
+    this.debug("In ILanguageClouds ", options);
     Corpus.apply(this, arguments);
   };
 
-  iLanguageClouds.prototype = Object.create(Corpus.prototype, /** @lends iLanguageClouds.prototype */ {
+  ILanguageClouds.prototype = Object.create(Corpus.prototype, /** @lends ILanguageClouds.prototype */ {
     constructor: {
-      value: iLanguageClouds
+      value: ILanguageClouds
     }
   });
 
-  exports.iLanguageClouds = iLanguageClouds;
+  exports.ILanguageClouds = ILanguageClouds;
 
 })(typeof exports === 'undefined' ? this : exports);

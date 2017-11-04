@@ -29,7 +29,7 @@ app.directive('wordCloud', function() {
   return {
     link: function(scope, element, attr) {
       var cloudHolder = {};
-      cloudHolder.cloud = WordCloud({
+      cloudHolder.cloud = new WordCloud({
         element: element[0]
       });
 

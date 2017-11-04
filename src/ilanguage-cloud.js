@@ -1,6 +1,6 @@
 /*
  * ilanguagecloud
- * https://github.com/iLanguage/iLanguageCloud
+ * https://github.com/iLanguage/ILanguageCloud
  *
  * Copyright (c) 2013-2017
  * Licensed under the Apache 2.0 license.
@@ -14,8 +14,8 @@
   var cloudviz;
   try {
     locald3 = exports.d3 ? exports.d3 : require('d3');
-    global.d3 = global.d3 || locald3;
     cloudviz = locald3.layout.cloud || require('d3-cloud');
+    global.d3 = global.d3 || locald3;
   } catch (exception1) {
     console.log('There was a problem setting d3', locald3);
   }
@@ -40,13 +40,13 @@
     require('fielddb/api/datum/Datum').Datum;
   var DatumFields = exports.FieldDB ? exports.FieldDB.DatumFields :
     require('fielddb/api/datum/DatumFields').DatumFields;
-  // var lexiconFactory = exports.iLanguage ? exports.iLanguage.Lexicon.LexiconFactory :
+  // var lexiconFactory = exports.ILanguage ? exports.ILanguage.Lexicon.LexiconFactory :
   //   require('ilanguage/js/lexicon/Lexicon').LexiconFactory;
-  var MorphemeSegmenter = exports.iLanguage ? exports.iLanguage.Lexicon.MorphemeSegmenter :
+  var MorphemeSegmenter = exports.ILanguage ? exports.ILanguage.Lexicon.MorphemeSegmenter :
     require('ilanguage/js/lexicon/MorphemeSegmenter').MorphemeSegmenter;
-  var LexemeFrequency = exports.iLanguage ? exports.iLanguage.Lexicon.LexemeFrequency :
+  var LexemeFrequency = exports.ILanguage ? exports.ILanguage.Lexicon.LexemeFrequency :
     require('ilanguage/js/lexicon/LexemeFrequency').LexemeFrequency;
-  var NonContentWords = exports.iLanguage ? exports.iLanguage.Lexicon.NonContentWords :
+  var NonContentWords = exports.ILanguage ? exports.ILanguage.Lexicon.NonContentWords :
     require('ilanguage/js/lexicon/NonContentWords').NonContentWords;
 
   var defaults = {
@@ -63,10 +63,13 @@
     // nonContentWords: NonContentWords.defaults.english
   };
 
-  var iLanguageCloud = function iLanguageCloud(options) {
+  var ILanguageCloud = function ILanguageCloud(options) {
     options = options || {};
     if (!options.originalText) {
       options.originalText = options.orthography;
+    }
+    if (!options.text) {
+      options.text = options.orthography;
     }
     this.saving = false;
     this.runningSegmenter = false;
@@ -85,13 +88,13 @@
     Datum.apply(this, arguments);
   };
 
-  iLanguageCloud.d3 = locald3;
-  iLanguageCloud.d3.layout.cloud = iLanguageCloud.d3.layout.cloud || cloudviz;
-  iLanguageCloud.cloudviz = cloudviz;
+  ILanguageCloud.d3 = locald3;
+  ILanguageCloud.d3.layout.cloud = ILanguageCloud.d3.layout.cloud || cloudviz;
+  ILanguageCloud.cloudviz = cloudviz;
 
-  iLanguageCloud.prototype = Object.create(Datum.prototype, /** @lends iLanguageCloud.prototype */ {
+  ILanguageCloud.prototype = Object.create(Datum.prototype, /** @lends ILanguageCloud.prototype */ {
     constructor: {
-      value: iLanguageCloud
+      value: ILanguageCloud
     },
 
     runSegmenter: {
@@ -238,7 +241,7 @@
           // }
 
           // TEMP merge conflicts
-          var fill = iLanguageCloud.d3.scale.category20(),
+          var fill = ILanguageCloud.d3.scale.category20(),
             w = userOptions.width || this.width || 800,
             h = userOptions.height || this.height || 400,
             shuffledWords = [],
@@ -280,7 +283,7 @@
               console.log('draw is undefined', stuff);
             });
 
-          var svg = iLanguageCloud.d3.select(element).append('svg')
+          var svg = ILanguageCloud.d3.select(element).append('svg')
             .attr('width', w)
             .attr('height', h)
             .attr('version', '1.1')
@@ -296,7 +299,7 @@
             } catch (e) {
               // console.log(e); /* TODO handle this in node */
             }
-            fontSize = iLanguageCloud.d3.scale.linear().domain([0, mostFrequentCount]).range([10, h * 0.25]);
+            fontSize = ILanguageCloud.d3.scale.linear().domain([0, mostFrequentCount]).range([10, h * 0.25]);
 
             // if (self.wordFrequencies.length) {
             //   fontSize.domain([+self.wordFrequencies[self.wordFrequencies.length - 1].count || 1, +self.wordFrequencies[0].count]);
@@ -307,7 +310,7 @@
               layout.stop().words(self.wordFrequencies.slice(0, max = Math.min(self.wordFrequencies.length, +maxVocabSize))).start();
             } catch (e) {
               // console.log(e); /* TODO handle this in node */
-              // console.log('Simulating that the word frequencies contain iLanguageCloud.d3 svg node layout info');
+              // console.log('Simulating that the word frequencies contain ILanguageCloud.d3 svg node layout info');
               self.wordFrequencies = self.wordFrequencies.map(function(d) {
                 return {
                   categories: d.categories || [],
@@ -339,16 +342,17 @@
 
           var parseWordFrequencies = function(cloud) {
             self.debug("Running parseWordFrequencies ", cloud);
+          };
           // if (!self.wordFrequencies || !self.wordFrequencies.length) {
           //   self.runWordFrequencyGenerator();
-            // self.wordFrequencies = JSON.parse(JSON.stringify(cloud.wordFrequencies)); /* this means we cant update the nodes form a client */
-            // self.wordFrequencies = cloud.wordFrequencies; /* TODO or is it the click that is returning a copy, not the node itself... */
-          };
+          //   // self.wordFrequencies = JSON.parse(JSON.stringify(cloud.wordFrequencies)); /* this means we cant update the nodes form a client */
+          //   // self.wordFrequencies = cloud.wordFrequencies; /* TODO or is it the click that is returning a copy, not the node itself... */
+          // }
           maxVocabSize = Math.min(width / 10, self.wordFrequencies.length);
           console.log('TODO use randomSeed to regenerate cloud', userChosenRandomSeed);
-          console.log('d3  cloud loaded: ', !!iLanguageCloud.d3.layout.cloud);
+          console.log('d3  cloud loaded: ', !!ILanguageCloud.d3.layout.cloud);
           // Ask d3-cloud to make an cloud object for us
-          self.layout = iLanguageCloud.d3.layout.cloud();
+          self.layout = ILanguageCloud.d3.layout.cloud();
           // Configure our cloud with d3 chaining
           self.layout
             // .random(function() {
@@ -366,7 +370,7 @@
             })
             .font(userChosenFontFace)
             .on("end", function(words) {
-              iLanguageCloud.reproduceableDrawFunction(words, element, clearPreviousSVG, width, height, userChosenFontFace, self);
+              ILanguageCloud.reproduceableDrawFunction(words, element, clearPreviousSVG, width, height, userChosenFontFace, self);
             });
 
           self.layout.start();
@@ -413,7 +417,7 @@
 
     setSVG: {
       value: function() {
-        var currentSVG = iLanguageCloud.d3.select('svg');
+        var currentSVG = ILanguageCloud.d3.select('svg');
         var currentSVGEscaped = btoa(unescape(encodeURIComponent(currentSVG.node().parentNode.innerHTML)));
         var currentSVGOut = 'data:image/svg+xml;charset=utf-8;base64,' + currentSVGEscaped;
 
@@ -508,7 +512,7 @@
   });
 
   // Declare our own draw function which will be called on the "end" event
-  iLanguageCloud.reproduceableDrawFunction = function(wordFrequencies, element, clearPreviousSVG, width, height, userChosenFontFace, context) {
+  ILanguageCloud.reproduceableDrawFunction = function(wordFrequencies, element, clearPreviousSVG, width, height, userChosenFontFace, context) {
     if (clearPreviousSVG && element && element.children) {
       element.innerHTML = '';
     }
@@ -518,8 +522,8 @@
       mostFrequentCount = context.wordFrequencies[0].count;
     }
 
-    var svg = iLanguageCloud.d3.select(element).append("svg");
-    var colorFunction = iLanguageCloud.d3.scale.category20();
+    var svg = ILanguageCloud.d3.select(element).append("svg");
+    var colorFunction = ILanguageCloud.d3.scale.category20();
 
     svg.attr('width', width)
       .attr('height', height)
@@ -532,7 +536,7 @@
       .enter().append('text')
       .style('font-size', function(word) {
         if (!word.fontSize) {
-          word.fontSize = iLanguageCloud.d3.scale.linear().domain([0, mostFrequentCount]).range([10, height * 0.25])(word.count);
+          word.fontSize = ILanguageCloud.d3.scale.linear().domain([0, mostFrequentCount]).range([10, height * 0.25])(word.count);
           if (word.categories) {
             var categoriesString = word.categories.join(' ');
             if (categoriesString.indexOf('functionalWord') > -1 || categoriesString.indexOf('userRemovedWord') > -1) {
@@ -608,7 +612,7 @@
     context.runningRender = false;
   };
 
-  iLanguageCloud.Doc = Datum;
-  exports.iLanguageCloud = iLanguageCloud;
+  ILanguageCloud.Doc = Datum;
+  exports.ILanguageCloud = ILanguageCloud;
   exports.NonContentWords = NonContentWords;
 })(typeof exports === 'undefined' ? this : exports);
