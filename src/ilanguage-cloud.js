@@ -2,7 +2,7 @@
  * ilanguagecloud
  * https://github.com/iLanguage/iLanguageCloud
  *
- * Copyright (c) 2013
+ * Copyright (c) 2013-2017
  * Licensed under the Apache 2.0 license.
  */
 (function(exports) {
@@ -11,9 +11,11 @@
 
   /* Using D3's new browser version  */
   var locald3;
+  var cloudviz;
   try {
     locald3 = exports.d3 ? exports.d3 : require('d3');
     global.d3 = global.d3 || locald3;
+    cloudviz = locald3.layout.cloud ? locald3.layout.cloud : require('d3-cloud');
   } catch (exception1) {
     console.log('There was a problem setting d3', locald3);
   }
@@ -32,7 +34,6 @@
       console.log('Mocking Canvas. If you have a Mac or Linux computer you should install canvas-browserify, canvas and Cairo. See https://www.npmjs.com/package/canvas#installation for instructions. ');
     }
   }
-  var cloudviz = exports.d3 ? exports.d3 : require('d3.layout.cloud/src/d3.layout.cloud');
   console.log("Loaded d3-cloud", !!cloudviz);
 
   var Doc = exports.FieldDB ? exports.FieldDB.FieldDBObject :
@@ -75,6 +76,8 @@
   };
 
   iLanguageCloud.d3 = locald3;
+  iLanguageCloud.d3.layout.cloud = iLanguageCloud.d3.layout.cloud || cloudviz;
+  iLanguageCloud.cloudviz = cloudviz;
 
   iLanguageCloud.prototype = Object.create(Doc.prototype, /** @lends iLanguageCloud.prototype */ {
     constructor: {
@@ -235,8 +238,8 @@
             fontSize;
           // maxLength = 30,
 
-          console.log('d3  cloud loaded: ', !!iLanguageCloud.d3.layout.cloud);
-          var layout = iLanguageCloud.d3.layout.cloud()
+          console.log('d3  cloud loaded: ', !!cloudviz);
+          var layout = cloudviz()
             .timeInterval(10)
             .size([w, h])
             .fontSize(function(d) {

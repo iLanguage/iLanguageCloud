@@ -20,6 +20,7 @@
 
     it('should add cloud to d3', function() {
       expect(iLanguageCloud.d3.layout.cloud).toBeDefined();
+      expect(iLanguageCloud.cloudviz).toBeDefined();
     });
 
     it('should be render words in an svg', function() {
