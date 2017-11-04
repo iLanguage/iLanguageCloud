@@ -22,7 +22,8 @@ var sampleText = 'A cloud is a visible mass of condensed droplets or frozen crys
 var sampleUnicodeText = 'ენა (ენათმეცნიერება) თავისუფალი ქართულენოვანი ენციკლოპედია ვიკიპედიიდან  Disambig-dark.svg სხვა მნიშვნელობებისთვის იხილეთ ენა. არნოლდ ლაკოვსკი, საუბარი, (დაახლოებით 1935 - წელი) ენა — ენათმეცნიერული ცნება-ტერმინი, რომელიც აკუსტიკურად და ოპტიკურად აღქმადი ნიშნების სისტემას აღნიშნავს. ენა და საზოგადოება[რედაქტირება] ადამიანის არსებობა მჭიდროდაა დაკავშირებული საზოგადოებრივ საქმიანობასთან. საზოგადოებრივი საქმიანობა, თავის მხრივ, შეუძლებელია ადამიანთა შორის ურთიერთგაგებინების გარეშე. გაგებინების უმნიშვნელოვანესი საშუალება არის ბუნებრივი ენა.  ენა არის საზოგადოებრივი ცხოვრების მოთხოვნილებებიდან, განსაკუთრებით კი შედეგზე ორიენტირებული საქმიანობიდან მომდინარე, მუდმივად განახლებადი, განვითარებადი სისტემა აკუსტიკურად და ოპტიკურად აღქმადი ნიშნებისა, რომელიც ადამიანს ემსახურება აზრის გაფორმებაში, შეაძლებინებს მას გარკვეულ ფორმაში მოაქციოს აზრი და ამით გასაგები გახადოს იგი მისთვის და სხვათათვის. ენა ადამიანს ფიქრის პროცესს, ანუ გარკვეული რეალობის შემეცნებას შეაძლებინებს. ენის, როგორც ნიშანთა სისტემის მეშვეობით შესაძლებელი ხდება აზრებისა და ემოციური განცდების გადმოცემა, ასევე მოპოვებული ცოდნის ფიქსირება და შენახვა. ენის დეფინიციიდან გამომდინარე გასაგები ხდება, რომ იგი ადამიანის ენობრივი მოღვაწეობის ინსტრუმენტია და მჭიდრო ურთიერთკავშირშია ადამიანის ცნობიერებასთან. ურთიერთკავშირი ენასა და საზოგადოებას შორის ცხადი ხდება კომუნიკაციაში. კომუნიკაციას ენათმეცნიერები განიხილავენ, როგორც ურთიერთგაგებინების პროცესს.';
 var sampleLongUnicodeText = 'ენა (ენათმეცნიერება) თავისუფალი ქართულენოვანი ენციკლოპედია ვიკიპედიიდან  Disambig-dark.svg სხვა მნიშვნელობებისთვის იხილეთ ენა. არნოლდ ლაკოვსკი, საუბარი, (დაახლოებით 1935 - წელი) ენა — ენათმეცნიერული ცნება-ტერმინი, რომელიც აკუსტიკურად და ოპტიკურად აღქმადი ნიშნების სისტემას აღნიშნავს. ენა და საზოგადოება[რედაქტირება] ადამიანის არსებობა მჭიდროდაა დაკავშირებული საზოგადოებრივ საქმიანობასთან. საზოგადოებრივი საქმიანობა, თავის მხრივ, შეუძლებელია ადამიანთა შორის ურთიერთგაგებინების გარეშე. გაგებინების უმნიშვნელოვანესი საშუალება არის ბუნებრივი ენა.  ენა არის საზოგადოებრივი ცხოვრების მოთხოვნილებებიდან, განსაკუთრებით კი შედეგზე ორიენტირებული საქმიანობიდან მომდინარე, მუდმივად განახლებადი, განვითარებადი სისტემა აკუსტიკურად და ოპტიკურად აღქმადი ნიშნებისა, რომელიც ადამიანს ემსახურება აზრის გაფორმებაში, შეაძლებინებს მას გარკვეულ ფორმაში მოაქციოს აზრი და ამით გასაგები გახადოს იგი მისთვის და სხვათათვის. ენა ადამიანს ფიქრის პროცესს, ანუ გარკვეული რეალობის შემეცნებას შეაძლებინებს. ენის, როგორც ნიშანთა სისტემის მეშვეობით შესაძლებელი ხდება აზრებისა და ემოციური განცდების გადმოცემა, ასევე მოპოვებული ცოდნის ფიქსირება და შენახვა. ენის დეფინიციიდან გამომდინარე გასაგები ხდება, რომ იგი ადამიანის ენობრივი მოღვაწეობის ინსტრუმენტია და მჭიდრო ურთიერთკავშირშია ადამიანის ცნობიერებასთან. ურთიერთკავშირი ენასა და საზოგადოებას შორის ცხადი ხდება კომუნიკაციაში. კომუნიკაციას ენათმეცნიერები განიხილავენ, როგორც ურთიერთგაგებინების პროცესს.';
 var sampleTextNonContentWordsLowercase = ['1', '2', '3', '4', '42', '5', '6', '7', 'a', 'album', 'also', 'an', 'and', 'as', 'band', 'be', 'by', 'cloud', 'comic', 'ep', 'film', 'from', 'fu', 'game', 'group', 'in', 'indie', 'is', 'mass', 'music', 'of', 'on', 'open', 'or', 'other', 'pc', 'play', 'rock', 's', 'see', 'song', 'st', 'that', 'the', 'to', 'uk', 'used', 'uses', 'wan', 'white', 'will', 'zach'];
-var sampleTextNonContentWords = ['1', '2', '3', '4', '42', '5', '6', '7', 'a', 'album', 'also', 'an', 'and', 'as', 'band', 'be', 'by', 'Cloud', 'comic', 'EP', 'film', 'from', 'Fu', 'game', 'group', 'in', 'indie', 'is', 'mass', 'Music', 'of', 'on', 'open', 'or', 'Other', 'PC', 'play', 'rock', 's', 'See', 'song', 'St', 'that', 'the', 'to', 'UK', 'used', 'uses', 'Wan', 'White', 'will', 'Zach'];
+var sampleTextNonContentWordsNodeOrder = ['1', '2', '3', '4', '42', '5', '6', '7', 'Cloud', 'EP', 'Fu', 'Music', 'Other', 'PC', 'See', 'St', 'UK', 'Wan', 'White', 'Zach', 'a', 'album', 'also', 'an', 'and', 'as', 'band', 'be', 'by', 'comic', 'film', 'from', 'game', 'group', 'in', 'indie', 'is', 'mass', 'of', 'on', 'open', 'or', 'play', 'rock', 's', 'song', 'that', 'the', 'to', 'used', 'uses', 'will'];
+var sampleTextNonContentWordsBrowserOrder = ['1', '2', '3', '4', '42', '5', '6', '7', 'a', 'album', 'also', 'an', 'and', 'as', 'band', 'be', 'by', 'Cloud', 'comic', 'EP', 'film', 'from', 'Fu', 'game', 'group', 'in', 'indie', 'is', 'mass', 'Music', 'of', 'on', 'open', 'or', 'Other', 'PC', 'play', 'rock', 's', 'See', 'song', 'St', 'that', 'the', 'to', 'UK', 'used', 'uses', 'Wan', 'White', 'will', 'Zach'];
 var sampleUnicodeTextNonContentWords = ['1935', 'svg', 'აზრი', 'აზრის', 'ამით', 'ანუ', 'არის', 'ასევე', 'და', 'ენა', 'ენასა', 'ენის', 'თავის', 'იგი', 'კი', 'მას', 'მხრივ', 'რომ', 'სხვა', 'შორის', 'ცხადი', 'წელი', 'ხდება'];
 var result5 = ['1', '13', '16', '17', '2', '20', '24', '27', '29', '3', '4', '41', '5', '6', '7', '8', 'I', 'II', 'ა', 'აი', 'ალ', 'ამ', 'ან', 'არ', 'ბ', 'გ', 'და', 'ე', 'ეს', 'ვ', 'თუ', 'იმ', 'ის', 'კი', 'ლ', 'მე', 'რა', 'რომ', 'ს', 'სი', 'უნდა', 'ფ', 'შ'];
 var result6 = ['და', 'აის', 'კასატორი', 'არ', 'მე', 'მიერ', 'თუ', 'არა', 'ფი', 'ეს', 'არის', 'მის', 'ან'];
@@ -205,16 +206,15 @@ describe('lib/word-cloud', function() {
           caseSensitivity: false
         };
         expect(NonContentWords.LexemeFrequency.calculateNonContentWords(textToTest).nonContentWordsArray)
-          .toEqual(sampleTextNonContentWords);
+          .toEqual(sampleTextNonContentWordsBrowserOrder);
       });
 
       it('should automatically identify stopwords if caseSensitivity is not specified', function() {
         var cloud = {
           orthography: sampleText
         };
-
         cloud = new iLanguageCloud(cloud).runStemmer();
-        expect(cloud.nonContentWordsArray).toEqual(sampleTextNonContentWords);
+        expect(cloud.nonContentWordsArray).toEqual(sampleTextNonContentWordsBrowserOrder);
       });
 
       it('should automatically identify stopwords if caseSensitivity is lower', function() {
@@ -238,8 +238,8 @@ describe('lib/word-cloud', function() {
         var cloud = {
           orthography: sampleLongUnicodeText,
           cutoff: 0.015
-          // nonContentWords: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
-          // |სა-, სტა-,იმის,-ში/
+            // nonContentWords: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
+            // |სა-, სტა-,იმის,-ში/
         };
         // console.log('Testing filtered text recursion');
         cloud = new iLanguageCloud(cloud).runStemmer();
@@ -269,7 +269,7 @@ describe('lib/word-cloud', function() {
           orthography: sampleUnicodeText,
           userSpecifiedNonContentWords: true,
           nonContentWordsArray: result6
-          // |სა-, სტა-,იმის,-ში/
+            // |სა-, სტა-,იმის,-ში/
         };
         cloud = new iLanguageCloud(cloud).runStemmer();
         expect(cloud.nonContentWordsArray).toEqual(result6);
@@ -282,7 +282,7 @@ describe('lib/word-cloud', function() {
           height: 200,
           userSpecifiedNonContentWords: true,
           nonContentWordsArray: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
-          // |სა-, სტა-,იმის,-ში/
+            // |სა-, სტა-,იმის,-ში/
         };
         cloud = new iLanguageCloud(cloud).runStemmer();
         expect(cloud.nonContentWordsArray).toEqual(result6);
@@ -295,8 +295,8 @@ describe('lib/word-cloud', function() {
           height: 200,
           cutoff: 0.015,
           prefixesArray: ['სა-', 'სტა-']
-          // nonContentWords: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
-          // |სა-, სტა-,იმის,-ში/
+            // nonContentWords: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
+            // |სა-, სტა-,იმის,-ში/
         };
         cloud = new iLanguageCloud(cloud).runStemmer();
         expect(cloud.prefixesArray).toEqual(['სტა-', 'სა-']);

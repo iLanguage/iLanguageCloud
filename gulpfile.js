@@ -100,7 +100,8 @@ gulp.task('browserify', ['clean'], function() {
           path: './node_modules/d3/d3.js',
           exports: 'd3'
         }
-      }
+      },
+      banner: banner()
     };
     if (false) {
       console.log("Old options", options);
