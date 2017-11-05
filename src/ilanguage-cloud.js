@@ -55,7 +55,7 @@
     font: 'FreeSans',
     isAndroid: false,
     maxVocabSize: 500,
-    clearPreviousSVG: true,
+    keepPreviousSVG: false,
     morphemeSegmentationOptions: {
       algorithm: 'MorphoParser',
       maxIterations: 2
@@ -209,7 +209,7 @@
           var userChosenFontFace = userOptions.font;
           // var isAndroid = userOptions.isAndroid || this.isAndroid;
           var maxVocabSize = userOptions.maxVocabSize || this.maxVocabSize || defaults.maxVocabSize;
-          var clearPreviousSVG = userOptions.clearPreviousSVG || this.clearPreviousSVG || defaults.clearPreviousSVG;
+          var keepPreviousSVG = userOptions.keepPreviousSVG || this.keepPreviousSVG || defaults.keepPreviousSVG;
           var width = userOptions.width || this.width || 800;
           var height = userOptions.height || this.height || 400;
           var fontSize = userOptions.fontSize || ILanguageCloud.d3.scale.linear().range([10, height * 0.25]);
@@ -287,7 +287,7 @@
                 ILanguageCloud.reproduceableDrawFunction({
                   element: self.element,
                   userChosenFontFace: userChosenFontFace,
-                  clearPreviousSVG: clearPreviousSVG,
+                  keepPreviousSVG: keepPreviousSVG,
                   localDocument: localDocument,
                   width: width,
                   height: height,
@@ -301,7 +301,7 @@
             ILanguageCloud.reproduceableDrawFunction({
               element: self.element,
               userChosenFontFace: userChosenFontFace,
-              clearPreviousSVG: clearPreviousSVG,
+              keepPreviousSVG: keepPreviousSVG,
               localDocument: localDocument,
               width: width,
               height: height,
@@ -450,26 +450,16 @@
   // Declare our own draw function which will be called on the 'end' event
   ILanguageCloud.reproduceableDrawFunction = function(options) {
     var element = options.element;
-    var clearPreviousSVG = options.clearPreviousSVG;
+    var keepPreviousSVG = options.keepPreviousSVG;
     var width = options.width;
     var height = options.height;
     var userChosenFontFace = options.userChosenFontFace;
     var fill = options.fill;
     var context = options.context;
-    var localDocument = options.localDocument;
-    var svg = context.svg || element.getElementsByTagName('svg')[0];
-    var appendSVG = true;
+    var svg = context.svg || ILanguageCloud.d3.select(element).append('svg');
 
-    if (clearPreviousSVG && svg) {
-      ILanguageCloud.d3.select(svg).selectAll('*').remove();
-      // while (svg.lastChild) {
-      //   svg.removeChild(svg.lastChild);
-      // }
-      appendSVG = false;
-    }
-    if (!svg) {
-      svg = localDocument.createElement('svg');
-      appendSVG = true;
+    if (!keepPreviousSVG && element && element.children) {
+      svg.selectAll('*').remove();
     }
 
     var mostFrequentCount = 1;
@@ -479,7 +469,7 @@
       }
     });
 
-    ILanguageCloud.d3.select(svg)
+    svg.attr('width', width)
       .attr('width', width)
       .attr('height', height)
       // .attr('version', '1.1')
@@ -570,9 +560,6 @@
       });
 
     context.svg = svg;
-    if (appendSVG) {
-      element.appendChild(svg);
-    }
     context.runningRender = false;
   };
 
