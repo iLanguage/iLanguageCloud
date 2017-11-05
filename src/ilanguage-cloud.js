@@ -239,9 +239,6 @@
             this.element = element;
           }
 
-          if (clearPreviousSVG) {
-            element.innerHTML = '';
-          }
           if (!this.wordFrequencies || !this.wordFrequencies.length) {
             this.warn('Must generate wordFrequencies before rendering.');
             this.runWordFrequencyGenerator();
@@ -291,6 +288,7 @@
                   element: self.element,
                   userChosenFontFace: userChosenFontFace,
                   clearPreviousSVG: clearPreviousSVG,
+                  localDocument: localDocument,
                   width: width,
                   height: height,
                   fill: fill,
@@ -304,6 +302,7 @@
               element: self.element,
               userChosenFontFace: userChosenFontFace,
               clearPreviousSVG: clearPreviousSVG,
+              localDocument: localDocument,
               width: width,
               height: height,
               fill: fill,
@@ -354,7 +353,7 @@
 
     setSVG: {
       value: function() {
-        var currentSVG = ILanguageCloud.d3.select('svg');
+        var currentSVG = this.svg;
         var currentSVGEscaped = btoa(unescape(encodeURIComponent(currentSVG.node().parentNode.innerHTML)));
         var currentSVGOut = 'data:image/svg+xml;charset=utf-8;base64,' + currentSVGEscaped;
 
@@ -457,21 +456,34 @@
     var userChosenFontFace = options.userChosenFontFace;
     var fill = options.fill;
     var context = options.context;
+    var localDocument = options.localDocument;
+    var svg = context.svg || element.getElementsByTagName('svg')[0];
+    var appendSVG = true;
 
-    if (clearPreviousSVG && element && element.children) {
-      element.innerHTML = '';
+    if (clearPreviousSVG && svg) {
+      ILanguageCloud.d3.select(svg).selectAll('*').remove();
+      // while (svg.lastChild) {
+      //   svg.removeChild(svg.lastChild);
+      // }
+      appendSVG = false;
+    }
+    if (!svg) {
+      svg = localDocument.createElement('svg');
+      appendSVG = true;
     }
 
-    var mostFrequentCount = 0;
-    if (context.wordFrequencies && context.wordFrequencies[0] && context.wordFrequencies[0].count) {
-      mostFrequentCount = context.wordFrequencies[0].count;
-    }
+    var mostFrequentCount = 1;
+    context.wordFrequencies.forEach(function(word) {
+      if (word && word.count && word.count > mostFrequentCount) {
+        mostFrequentCount = word.count;
+      }
+    });
 
-    var svg = ILanguageCloud.d3.select(element).append('svg');
-    svg.attr('width', width)
+    ILanguageCloud.d3.select(svg)
+      .attr('width', width)
       .attr('height', height)
-      .attr('version', '1.1')
-      .attr('xmlns', 'http://www.w3.org/2000/svg')
+      // .attr('version', '1.1')
+      // .attr('xmlns', 'http://www.w3.org/2000/svg')
       .append('g')
       .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
       .selectAll('text')
@@ -557,6 +569,10 @@
         }
       });
 
+    context.svg = svg;
+    if (appendSVG) {
+      element.appendChild(svg);
+    }
     context.runningRender = false;
   };
 

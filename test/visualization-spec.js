@@ -10,10 +10,10 @@ if (typeof document !== 'undefined') {
   d3 = d3;
   ILanguageCloud = ILanguageCloud || require('../src/ilanguage-cloud').ILanguageCloud;
 } else {
-  d3 = require("d3");
+  d3 = require('d3');
   try {
-    var JSDOM = require("jsdom").JSDOM;
-    virtualdocument = new JSDOM("<!DOCTYPE html><body><div id='sizeable-cloud'></div><div id='reproducable-cloud'></div><div id='viztest'></div><div id='angles'></div></body>").window.document;
+    var JSDOM = require('jsdom').JSDOM;
+    virtualdocument = new JSDOM('<!DOCTYPE html><body><div id="sizeable-cloud"></div><div id="reproducable-cloud"></div><div id="viztest"></div><div id="angles"></div></body>').window.document;
     global.document = global.document || virtualdocument;
   } catch (e) {
     console.warn('You dont have jsdom installed, if you have python on your system, please install it npm install jsdom', e.stack);
@@ -86,19 +86,28 @@ describe('It should provide a visualization', function() {
         orthography: "this is a small cloud",
         clearPreviousSVG: true,
         element: {
-          innerHTML: '<mocksvg></mocksvg>',
+          children: [{
+            selectAll: function() {}
+          }],
+          getElementsByTagName: function() {
+            return this.children;
+          },
           ownerDocument: {}
         }
       });
+      spyOn(cloud.element, 'getElementsByTagName').and.callThrough();
+      spyOn(cloud.element.children[0], 'selectAll').and.callThrough();
+
       expect(cloud).toBeDefined();
       cloud.render();
-      expect(cloud.element.innerHTML).toEqual('');
+      expect(cloud.element.getElementsByTagName).toHaveBeenCalledWith('svg');
+      expect(cloud.element.children[0].selectAll).toHaveBeenCalledWith('*');
     });
 
     if (virtualdocument) {
       it('should accept an id for an element', function() {
         var cloud = new ILanguageCloud({
-          orthography: "this is a small cloud",
+          orthography: 'this is a small cloud',
           element: 'viztest',
           document: virtualdocument
         });
@@ -111,7 +120,7 @@ describe('It should provide a visualization', function() {
       it('should provide d3-cloud', function() {
         var cloud = new ILanguageCloud.d3.layout.cloud();
         expect(cloud).toBeDefined();
-        cloud.words(myFewWordsFactory("render words in an svg"));
+        cloud.words(myFewWordsFactory('render words in an svg'));
         expect(cloud.words().length).toEqual(5);
         expect(virtualdocument.getElementsByTagName('svg')).toBeDefined();
         // expect(virtualdocument.getElementsByTagName('svg')[0]).toBeDefined();
@@ -119,7 +128,7 @@ describe('It should provide a visualization', function() {
 
       it('should be render ILanguageCloud in an svg', function() {
         var cloud = new ILanguageCloud({
-          orthography:'another little-cloudy with stuff init',
+          orthography: 'another little-cloudy with stuff init',
           // orthography: sampleText,
           debugMode: false,
         });
@@ -250,11 +259,11 @@ describe('It should provide a visualization', function() {
             }
             return word.rotate;
           })
-          .font("Impact")
+          .font('Impact')
           .fontSize(function(word) {
             return word.importance;
           })
-          .on("end", function(words) {
+          .on('end', function(words) {
             myReproduceableDrawFunction(words, previouslyRenderedCloudElement);
           });
 
