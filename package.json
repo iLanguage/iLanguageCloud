@@ -54,6 +54,7 @@
   },
   "scripts": {
     "gulp": "gulp",
+    "lint": "gulp jshint",
     "test": "gulp test",
     "test:browser": "cd test && bower install && open SpecRunner.html",
     "cover": "gulp istanbul",
