@@ -13,7 +13,7 @@ if (typeof document !== 'undefined') {
   d3 = require("d3");
   try {
     var JSDOM = require("jsdom").JSDOM;
-    virtualdocument = new JSDOM("<!DOCTYPE html><body><div id='viztest'></div><div id='angles'></div></body>").window.document;
+    virtualdocument = new JSDOM("<!DOCTYPE html><body><div id='sizeable-cloud'></div><div id='reproducable-cloud'></div><div id='viztest'></div><div id='angles'></div></body>").window.document;
     global.document = global.document || virtualdocument;
   } catch (e) {
     console.warn('You dont have jsdom installed, if you have python on your system, please install it npm install jsdom', e.stack);
@@ -21,6 +21,7 @@ if (typeof document !== 'undefined') {
   global.d3 = global.d3 || d3;
   ILanguageCloud = ILanguageCloud || require('../src/ilanguage-cloud').ILanguageCloud;
 }
+var sampleText = 'A cloud is a visible mass of condensed droplets or frozen crystals suspended in the atmosphere. Cloud(s) may also refer to: Contents  [hide]  1 Information Technology 2 Science 3 Fiction 4 Literature 5 Music 6 Other uses 7 See also Information Technology  Cloud computing, Internet-based development and use of computer technology stored on servers rather than the client computers Cloud (operating system), a browser-based operating system that will instantly be usable after turning on the PC, by the makers of gOS Tag cloud, a visual depiction of user-generated tags used typically to describe the content of web sites Cloud storage, a model of networked online storage Cloud.com, a company that develops open source cloud orchestration software CloudStack, an open source cloud computing software Science  Magellanic Clouds, irregular dwarf galaxies near our galaxy, the Milky Way Interstellar cloud, dense region between stars Molecular cloud, interstellar cloud containing molecules Electron cloud, analogy used to describe an electron that orbits around a nucleus Point cloud, in mathematics, a set of vertices in a three-dimensional coordinate system CLOUD, an experimental facility used to investigate the microphysics between galactic cosmic rays and clouds Cloud chamber, an experimental device used in early studies of particle physics Fiction  Cloud Strife, a character in Final Fantasy VII media Bou Keng Wan (\'Cloud\'), a Kung Fu character from the Hong Kong comic, Fung Wan Cloud (comics), a Marvel comic book character Cloudbase, the fictional skyborne headquarters of Spectrum, from the science fiction television series Captain Scarlet and the Mysterons Clouds (film), a 2000 film written and directed by Don Thompson and produced by Will Arntz Literature  The Clouds, a comedy by Aristophanes Clouds, a 1977 philosophical comedic play by British playwright Michael Frayn The Clouds, a 1797 play by the British writer Richard Cumberland The Cloud of Unknowing, a medieval mystical text Music  Clouds (60s rock band), a Scottish music group that operated in the late 1960s Clouds (Australian band), an indie rock group based in Sydney, Australia in the 1990s The Clouds (UK band), a British indie pop band from the 1980s Cloud (music), sound mass consisting of statistical clouds of microsounds \'Clouds\', a song by Chaka Khan from Naughty \'Clouds\', a song by Level 42 on the album Retroglide \'Clouds\', a song by Spires That in the Sunset Rise on the album This Is Fire \'Clouds\' (Zach Sobiech song) a song by Zach Sobiech Clouds (Joni Mitchell album), 1969 Clouds (Lee Ranaldo album), 1997 Clouds (Tiamat album), 1992 Clouds (EP), an EP by Nosound \'Cloudy\', by Average White Band from the album Cut the Cake Other uses  Cloud (dancer), a b-boy, writer, and director from Florida Cloud (surname) Cloud, California, a former settlement in Kings County Clodoald (522–560), better known as Cloud or Saint Cloud, son of King Chlodomer of Orleans Saint-Cloud, a commune in the western suburbs of Paris, France Cloud (video game), a 2005 third-person computer puzzle game See also  The Cloud (disambiguation) Cloud Nine (disambiguation) Red Cloud (disambiguation) St. Cloud (disambiguation) White Cloud (disambiguation) McCloud (disambiguation)';
 
 var myFewWordsFactory = function(textToUseSoTestingCloudsAreDifferentButGeneratedTheSame) {
   return textToUseSoTestingCloudsAreDifferentButGeneratedTheSame.split(" ")
@@ -84,7 +85,10 @@ describe('It should provide a visualization', function() {
       var cloud = new ILanguageCloud({
         orthography: "this is a small cloud",
         clearPreviousSVG: true,
-        element: { innerHTML: '<mocksvg></mocksvg>', ownerDocument: {} }
+        element: {
+          innerHTML: '<mocksvg></mocksvg>',
+          ownerDocument: {}
+        }
       });
       expect(cloud).toBeDefined();
       cloud.render();
@@ -104,27 +108,74 @@ describe('It should provide a visualization', function() {
         expect(cloud.document.getElementById).toHaveBeenCalledWith('viztest');
       });
 
-      it('should be render ILanguageCloud in an svg', function() {
-        var cloud = new ILanguageCloud({
-          orthography: "this is a small cloud",
-          caseSensitivity: false,
-          debugMode: true
-        });
-        expect(cloud).toBeDefined();
-        // cloud.runWordFrequencyGenerator();
-        cloud.render( {
-          document: virtualdocument
-        });
-        expect(cloud.wordFrequencies.length).toEqual(5);
-        expect(virtualdocument.getElementsByTagName('svg')).toBeDefined();
-        // expect(virtualdocument.getElementsByTagName('svg')[0]).toBeDefined();
-      });
-
-      it('should be render words in an svg', function() {
+      it('should provide d3-cloud', function() {
         var cloud = new ILanguageCloud.d3.layout.cloud();
         expect(cloud).toBeDefined();
         cloud.words(myFewWordsFactory("render words in an svg"));
         expect(cloud.words().length).toEqual(5);
+        expect(virtualdocument.getElementsByTagName('svg')).toBeDefined();
+        // expect(virtualdocument.getElementsByTagName('svg')[0]).toBeDefined();
+      });
+
+      it('should be render ILanguageCloud in an svg', function() {
+        var cloud = new ILanguageCloud({
+          orthography:'another little-cloudy with stuff init',
+          // orthography: sampleText,
+          debugMode: false,
+        });
+        expect(cloud).toBeDefined();
+        cloud.render({
+          document: virtualdocument,
+          element: 'sizeable-cloud'
+        });
+        expect(cloud.wordFrequencies.length).toEqual(5);
+        var textElements = cloud.element.getElementsByTagName('text');
+        expect(textElements.length).toEqual(5);
+      });
+
+      it('should be able to set the font of one word or a render', function() {
+        var cloud = new ILanguageCloud({
+          orthography: "this is a small cloud",
+          caseSensitivity: false,
+          debugMode: false,
+        });
+        expect(cloud).toBeDefined();
+        cloud.render({
+          document: virtualdocument,
+          element: 'reproducable-cloud'
+        });
+        expect(cloud.wordFrequencies.length).toEqual(5);
+        var textElements = cloud.element.getElementsByTagName('text');
+        expect(textElements.length).toEqual(5);
+
+        var positionOfFirstWord = 0;
+        for (var i = 0; i < textElements.length; i++) {
+          var text = textElements[i].innerHTML;
+          if (text === 'this') {
+            positionOfFirstWord = i;
+            expect(textElements[i].style['font-family']).toEqual('Impact');
+          }
+        }
+
+        cloud.wordFrequencies[0].orthography = 'changed';
+        cloud.wordFrequencies[0].font = 'Verdana';
+
+        cloud.render({
+          document: virtualdocument,
+          element: 'reproducable-cloud',
+        });
+        expect(textElements[positionOfFirstWord].innerHTML).toEqual('changed');
+        expect(textElements[positionOfFirstWord].style['font-family']).toEqual('Verdana');
+
+        cloud.render({
+          document: virtualdocument,
+          element: 'reproducable-cloud',
+          font: 'Verdana'
+        });
+        for (var i = 0; i < textElements.length; i++) {
+          var text = textElements[i].innerHTML;
+          expect(textElements[i].style['font-family']).toEqual('Verdana');
+        }
         expect(virtualdocument.getElementsByTagName('svg')).toBeDefined();
         // expect(virtualdocument.getElementsByTagName('svg')[0]).toBeDefined();
       });
@@ -189,7 +240,8 @@ describe('It should provide a visualization', function() {
         myCloudFromPersistantStore = ILanguageCloud.cloudviz()
 
         // and configure our cloud with d3 chaining
-        myCloudFromPersistantStore.size([WIDTH, HEIGHT])
+        myCloudFromPersistantStore
+          .size([WIDTH, HEIGHT])
           .words(JSON.parse(myPreviousCloudFromAPersistantStore).words)
           .padding(5)
           .rotate(function(word) {

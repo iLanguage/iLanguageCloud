@@ -128,7 +128,7 @@
           return this;
         }
         this.runningWordFrequencyGenerator = true;
-        // console.log("runWordFrequencyGenerator");
+        // console.log('runWordFrequencyGenerator');
         this.wordFrequencies = null;
         LexemeFrequency.calculateNonContentWords(this); /* TODO decide if this should be calculateNonContentWords */
         this.runningWordFrequencyGenerator = false;
@@ -206,10 +206,14 @@
         try {
           var element = userOptions.element || this.element;
           var userChosenRandomSeed = userOptions.randomSeed || this.randomSeed || Math.random() * 10;
-          var userChosenFontFace = userOptions.font || this.font;
+          var userChosenFontFace = userOptions.font;
           // var isAndroid = userOptions.isAndroid || this.isAndroid;
           var maxVocabSize = userOptions.maxVocabSize || this.maxVocabSize || defaults.maxVocabSize;
           var clearPreviousSVG = userOptions.clearPreviousSVG || this.clearPreviousSVG || defaults.clearPreviousSVG;
+          var width = userOptions.width || this.width || 800;
+          var height = userOptions.height || this.height || 400;
+          var fontSize = userOptions.fontSize || ILanguageCloud.d3.scale.linear().range([10, height * 0.25]);
+          var fill = userOptions.fill || ILanguageCloud.d3.scale.category20();
 
           var localDocument;
           if (userOptions.document) {
@@ -231,18 +235,20 @@
             localDocument.body.appendChild(element);
           }
 
+          if (element) {
+            this.element = element;
+          }
+
           if (clearPreviousSVG) {
             element.innerHTML = '';
           }
           if (!this.wordFrequencies || !this.wordFrequencies.length) {
             this.warn('Must generate wordFrequencies before rendering.');
             this.runWordFrequencyGenerator();
-            return;
           }
           this.wordFrequencies = this.wordFrequencies.map(function(item) {
             item.text = item.orthography;
-            // var fontsize = fontSize(d.count) * 10;
-            var fontsizeForThisWord = fontSize(+item.count);
+            var fontsizeForThisWord = fontSize(item.count) * 10;
             if (item.categories) {
               var categoriesString = item.categories.join(' ');
               if (categoriesString.indexOf('functionalWord') > -1 || categoriesString.indexOf('userRemovedWord') > -1) {
@@ -254,143 +260,57 @@
             }
             // fontsizeForThisWord = fontSize(fontsizeForThisWord);
             // console.log('fontsizeForThisWord ' + d.count + ' ' + fontsizeForThisWord + ' scaled fontSize ');
-            item.value = Math.min(fontsizeForThisWord, 70);
+            item.importance = Math.min(fontsizeForThisWord, 70);
             return item;
           });
+          maxVocabSize = Math.min(width / 10, self.wordFrequencies.length, maxVocabSize);
 
-          // TEMP merge conflicts
-          var fill = ILanguageCloud.d3.scale.category20();
-          var shuffledWords = [];
-          var max;
-          var scale = 1;
-          var mostFrequentCount;
-          var fontSize;
-          // maxLength = 30;
+          var SEED = 2;
 
-          // D3 word cloud by Jason Davies see http://www.jasondavies.com/wordcloud/ for more details
-          var width = userOptions.width || this.width || 800;
-          var height = userOptions.height || this.height || 400;
-          // maxLength = 30,
-
-          console.log('d3  cloud loaded: ', !!ILanguageCloud.cloudviz);
-          var layout = ILanguageCloud.cloudviz()
-            .timeInterval(10)
-            .size([width, height])
-            // .fontSize(function(d) {
-            //   // var fontsize = fontSize(d.count) * 10;
-            //   var fontsizeForThisWord = fontSize(+d.count);
-            //   if (d.categories) {
-            //     var categoriesString = d.categories.join(' ');
-            //     if (categoriesString.indexOf('functionalWord') > -1 || categoriesString.indexOf('userRemovedWord') > -1) {
-            //       // console.log('Hiding ' + d.orthography + ' ' + categoriesString);
-            //       fontsizeForThisWord = 0;
-            //     }
-            //   } else {
-            //     // return fontSize(+d.count);
-            //   }
-            //   // fontsizeForThisWord = fontSize(fontsizeForThisWord);
-            //   // console.log('fontsizeForThisWord ' + d.count + ' ' + fontsizeForThisWord + ' scaled fontSize ');
-            //   return Math.min(fontsizeForThisWord, 70);
-            // })
-            .text(function(d) {
-              console.log('orthography', d.orthography);
-              return d.orthography;
-            })
-            .on('end', function(stuff) {
-              console.log('draw is undefined', stuff);
-            });
-
-          var svg = ILanguageCloud.d3.select(element).append('svg')
-            .attr('width', width)
-            .attr('height', height)
-            .attr('version', '1.1')
-            .attr('xmlns', 'http://www.w3.org/2000/svg');
-
-          var background = svg.append('g');
-          var vis = svg.append('g').attr('transform', 'translate(' + [width >> 1, height >> 1] + ')');
-          this.debug(' the background is set to ', background);
-
-          var generate = function() {
-            try {
-              layout.font(userChosenFontFace).spiral('archimedean');
-            } catch (e) {
-              // console.log(e); /* TODO handle this in node */
-            }
-            fontSize = ILanguageCloud.d3.scale.linear().domain([0, mostFrequentCount]).range([10, height * 0.25]);
-
-            // if (self.wordFrequencies.length) {
-            //   fontSize.domain([+self.wordFrequencies[self.wordFrequencies.length - 1].count || 1, +self.wordFrequencies[0].count]);
-            // }
-
-            shuffledWords = [];
-            try {
-              layout.stop().words(self.wordFrequencies.slice(0, max = Math.min(self.wordFrequencies.length, +maxVocabSize))).start();
-            } catch (e) {
-              // console.log(e); /* TODO handle this in node */
-              // console.log('Simulating that the word frequencies contain ILanguageCloud.d3 svg node layout info');
-              self.wordFrequencies = self.wordFrequencies.map(function(d) {
-                return {
-                  categories: d.categories || [],
-                  alternates: d.alternates || [],
-                  count: d.count,
-                  hasText: true,
-                  height: 0,
-                  orthography: d.orthography,
-                  padding: 1,
-                  rotate: 0,
-                  size: 0,
-                  style: 'normal',
-                  text: d.text,
-                  weight: 'normal',
-                  width: 32,
-                  x: -242,
-                  x0: -16,
-                  x1: 16,
-                  xoff: 544,
-                  y: 15,
-                  y0: 0,
-                  y1: -1,
-                  yoff: 438
-                };
-              });
-            }
-            self.runningRender = false;
-          };
-
-          var parseWordFrequencies = function(cloud) {
-            self.debug('Running parseWordFrequencies ', cloud);
-          };
-          // if (!self.wordFrequencies || !self.wordFrequencies.length) {
-          //   self.runWordFrequencyGenerator();
-          //   // self.wordFrequencies = JSON.parse(JSON.stringify(cloud.wordFrequencies)); /* this means we cant update the nodes form a client */
-          //   // self.wordFrequencies = cloud.wordFrequencies; /* TODO or is it the click that is returning a copy, not the node itself... */
-          // }
-          maxVocabSize = Math.min(width / 10, self.wordFrequencies.length);
-          console.log('TODO use randomSeed to regenerate cloud', userChosenRandomSeed);
-          console.log('d3  cloud loaded: ', !!ILanguageCloud.d3.layout.cloud);
           // Ask d3-cloud to make an cloud object for us
-          self.layout = ILanguageCloud.d3.layout.cloud();
-          // Configure our cloud with d3 chaining
-          self.layout
-            // .random(function() {
-            //   return myRandomGenerator.random();
-            // })
-            .size([width, height])
-            .words(self.wordFrequencies)
-            // .words(self.wordFrequencies.slice(0, maxVocabSize))
-            .padding(5)
-            .rotate(function(word) {
-              if (word.rotate === null || word.rotate === undefined) {
-                word.rotate = ~~(Math.random() * 2) * 90;
-              }
-              return word.rotate;
-            })
-            .font(userChosenFontFace)
-            .on('end', function(words) {
-              ILanguageCloud.reproduceableDrawFunction(words, element, clearPreviousSVG, width, height, userChosenFontFace, self);
+          // and configure our cloud with d3 chaining
+          if (!this.layout) {
+            this.layout = ILanguageCloud.cloudviz();
+            this.layout
+              .size([width, height])
+              .words(this.wordFrequencies)
+              .words(self.wordFrequencies.slice(0, maxVocabSize))
+              .padding(5)
+              .rotate(function(word) {
+                if (word.rotate === null || word.rotate === undefined) {
+                  word.rotate = ~~(Math.random() * 2) * 90;
+                }
+                return word.rotate;
+              })
+              .font(self.font || 'Impact')
+              .fontSize(function(word) {
+                return word.importance;
+              })
+              .on('end', function() {
+                ILanguageCloud.reproduceableDrawFunction({
+                  element: self.element,
+                  userChosenFontFace: userChosenFontFace,
+                  clearPreviousSVG: clearPreviousSVG,
+                  width: width,
+                  height: height,
+                  fill: fill,
+                  fontSize: fontSize,
+                  context: self
+                });
+              });
+            this.layout.start();
+          } else {
+            ILanguageCloud.reproduceableDrawFunction({
+              element: self.element,
+              userChosenFontFace: userChosenFontFace,
+              clearPreviousSVG: clearPreviousSVG,
+              width: width,
+              height: height,
+              fill: fill,
+              fontSize: fontSize,
+              context: self
             });
-
-          self.layout.start();
+          }
 
         } catch (e) {
           console.warn('There was a problem rendering self cloud ', self.orthography, e, e.stack);
@@ -529,7 +449,15 @@
   });
 
   // Declare our own draw function which will be called on the 'end' event
-  ILanguageCloud.reproduceableDrawFunction = function(wordFrequencies, element, clearPreviousSVG, width, height, userChosenFontFace, context) {
+  ILanguageCloud.reproduceableDrawFunction = function(options) {
+    var element = options.element;
+    var clearPreviousSVG = options.clearPreviousSVG;
+    var width = options.width;
+    var height = options.height;
+    var userChosenFontFace = options.userChosenFontFace;
+    var fill = options.fill;
+    var context = options.context;
+
     if (clearPreviousSVG && element && element.children) {
       element.innerHTML = '';
     }
@@ -540,17 +468,18 @@
     }
 
     var svg = ILanguageCloud.d3.select(element).append('svg');
-    var colorFunction = ILanguageCloud.d3.scale.category20();
-
     svg.attr('width', width)
       .attr('height', height)
       .attr('version', '1.1')
       .attr('xmlns', 'http://www.w3.org/2000/svg')
       .append('g')
-      // .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
+      .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
       .selectAll('text')
       .data(context.wordFrequencies)
       .enter().append('text')
+      // .style('font-size', function(word) {
+      //   return word.importance + 'px';
+      // })
       .style('font-size', function(word) {
         if (!word.fontSize) {
           word.fontSize = ILanguageCloud.d3.scale.linear().domain([0, mostFrequentCount]).range([10, height * 0.25])(word.count);
@@ -565,10 +494,12 @@
         console.log('word.fontSize ' + word.count + ' ' + Math.min(word.fontSize, 70) + ' scaled fontSize ');
         return Math.min(word.fontSize, 70) + 'px';
       })
-      .style('font-family', userChosenFontFace)
+      .style('font-family', function(word) {
+        return userChosenFontFace || word.font;
+      })
       .style('fill', function(word, i) {
         if (!word.color) {
-          word.color = colorFunction(i);
+          word.color = fill(i);
         }
         return word.color;
       })
