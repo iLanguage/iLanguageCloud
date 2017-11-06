@@ -1,5 +1,5 @@
 'use strict';
-var iLanguageCloud = iLanguageCloud || require('../src/ilanguage-cloud').iLanguageCloud;
+var ILanguageCloud = ILanguageCloud || require('../src/ilanguage-cloud').ILanguageCloud;
 var NonContentWords = NonContentWords || require('../src/ilanguage-cloud').NonContentWords;
 // var doc;
 // var skipCanvasBehavior = false;
@@ -32,11 +32,11 @@ describe('lib/word-cloud', function() {
   describe('It has basic features ', function() {
 
     it('should load', function() {
-      expect(iLanguageCloud).toBeDefined();
+      expect(ILanguageCloud).toBeDefined();
     });
 
     it('should accept options', function() {
-      var cloud = new iLanguageCloud({});
+      var cloud = new ILanguageCloud({});
       // console.log(cloud);
       expect(cloud).toBeDefined();
     });
@@ -47,7 +47,7 @@ describe('lib/word-cloud', function() {
         orthography: sampleText,
         caseSensitivity: false
       };
-      cloud = new iLanguageCloud(cloud).runSegmenter();
+      cloud = new ILanguageCloud(cloud).runSegmenter();
       expect(cloud.morphemes).toEqual(cloud.orthography);
     });
 
@@ -65,21 +65,23 @@ describe('lib/word-cloud', function() {
           target: 'crystal-s'
         }]
       };
-      cloud = new iLanguageCloud(cloud).runSegmenter();
+      cloud = new ILanguageCloud(cloud).runSegmenter();
       expect(cloud.morphemes).toEqual('A cloud is a visible mass of condensed droplet-s or frozen crystal-s suspended in the atmosphere');
     });
 
     it('should recalculate word frequencies if requested', function() {
       var originalWordFrequencies = [{
         orthography: 'condensed',
-        count: 1
+        count: 1,
+        rank: 0.5,
+        normalizedCount: 1
       }];
       var cloud = {
         orthography: 'word here',
         caseSensitivity: false,
         wordFrequencies: originalWordFrequencies
       };
-      cloud = new iLanguageCloud(cloud).runWordFrequencyGenerator();
+      cloud = new ILanguageCloud(cloud).runWordFrequencyGenerator();
       expect(cloud.wordFrequencies !== originalWordFrequencies).toBeTruthy();
       expect(cloud.wordFrequencies).toEqual([{
         orthography: 'word',
@@ -115,7 +117,7 @@ describe('lib/word-cloud', function() {
         orthography: 'a word here',
         nonContentWordsArray: originalNonContentWordsArray
       };
-      cloud = new iLanguageCloud(cloud).runStemmer();
+      cloud = new ILanguageCloud(cloud).runStemmer();
       expect(cloud.nonContentWordsArray !== originalNonContentWordsArray).toBeTruthy();
       expect(cloud.nonContentWordsArray).toEqual(['a', 'here', 'word']);
     });
@@ -128,7 +130,7 @@ describe('lib/word-cloud', function() {
         userSpecifiedNonContentWords: true,
         nonContentWordsArray: originalNonContentWordsArray
       };
-      cloud = new iLanguageCloud(cloud).runStemmer();
+      cloud = new ILanguageCloud(cloud).runStemmer();
       expect(cloud.nonContentWordsArray).toEqual(originalNonContentWordsArray);
       cloud = cloud.runStemmer();
       expect(cloud.nonContentWordsArray).toEqual(originalNonContentWordsArray);
@@ -175,7 +177,7 @@ describe('lib/word-cloud', function() {
 
     // Turned off until render of d3 works reliably without canvas installed
     xit('should be render words randomly', function() {
-      var cloud = new iLanguageCloud({
+      var cloud = new ILanguageCloud({
         orthography: sampleText,
         caseSensitivity: false
       });
@@ -213,7 +215,7 @@ describe('lib/word-cloud', function() {
         var cloud = {
           orthography: sampleText
         };
-        cloud = new iLanguageCloud(cloud).runStemmer();
+        cloud = new ILanguageCloud(cloud).runStemmer();
         expect(cloud.nonContentWordsArray).toEqual(sampleTextNonContentWordsBrowserOrder);
       });
 
@@ -222,7 +224,7 @@ describe('lib/word-cloud', function() {
           orthography: sampleText,
           caseSensitivity: 'lower'
         };
-        cloud = new iLanguageCloud(cloud).runStemmer();
+        cloud = new ILanguageCloud(cloud).runStemmer();
         expect(cloud.nonContentWordsArray).toEqual(sampleTextNonContentWordsLowercase);
       });
 
@@ -230,7 +232,7 @@ describe('lib/word-cloud', function() {
         var cloud = {
           orthography: sampleUnicodeText,
         };
-        cloud = new iLanguageCloud(cloud).runStemmer();
+        cloud = new ILanguageCloud(cloud).runStemmer();
         expect(cloud.nonContentWordsArray).toEqual(sampleUnicodeTextNonContentWords);
       });
 
@@ -242,7 +244,7 @@ describe('lib/word-cloud', function() {
             // |სა-, სტა-,იმის,-ში/
         };
         // console.log('Testing filtered text recursion');
-        cloud = new iLanguageCloud(cloud).runStemmer();
+        cloud = new ILanguageCloud(cloud).runStemmer();
         expect(cloud.nonContentWordsArray).toEqual(result5);
       });
 
@@ -255,7 +257,7 @@ describe('lib/word-cloud', function() {
         };
         var stopwords = ['1', '13', '16', '17', '2', '20', '24', '27', '29', '3', '4', '41', '5', '6', '7', '8', 'I', 'II', 'ა', 'ა-ის', 'აი', 'ალ', 'ამ', 'ან', 'არ', 'არა', 'არის', 'ბ', 'გ', 'გაზეთ', 'და', 'ე', 'ეს', 'ვ', 'თუ', 'იმ', 'ის', 'კერძო', 'კი', 'ლ', 'მე', 'მიერ', 'მის', 'მისი', 'რა', 'რომ', 'ს', 'სი', 'უნდა', 'ფ', 'შ', 'შპს', 'წლის'];
         // console.log('Testing filtered text recursion');
-        cloud = new iLanguageCloud(cloud).runStemmer();
+        cloud = new ILanguageCloud(cloud).runStemmer();
         expect(cloud.nonContentWordsArray).toEqual(stopwords);
         expect(cloud.itterations).toBe(2);
       });
@@ -271,7 +273,7 @@ describe('lib/word-cloud', function() {
           nonContentWordsArray: result6
             // |სა-, სტა-,იმის,-ში/
         };
-        cloud = new iLanguageCloud(cloud).runStemmer();
+        cloud = new ILanguageCloud(cloud).runStemmer();
         expect(cloud.nonContentWordsArray).toEqual(result6);
       });
 
@@ -284,7 +286,7 @@ describe('lib/word-cloud', function() {
           nonContentWordsArray: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
             // |სა-, სტა-,იმის,-ში/
         };
-        cloud = new iLanguageCloud(cloud).runStemmer();
+        cloud = new ILanguageCloud(cloud).runStemmer();
         expect(cloud.nonContentWordsArray).toEqual(result6);
       });
 
@@ -298,7 +300,7 @@ describe('lib/word-cloud', function() {
             // nonContentWords: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
             // |სა-, სტა-,იმის,-ში/
         };
-        cloud = new iLanguageCloud(cloud).runStemmer();
+        cloud = new ILanguageCloud(cloud).runStemmer();
         expect(cloud.prefixesArray).toEqual(['სტა-', 'სა-']);
       });
 
@@ -338,8 +340,8 @@ describe('lib/word-cloud', function() {
           }],
           userRemovedWordsForThisDocumentRegExp: ['banana']
         };
-        // console.log('cloud before running iLanguageCloud on it', cloud);
-        cloud = new iLanguageCloud(cloud).runSegmenter().runStemmer();
+        // console.log('cloud before running ILanguageCloud on it', cloud);
+        cloud = new ILanguageCloud(cloud).runSegmenter().runStemmer();
 
         cloud.render();
         expect(cloud.wordFrequencies).toEqual([{

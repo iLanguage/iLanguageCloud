@@ -7,21 +7,26 @@
   <link rel="stylesheet" type="text/css" href="bower_components/jasmine/lib/jasmine-core/jasmine.css">
 </head>
 <body>
+  <div id="default-redraw"></div>
+  <div id="sizeable-cloud"></div>
+  <div id="reproducable-cloud"></div>
+  <div id="viztest"></div>
+  <div id="angles"></div>
 
-	<script type="text/javascript" src="bower_components/jasmine/lib/jasmine-core/jasmine.js"></script>
-	<script type="text/javascript" src="bower_components/jasmine/lib/jasmine-core/jasmine-html.js"></script>
-	<script type="text/javascript" src="bower_components/jasmine/lib/jasmine-core/boot.js"></script>
+  <script type="text/javascript" src="bower_components/jasmine/lib/jasmine-core/jasmine.js"></script>
+  <script type="text/javascript" src="bower_components/jasmine/lib/jasmine-core/jasmine-html.js"></script>
+  <script type="text/javascript" src="bower_components/jasmine/lib/jasmine-core/boot.js"></script>
 
   <script type="text/javascript" src="../node_modules/fielddb/fielddb.js"></script>
   <script type="text/javascript" src="../node_modules/ilanguage/ilanguage.js"></script>
   <script type="text/javascript" src="../node_modules/d3/d3.js"></script>
-  <script type="text/javascript" src="../node_modules/d3.layout.cloud/src/d3.layout.cloud.js"></script>
-
+  <script type="text/javascript" src="../node_modules/d3-cloud/build/d3.layout.cloud.js"></script>
   <script type="text/javascript" src="../src/ilanguage-cloud.js"></script>
   <script type="text/javascript" src="../src/ilanguage-clouds.js"></script>
- 
-  <!-- 
-  <script type="text/javascript" src="../dist/ilanguage-cloud.js"></script> -->
+
+  <!--
+  <script type="text/javascript" src="../dist/ilanguage-cloud.js"></script>
+  -->
 
   <!-- include spec files here... -->
   <script type="text/javascript" src="visualization-spec.js"></script>
@@ -29,6 +34,8 @@
   <script type="text/javascript" src="tag-cloud-spec.js"></script>
   <script type="text/javascript" src="wordcloud-spec.js"></script>
   <script type="text/javascript" src="ilanguagecloud-spec.js"></script>
+
+  <div id="redraw-and-keep"></div>
 
   <script type="text/javascript">
     // (function() {

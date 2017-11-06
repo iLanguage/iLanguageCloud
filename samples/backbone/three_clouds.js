@@ -124,7 +124,7 @@ var app = app || {};
 			var self = this;
 			window.setTimeout(function(){
 				self.$el.find('.word-cloud').html('');
-        WordCloud({
+        new ILanguageCloud({
           element: self.$el.find('.word-cloud')[0],
           text: self.model.get("text")
         }).render();

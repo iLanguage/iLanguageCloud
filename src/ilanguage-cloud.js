@@ -1,8 +1,8 @@
 /*
  * ilanguagecloud
- * https://github.com/iLanguage/iLanguageCloud
+ * https://github.com/iLanguage/ILanguageCloud
  *
- * Copyright (c) 2013
+ * Copyright (c) 2013-2017
  * Licensed under the Apache 2.0 license.
  */
 (function(exports) {
@@ -11,14 +11,16 @@
 
   /* Using D3's new browser version  */
   var locald3;
+  var cloudviz;
   try {
-    locald3 = exports.d3 ? exports.d3 : require('d3');
+    locald3 = exports.d3 || require('d3');
+    cloudviz = locald3.layout.cloud || require('d3-cloud');
     global.d3 = global.d3 || locald3;
   } catch (exception1) {
     console.log('There was a problem setting d3', locald3);
   }
   try {
-    document.createElement("canvas").getContext('2d');
+    document.createElement('canvas').getContext('2d');
   } catch (exception2) {
     try {
       var Canvas = exports.Canvas ? exports.Canvas : require('canvas-browserify');
@@ -32,40 +34,42 @@
       console.log('Mocking Canvas. If you have a Mac or Linux computer you should install canvas-browserify, canvas and Cairo. See https://www.npmjs.com/package/canvas#installation for instructions. ');
     }
   }
-  var cloudviz = exports.d3 ? exports.d3 : require('d3.layout.cloud/src/d3.layout.cloud');
-  console.log("Loaded d3-cloud", !!cloudviz);
+  console.log('Loaded d3-cloud', !!cloudviz);
 
-  var Datum = exports.FieldDB ? exports.FieldDB.Datum :
-    require('fielddb/api/datum/Datum').Datum;
+  var LanguageDatum = exports.FieldDB ? exports.FieldDB.LanguageDatum :
+    require('fielddb/api/datum/LanguageDatum').LanguageDatum;
   var DatumFields = exports.FieldDB ? exports.FieldDB.DatumFields :
     require('fielddb/api/datum/DatumFields').DatumFields;
-  // var lexiconFactory = exports.iLanguage ? exports.iLanguage.Lexicon.LexiconFactory :
+  // var lexiconFactory = exports.ILanguage ? exports.ILanguage.Lexicon.LexiconFactory :
   //   require('ilanguage/js/lexicon/Lexicon').LexiconFactory;
-  var MorphemeSegmenter = exports.iLanguage ? exports.iLanguage.Lexicon.MorphemeSegmenter :
+  var MorphemeSegmenter = exports.ILanguage ? exports.ILanguage.Lexicon.MorphemeSegmenter :
     require('ilanguage/js/lexicon/MorphemeSegmenter').MorphemeSegmenter;
-  var LexemeFrequency = exports.iLanguage ? exports.iLanguage.Lexicon.LexemeFrequency :
+  var LexemeFrequency = exports.ILanguage ? exports.ILanguage.Lexicon.LexemeFrequency :
     require('ilanguage/js/lexicon/LexemeFrequency').LexemeFrequency;
-  var NonContentWords = exports.iLanguage ? exports.iLanguage.Lexicon.NonContentWords :
+  var NonContentWords = exports.ILanguage ? exports.ILanguage.Lexicon.NonContentWords :
     require('ilanguage/js/lexicon/NonContentWords').NonContentWords;
 
   var defaults = {
     element: 'cloud',
-    orthography: "A cloud is a visible mass of condensed droplets or frozen crystals suspended in the atmosphere. Cloud(s) may also refer to: Contents  [hide]  1 Information Technology 2 Science 3 Fiction 4 Literature 5 Music 6 Other uses 7 See also Information Technology  Cloud computing, Internet-based development and use of computer technology stored on servers rather than the client computers Cloud (operating system), a browser-based operating system that will instantly be usable after turning on the PC, by the makers of gOS Tag cloud, a visual depiction of user-generated self.wordFrequencies used typically to describe the content of web sites Cloud storage, a model of networked online storage Cloud.com, a company that develops open source cloud orchestration software CloudStack, an open source cloud computing software Science  Magellanic Clouds, irregular dwarf galaxies near our galaxy, the Milky Way Interstellar cloud, dense region between stars Molecular cloud, interstellar cloud containing molecules Electron cloud, analogy used to describe an electron that orbits around a nucleus Point cloud, in mathematics, a set of vertices in a three-dimensional coordinate system CLOUD, an experimental facility used to investigate the microphysics between galactic cosmic rays and clouds Cloud chamber, an experimental device used in early studies of particle physics Fiction  Cloud Strife, a character in Final Fantasy VII media Bou Keng Wan ('Cloud'), a Kung Fu character from the Hong Kong comic, Fung Wan Cloud (comics), a Marvel comic book character Cloudbase, the fictional skyborne headquarters of Spectrum, from the science fiction television series Captain Scarlet and the Mysterons Clouds (film), a 2000 film written and directed by Don Thompson and produced by Will Arntz Literature  The Clouds, a comedy by Aristophanes Clouds, a 1977 philosophical comedic play by British playwright Michael Frayn The Clouds, a 1797 play by the British writer Richard Cumberland The Cloud of Unknowing, a medieval mystical text Music  Clouds (60s rock band), a Scottish music group that operated in the late 1960s Clouds (Australian band), an indie rock group based in Sydney, Australia in the 1990s The Clouds (UK band), a British indie pop band from the 1980s Cloud (music), sound mass consisting of statistical clouds of microsounds 'Clouds', a song by Chaka Khan from Naughty 'Clouds', a song by Level 42 on the album Retroglide 'Clouds', a song by Spires That in the Sunset Rise on the album This Is Fire 'Clouds' (Zach Sobiech song) a song by Zach Sobiech Clouds (Joni Mitchell album), 1969 Clouds (Lee Ranaldo album), 1997 Clouds (Tiamat album), 1992 Clouds (EP), an EP by Nosound 'Cloudy', by Average White Band from the album Cut the Cake Other uses  Cloud (dancer), a b-boy, writer, and director from Florida Cloud (surname) Cloud, California, a former settlement in Kings County Clodoald (522–560), better known as Cloud or Saint Cloud, son of King Chlodomer of Orleans Saint-Cloud, a commune in the western suburbs of Paris, France Cloud (video game), a 2005 third-person computer puzzle game See also  The Cloud (disambiguation) Cloud Nine (disambiguation) Red Cloud (disambiguation) St. Cloud (disambiguation) White Cloud (disambiguation) McCloud (disambiguation)",
+    orthography: 'A cloud is a visible mass of condensed droplets or frozen crystals suspended in the atmosphere. Cloud(s) may also refer to: Contents  [hide]  1 Information Technology 2 Science 3 Fiction 4 Literature 5 Music 6 Other uses 7 See also Information Technology  Cloud computing, Internet-based development and use of computer technology stored on servers rather than the client computers Cloud (operating system), a browser-based operating system that will instantly be usable after turning on the PC, by the makers of gOS Tag cloud, a visual depiction of user-generated self.wordFrequencies used typically to describe the content of web sites Cloud storage, a model of networked online storage Cloud.com, a company that develops open source cloud orchestration software CloudStack, an open source cloud computing software Science  Magellanic Clouds, irregular dwarf galaxies near our galaxy, the Milky Way Interstellar cloud, dense region between stars Molecular cloud, interstellar cloud containing molecules Electron cloud, analogy used to describe an electron that orbits around a nucleus Point cloud, in mathematics, a set of vertices in a three-dimensional coordinate system CLOUD, an experimental facility used to investigate the microphysics between galactic cosmic rays and clouds Cloud chamber, an experimental device used in early studies of particle physics Fiction  Cloud Strife, a character in Final Fantasy VII media Bou Keng Wan (\'Cloud\'), a Kung Fu character from the Hong Kong comic, Fung Wan Cloud (comics), a Marvel comic book character Cloudbase, the fictional skyborne headquarters of Spectrum, from the science fiction television series Captain Scarlet and the Mysterons Clouds (film), a 2000 film written and directed by Don Thompson and produced by Will Arntz Literature  The Clouds, a comedy by Aristophanes Clouds, a 1977 philosophical comedic play by British playwright Michael Frayn The Clouds, a 1797 play by the British writer Richard Cumberland The Cloud of Unknowing, a medieval mystical text Music  Clouds (60s rock band), a Scottish music group that operated in the late 1960s Clouds (Australian band), an indie rock group based in Sydney, Australia in the 1990s The Clouds (UK band), a British indie pop band from the 1980s Cloud (music), sound mass consisting of statistical clouds of microsounds \'Clouds\', a song by Chaka Khan from Naughty \'Clouds\', a song by Level 42 on the album Retroglide \'Clouds\', a song by Spires That in the Sunset Rise on the album This Is Fire \'Clouds\' (Zach Sobiech song) a song by Zach Sobiech Clouds (Joni Mitchell album), 1969 Clouds (Lee Ranaldo album), 1997 Clouds (Tiamat album), 1992 Clouds (EP), an EP by Nosound \'Cloudy\', by Average White Band from the album Cut the Cake Other uses  Cloud (dancer), a b-boy, writer, and director from Florida Cloud (surname) Cloud, California, a former settlement in Kings County Clodoald (522–560), better known as Cloud or Saint Cloud, son of King Chlodomer of Orleans Saint-Cloud, a commune in the western suburbs of Paris, France Cloud (video game), a 2005 third-person computer puzzle game See also  The Cloud (disambiguation) Cloud Nine (disambiguation) Red Cloud (disambiguation) St. Cloud (disambiguation) White Cloud (disambiguation) McCloud (disambiguation)',
     font: 'FreeSans',
     isAndroid: false,
     maxVocabSize: 500,
-    clearPreviousSVG: true,
+    keepPreviousSVG: false,
     morphemeSegmentationOptions: {
-      algorithm: "MorphoParser",
+      algorithm: 'MorphoParser',
       maxIterations: 2
     }
     // nonContentWords: NonContentWords.defaults.english
   };
 
-  var iLanguageCloud = function iLanguageCloud(options) {
+  var ILanguageCloud = function ILanguageCloud(options) {
     options = options || {};
     if (!options.originalText) {
       options.originalText = options.orthography;
+    }
+    if (!options.text) {
+      options.text = options.orthography;
     }
     this.saving = false;
     this.runningSegmenter = false;
@@ -73,32 +77,34 @@
     this.runningStemmer = false;
     this.runningWordFrequencyGenerator = false;
     this.fields = new DatumFields([{
-      id: "morphemes"
+      id: 'morphemes'
     }, {
-      id: "orthography"
+      id: 'orthography'
     }]);
     // options = lexiconFactory(options);
     // if (this.application.corpus) {
     //   options = this.application.corpus.newDoc(options);
     // }
-    Datum.apply(this, arguments);
+    LanguageDatum.apply(this, arguments);
   };
 
-  iLanguageCloud.d3 = locald3;
+  ILanguageCloud.d3 = locald3;
+  ILanguageCloud.d3.layout.cloud = ILanguageCloud.d3.layout.cloud || cloudviz;
+  ILanguageCloud.cloudviz = cloudviz;
 
-  iLanguageCloud.prototype = Object.create(Datum.prototype, /** @lends iLanguageCloud.prototype */ {
+  ILanguageCloud.prototype = Object.create(LanguageDatum.prototype, /** @lends ILanguageCloud.prototype */ {
     constructor: {
-      value: iLanguageCloud
+      value: ILanguageCloud
     },
 
     runSegmenter: {
       value: function(options) {
-        this.debug("Running runSegmenter ", options);
+        this.debug('Running runSegmenter ', options);
         if (this.runningSegmenter) {
           return this;
         }
         this.runningSegmenter = true;
-        // console.log("runSegmenter");
+        // console.log('runSegmenter');
         this.morphemes = this.morphemes || this.orthography;
         for (var rule in this.userDefinedMorphemeSegmentationReWriteRules) {
           if (!this.userDefinedMorphemeSegmentationReWriteRules.hasOwnProperty(rule)) {
@@ -117,14 +123,14 @@
 
     runWordFrequencyGenerator: {
       value: function(options) {
-        this.debug("Running runWordFrequencyGenerator ", options);
+        this.debug('Running runWordFrequencyGenerator ', options);
         if (this.runningWordFrequencyGenerator) {
           return this;
         }
         this.runningWordFrequencyGenerator = true;
-        // console.log("runWordFrequencyGenerator");
+        // console.log('runWordFrequencyGenerator');
         this.wordFrequencies = null;
-        LexemeFrequency.calculateNonContentWords(this); /* TODO decide if this should be calculateNonContentWords */
+        LexemeFrequency.calculateNonContentWords(this);
         this.runningWordFrequencyGenerator = false;
         return this;
       }
@@ -132,12 +138,12 @@
 
     runStemmer: {
       value: function(options) {
-        this.debug("Running runStemmer ", options);
+        this.debug('Running runStemmer ', options);
         if (this.runningStemmer) {
           return this;
         }
         this.runningStemmer = true;
-        // console.log("runStemmer");
+        // console.log('runStemmer');
 
         var again = true;
         var previousNonContentWords = this.nonContentWordsArray;
@@ -152,7 +158,7 @@
           }
 
           /* if the stop words aren't changing stop itterating */
-          // console.log(previousNonContentWords + " -> " + this.nonContentWordsArray);
+          // console.log(previousNonContentWords + ' -> ' + this.nonContentWordsArray);
           if (this.userSpecifiedNonContentWords || (previousNonContentWords && previousNonContentWords.toString() === this.nonContentWordsArray.toString())) {
             again = false;
             continue;
@@ -162,7 +168,7 @@
 
           /* if the filtered text isn't significantly smaller, stop itterating */
           var percentageReduction = this.filteredText ? this.filteredText.length : 0 / this.orthography.length;
-          // console.log("Percentage of original text " + percentageReduction);
+          // console.log('Percentage of original text ' + percentageReduction);
           if (percentageReduction < 0.98) {
             if (this.filteredText && this.filteredText.length > 100) {
               // console.log('Iterating on filteredText' + this.filteredText);
@@ -186,26 +192,28 @@
 
     render: {
       value: function(userOptions) {
+        var self = this;
         if (this.runningRender || this.runningStemmer || this.runningWordFrequencyGenerator) {
+          this.warn('Not rendering while processing.');
           return this;
         }
-        // if (this.archived) {
-        //   console.log('Not rendering archived clouds...');
-        //   return this;
-        // }
-        var self = this;
-
+        if (this.archived) {
+          this.warn('Not rendering archived clouds.');
+          return this;
+        }
+        self.runningRender = true;
+        userOptions = userOptions || {};
         try {
-          self.runningRender = true;
-          // console.log("render");
-          userOptions = userOptions || {};
-
-          var element = userOptions.element || this.element,
-            userChosenRandomSeed = userOptions.randomSeed || this.randomSeed || Math.random() * 10,
-            userChosenFontFace = userOptions.font || this.font,
-            // isAndroid = userOptions.isAndroid || this.isAndroid,
-            maxVocabSize = userOptions.maxVocabSize || this.maxVocabSize || defaults.maxVocabSize,
-            clearPreviousSVG = userOptions.clearPreviousSVG || this.clearPreviousSVG || defaults.clearPreviousSVG;
+          var element = userOptions.element || this.element;
+          var userChosenRandomSeed = userOptions.randomSeed || this.randomSeed || Math.random() * 10;
+          var userChosenFontFace = userOptions.font;
+          // var isAndroid = userOptions.isAndroid || this.isAndroid;
+          var maxVocabSize = userOptions.maxVocabSize || this.maxVocabSize || defaults.maxVocabSize;
+          var keepPreviousSVG = userOptions.keepPreviousSVG || this.keepPreviousSVG || defaults.keepPreviousSVG;
+          var width = userOptions.width || this.width || 800;
+          var height = userOptions.height || this.height || 400;
+          var fontSize = userOptions.fontSize || ILanguageCloud.d3.scale.linear().range([10, height * 0.25]);
+          var fill = userOptions.fill || ILanguageCloud.d3.scale.category20();
 
           var localDocument;
           if (userOptions.document) {
@@ -222,52 +230,86 @@
             element = element[0];
           }
           if (!element) {
-            console.warn('Appending an element since none was specified', element);
+            self.warn('Appending an element since none was specified', element);
             element = localDocument.createElement('div');
             localDocument.body.appendChild(element);
           }
-          // D3 word cloud by Jason Davies see http://www.jasondavies.com/wordcloud/ for more details
-          var width = userOptions.width || this.width || 800,
-            height = userOptions.height || this.height || 400;
-          // maxLength = 30,
 
-          if (!self.wordFrequencies || !self.wordFrequencies.length) {
-            self.runWordFrequencyGenerator();
-            // self.wordFrequencies = JSON.parse(JSON.stringify(cloud.wordFrequencies)); /* this means we cant update the nodes form a client */
-            // self.wordFrequencies = cloud.wordFrequencies; /* TODO or is it the click that is returning a copy, not the node itself... */
+          if (element) {
+            this.element = element;
           }
-          maxVocabSize = Math.min(width / 10, self.wordFrequencies.length);
-          console.log('TODO use randomSeed to regenerate cloud', userChosenRandomSeed);
-          console.log('d3  cloud loaded: ', !!iLanguageCloud.d3.layout.cloud);
-          // Ask d3-cloud to make an cloud object for us
-          self.layout = iLanguageCloud.d3.layout.cloud();
-          // Configure our cloud with d3 chaining
-          self.layout
-            // .random(function() {
-            //   return myRandomGenerator.random();
-            // })
-            .size([width, height])
-            .words(self.wordFrequencies)
-            // .words(self.wordFrequencies.slice(0, maxVocabSize))
-            .padding(5)
-            .rotate(function(word) {
-              if (word.rotate === null || word.rotate === undefined) {
-                word.rotate = ~~(Math.random() * 2) * 90;
-              }
-              return word.rotate;
-            })
-            .font(userChosenFontFace)
-            .on("end", function(words) {
-              iLanguageCloud.reproduceableDrawFunction(words, element, clearPreviousSVG, width, height, userChosenFontFace, self);
+
+          if (!this.wordFrequencies || !this.wordFrequencies.length) {
+            this.warn('Must generate wordFrequencies before rendering.');
+            this.runWordFrequencyGenerator();
+            this.wordFrequencies = this.wordFrequencies.sort(function(a, b) {
+              // rare words should have first dibs on placing
+              // return a.normalizedCount - b.normalizedCount;
+              // frequent words should have dibs on placing
+              return b.normalizedCount - a.normalizedCount;
             });
+          }
 
-          self.layout.start();
+          this.wordFrequencies = this.wordFrequencies.map(function(word) {
+            word.text = word.orthography;
+            word.size = ILanguageCloud.fontSizeFromRank(word, height * 0.25, 10);
+            return word;
+          });
+          maxVocabSize = Math.min(width / 5, self.wordFrequencies.length, maxVocabSize);
 
+          var SEED = 2;
+
+          // Ask d3-cloud to make an cloud object for us
+          // and configure our cloud with d3 chaining
+          if (!this.layout) {
+            this.layout = ILanguageCloud.cloudviz();
+            this.layout
+              .size([width, height])
+              .words(self.wordFrequencies.slice(0, maxVocabSize))
+              .padding(2)
+              .rotate(function(word) {
+                if (word.rotate === null || word.rotate === undefined) {
+                  word.rotate = ~~(Math.random() * 2) * 90;
+                }
+                return word.rotate;
+              })
+              .font(self.font || 'Impact')
+              .fontSize(function(word) {
+                return word.size;
+              })
+              .on('end', function() {
+                ILanguageCloud.reproduceableDrawFunction({
+                  element: self.element,
+                  userChosenFontFace: userChosenFontFace,
+                  keepPreviousSVG: keepPreviousSVG,
+                  localDocument: localDocument,
+                  maxVocabSize: maxVocabSize,
+                  width: width,
+                  height: height,
+                  fill: fill,
+                  fontSize: fontSize,
+                  context: self
+                });
+              });
+            this.layout.start();
+          } else {
+            ILanguageCloud.reproduceableDrawFunction({
+              element: self.element,
+              userChosenFontFace: userChosenFontFace,
+              keepPreviousSVG: keepPreviousSVG,
+              localDocument: localDocument,
+              maxVocabSize: maxVocabSize,
+              width: width,
+              height: height,
+              fill: fill,
+              fontSize: fontSize,
+              context: self
+            });
+          }
         } catch (e) {
           console.warn('There was a problem rendering self cloud ', self.orthography, e, e.stack);
         }
         return this;
-
       }
     },
 
@@ -305,7 +347,7 @@
 
     setSVG: {
       value: function() {
-        var currentSVG = iLanguageCloud.d3.select('svg');
+        var currentSVG = this.svg;
         var currentSVGEscaped = btoa(unescape(encodeURIComponent(currentSVG.node().parentNode.innerHTML)));
         var currentSVGOut = 'data:image/svg+xml;charset=utf-8;base64,' + currentSVGEscaped;
 
@@ -336,7 +378,7 @@
           aproperty,
           underscorelessProperty;
         for (aproperty in this) {
-          if (this.hasOwnProperty(aproperty) && typeof this[aproperty] !== "function") {
+          if (this.hasOwnProperty(aproperty) && typeof this[aproperty] !== 'function') {
             underscorelessProperty = aproperty.replace(/^_/, '');
             json[underscorelessProperty] = this[aproperty];
           }
@@ -357,7 +399,7 @@
           aproperty,
           underscorelessProperty;
         for (aproperty in this) {
-          if (this.hasOwnProperty(aproperty) && typeof this[aproperty] !== "function" && aproperty.indexOf('running') === -1) {
+          if (this.hasOwnProperty(aproperty) && typeof this[aproperty] !== 'function' && aproperty.indexOf('running') === -1) {
             underscorelessProperty = aproperty.replace(/^_/, '');
             if (underscorelessProperty === 'id' || underscorelessProperty === 'rev') {
               underscorelessProperty = '_' + underscorelessProperty;
@@ -399,52 +441,63 @@
     }
   });
 
-  // Declare our own draw function which will be called on the "end" event
-  iLanguageCloud.reproduceableDrawFunction = function(wordFrequencies, element, clearPreviousSVG, width, height, userChosenFontFace, context) {
-    if (clearPreviousSVG && element && element.children) {
-      element.innerHTML = '';
+  ILanguageCloud.fontSizeFromRank = function(word, max, min) {
+    var range = max - min;
+    if (word.categories) {
+      var categoriesString = word.categories.join(' ');
+      if (categoriesString.indexOf('functionalWord') > -1 || categoriesString.indexOf('userRemovedWord') > -1) {
+        return 0;
+      }
     }
+    return min + range * word.normalizedCount;
+  };
 
-    var mostFrequentCount = 0;
-    if (context.wordFrequencies && context.wordFrequencies[0] && context.wordFrequencies[0].count) {
-      mostFrequentCount = context.wordFrequencies[0].count;
+  // Declare our own draw function which will be called on the 'end' event
+  ILanguageCloud.reproduceableDrawFunction = function(options) {
+    var element = options.element;
+    var keepPreviousSVG = options.keepPreviousSVG;
+    var width = options.width;
+    var height = options.height;
+    var userChosenFontFace = options.userChosenFontFace;
+    var fill = options.fill;
+    var maxVocabSize = options.maxVocabSize;
+    var context = options.context;
+    var svg = context.svg || ILanguageCloud.d3.select(element).append('svg');
+
+    if (!keepPreviousSVG && element && element.children) {
+      svg.selectAll('*').remove();
     }
-
-    var svg = iLanguageCloud.d3.select(element).append("svg");
-    var colorFunction = iLanguageCloud.d3.scale.category20();
 
     svg.attr('width', width)
+      .attr('width', width)
       .attr('height', height)
       .attr('version', '1.1')
       .attr('xmlns', 'http://www.w3.org/2000/svg')
       .append('g')
-      // .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
+      .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
       .selectAll('text')
-      .data(context.wordFrequencies)
+      .data(context.wordFrequencies.slice(0, maxVocabSize))
       .enter().append('text')
       .style('font-size', function(word) {
-        if (!word.fontSize) {
-          word.fontSize = iLanguageCloud.d3.scale.linear().domain([0, mostFrequentCount]).range([10, height * 0.25])(word.count);
-          if (word.categories) {
-            var categoriesString = word.categories.join(' ');
-            if (categoriesString.indexOf('functionalWord') > -1 || categoriesString.indexOf('userRemovedWord') > -1) {
-              // console.log('Hiding ' + word.orthography + ' ' + categoriesString);
-              word.fontSize = 0;
-            }
-          }
+        if (!word.size) {
+          word.size = ILanguageCloud.fontSizeFromRank(word, height * 0.25, 10)
         }
-        console.log('word.fontSize ' + word.count + ' ' + Math.min(word.fontSize, 70) + ' scaled fontSize ');
-        return Math.min(word.fontSize, 70) + "px";
+        return word.size;
       })
-      .style('font-family', userChosenFontFace)
+      .style('font-family', function(word) {
+        return userChosenFontFace || word.font;
+      })
       .style('fill', function(word, i) {
         if (!word.color) {
-          word.color = colorFunction(i);
+          word.color = fill(i);
         }
         return word.color;
       })
       .attr('text-anchor', 'middle')
       .attr('transform', function(word) {
+        if (!word || !word.x && !word.y) {
+          return;
+        }
         if (!word.transform) {
           if (word.rotate === null || word.rotate === undefined) {
             word.rotate = ~~(Math.random() * 2) * 90;
@@ -497,10 +550,11 @@
         }
       });
 
+    context.svg = svg;
     context.runningRender = false;
   };
 
-  iLanguageCloud.Doc = Datum;
-  exports.iLanguageCloud = iLanguageCloud;
+  ILanguageCloud.Doc = LanguageDatum;
+  exports.ILanguageCloud = ILanguageCloud;
   exports.NonContentWords = NonContentWords;
 })(typeof exports === 'undefined' ? this : exports);

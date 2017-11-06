@@ -1,6 +1,6 @@
 {
   "name": "ilanguage-cloud",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Generate interactive wordclouds for any language, with automatic stop word detection and ability to export as svg or png.",
   "keywords": [
     "ilanguage",
@@ -22,7 +22,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "d3": "^3.5.6",
-    "d3.layout.cloud": "https://github.com/iLanguage/d3-cloud.git",
+    "d3-cloud": "https://github.com/iLanguage/d3-cloud.git",
     "fielddb": "https://github.com/cesine/FieldDB.git",
     "ilanguage": "https://github.com/iLanguage/iLanguage.git",
     "q": "^1.5.1"
@@ -36,6 +36,7 @@
     "browserify": "^14.5.0",
     "del": "^3.0.0",
     "gulp": "^3.9.1",
+    "gulp-append-prepend": "^1.0.4",
     "gulp-bump": "^2.8.0",
     "gulp-istanbul": "^1.1.2",
     "gulp-jasmine": "^2.4.2",
@@ -53,8 +54,11 @@
   },
   "scripts": {
     "gulp": "gulp",
+    "lint": "gulp jshint",
     "test": "gulp test",
+    "test:browser": "cd test && bower install && open SpecRunner.html",
     "cover": "gulp istanbul",
-    "build": "browserify src/app.js -o dist/ilanguage-cloud.js"
+    "build": "browserify --standalone ILanguageCloud src/app.js -o dist/ilanguage-cloud.js",
+    "build:gulp": "gulp browserify"
   }
 }
