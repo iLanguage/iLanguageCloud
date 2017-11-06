@@ -132,20 +132,21 @@ describe('It should provide a visualization', function() {
         // expect(virtualdocument.getElementsByTagName('svg')[0]).toBeDefined();
       });
 
-      it('should be trim long wordlists so that they fit', function() {
+      it('should be trim long wordlists so that they fit but to a max vocab size', function() {
         var cloud = new ILanguageCloud({
-          orthography: 'should be trim long wordlists so that they fit',
-          // orthography: sampleText,
-          debugMode: false,
+          orthography: sampleText,
+          debugMode: true,
+          width: 800,
+          height: 400
         });
         expect(cloud).toBeDefined();
         cloud.render({
           document: virtualdocument,
           element: 'sizeable-cloud'
         });
-        expect(cloud.wordFrequencies.length).toEqual(9);
         var textElements = cloud.element.getElementsByTagName('text');
-        expect(textElements.length).toEqual(9);
+        // expect(textElements.length).toEqual(cloud.wordFrequencies.length);
+        expect(textElements.length).toEqual(160);
       });
 
       it('should be able to set the font of one word or a render', function() {

@@ -72,7 +72,9 @@ describe('lib/word-cloud', function() {
     it('should recalculate word frequencies if requested', function() {
       var originalWordFrequencies = [{
         orthography: 'condensed',
-        count: 1
+        count: 1,
+        rank: 0.5,
+        normalizedCount: 1
       }];
       var cloud = {
         orthography: 'word here',

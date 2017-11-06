@@ -130,7 +130,7 @@
         this.runningWordFrequencyGenerator = true;
         // console.log('runWordFrequencyGenerator');
         this.wordFrequencies = null;
-        LexemeFrequency.calculateNonContentWords(this); /* TODO decide if this should be calculateNonContentWords */
+        LexemeFrequency.calculateNonContentWords(this);
         this.runningWordFrequencyGenerator = false;
         return this;
       }
@@ -242,25 +242,20 @@
           if (!this.wordFrequencies || !this.wordFrequencies.length) {
             this.warn('Must generate wordFrequencies before rendering.');
             this.runWordFrequencyGenerator();
+            this.wordFrequencies = this.wordFrequencies.sort(function(a, b) {
+              // rare words should have first dibs on placing
+              // return a.normalizedCount - b.normalizedCount;
+              // frequent words should have dibs on placing
+              return b.normalizedCount - a.normalizedCount;
+            });
           }
-          this.wordFrequencies = this.wordFrequencies.map(function(item) {
-            item.text = item.orthography;
-            var fontsizeForThisWord = fontSize(item.count) * 10;
-            if (item.categories) {
-              var categoriesString = item.categories.join(' ');
-              if (categoriesString.indexOf('functionalWord') > -1 || categoriesString.indexOf('userRemovedWord') > -1) {
-                // console.log('Hiding ' + d.orthography + ' ' + categoriesString);
-                fontsizeForThisWord = 0;
-              }
-            } else {
-              // return fontSize(+d.count);
-            }
-            // fontsizeForThisWord = fontSize(fontsizeForThisWord);
-            // console.log('fontsizeForThisWord ' + d.count + ' ' + fontsizeForThisWord + ' scaled fontSize ');
-            item.importance = Math.min(fontsizeForThisWord, 70);
-            return item;
+
+          this.wordFrequencies = this.wordFrequencies.map(function(word) {
+            word.text = word.orthography;
+            word.size = ILanguageCloud.fontSizeFromRank(word, height * 0.25, 10);
+            return word;
           });
-          maxVocabSize = Math.min(width / 10, self.wordFrequencies.length, maxVocabSize);
+          maxVocabSize = Math.min(width / 5, self.wordFrequencies.length, maxVocabSize);
 
           var SEED = 2;
 
@@ -270,9 +265,8 @@
             this.layout = ILanguageCloud.cloudviz();
             this.layout
               .size([width, height])
-              .words(this.wordFrequencies)
               .words(self.wordFrequencies.slice(0, maxVocabSize))
-              .padding(5)
+              .padding(2)
               .rotate(function(word) {
                 if (word.rotate === null || word.rotate === undefined) {
                   word.rotate = ~~(Math.random() * 2) * 90;
@@ -281,7 +275,7 @@
               })
               .font(self.font || 'Impact')
               .fontSize(function(word) {
-                return word.importance;
+                return word.size;
               })
               .on('end', function() {
                 ILanguageCloud.reproduceableDrawFunction({
@@ -289,6 +283,7 @@
                   userChosenFontFace: userChosenFontFace,
                   keepPreviousSVG: keepPreviousSVG,
                   localDocument: localDocument,
+                  maxVocabSize: maxVocabSize,
                   width: width,
                   height: height,
                   fill: fill,
@@ -303,6 +298,7 @@
               userChosenFontFace: userChosenFontFace,
               keepPreviousSVG: keepPreviousSVG,
               localDocument: localDocument,
+              maxVocabSize: maxVocabSize,
               width: width,
               height: height,
               fill: fill,
@@ -310,12 +306,10 @@
               context: self
             });
           }
-
         } catch (e) {
           console.warn('There was a problem rendering self cloud ', self.orthography, e, e.stack);
         }
         return this;
-
       }
     },
 
@@ -447,6 +441,17 @@
     }
   });
 
+  ILanguageCloud.fontSizeFromRank = function(word, max, min) {
+    var range = max - min;
+    if (word.categories) {
+      var categoriesString = word.categories.join(' ');
+      if (categoriesString.indexOf('functionalWord') > -1 || categoriesString.indexOf('userRemovedWord') > -1) {
+        return 0;
+      }
+    }
+    return min + range * word.normalizedCount;
+  };
+
   // Declare our own draw function which will be called on the 'end' event
   ILanguageCloud.reproduceableDrawFunction = function(options) {
     var element = options.element;
@@ -455,6 +460,7 @@
     var height = options.height;
     var userChosenFontFace = options.userChosenFontFace;
     var fill = options.fill;
+    var maxVocabSize = options.maxVocabSize;
     var context = options.context;
     var svg = context.svg || ILanguageCloud.d3.select(element).append('svg');
 
@@ -462,39 +468,21 @@
       svg.selectAll('*').remove();
     }
 
-    var mostFrequentCount = 1;
-    context.wordFrequencies.forEach(function(word) {
-      if (word && word.count && word.count > mostFrequentCount) {
-        mostFrequentCount = word.count;
-      }
-    });
-
     svg.attr('width', width)
       .attr('width', width)
       .attr('height', height)
-      // .attr('version', '1.1')
-      // .attr('xmlns', 'http://www.w3.org/2000/svg')
+      .attr('version', '1.1')
+      .attr('xmlns', 'http://www.w3.org/2000/svg')
       .append('g')
       .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
       .selectAll('text')
-      .data(context.wordFrequencies)
+      .data(context.wordFrequencies.slice(0, maxVocabSize))
       .enter().append('text')
-      // .style('font-size', function(word) {
-      //   return word.importance + 'px';
-      // })
       .style('font-size', function(word) {
-        if (!word.fontSize) {
-          word.fontSize = ILanguageCloud.d3.scale.linear().domain([0, mostFrequentCount]).range([10, height * 0.25])(word.count);
-          if (word.categories) {
-            var categoriesString = word.categories.join(' ');
-            if (categoriesString.indexOf('functionalWord') > -1 || categoriesString.indexOf('userRemovedWord') > -1) {
-              // console.log('Hiding ' + word.orthography + ' ' + categoriesString);
-              word.fontSize = 0;
-            }
-          }
+        if (!word.size) {
+          word.size = ILanguageCloud.fontSizeFromRank(word, height * 0.25, 10)
         }
-        console.log('word.fontSize ' + word.count + ' ' + Math.min(word.fontSize, 70) + ' scaled fontSize ');
-        return Math.min(word.fontSize, 70) + 'px';
+        return word.size;
       })
       .style('font-family', function(word) {
         return userChosenFontFace || word.font;
@@ -507,6 +495,9 @@
       })
       .attr('text-anchor', 'middle')
       .attr('transform', function(word) {
+        if (!word || !word.x && !word.y) {
+          return;
+        }
         if (!word.transform) {
           if (word.rotate === null || word.rotate === undefined) {
             word.rotate = ~~(Math.random() * 2) * 90;
