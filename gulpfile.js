@@ -104,19 +104,19 @@ gulp.task('browserify', ['clean'], function() {
       banner: banner()
     };
     if (false) {
-      console.log("Old options", options);
+      console.log('Old options', options);
     }
     browserify({
         // outfile: 'ilanguage-cloud.js',
         extension: '.min.js',
         entries: [file.path],
-        // standalone: "ILanguageCloud",
+        // standalone: 'ILanguageCloud',
         derequire: true
       })
       // .transform('stripify')  /* TODO export iLanguage */
       .bundle(function(err, res) {
         if (err) {
-          console.log("unable to browserify. ", err.stack, res);
+          console.log('unable to browserify. ', err.stack, res);
           return;
         }
         // assumes file.contents is a Buffer
@@ -132,10 +132,10 @@ gulp.task('browserify', ['clean'], function() {
   return gulp.src(['./src/app.js'])
     .pipe(browserified)
     .pipe(gap.prependText(banner()))
-    .pipe(rename("ilanguage-cloud.js"))
+    .pipe(rename('ilanguage-cloud.js'))
     .pipe(gulp.dest('./dist/'))
     .pipe(uglify())
-    .pipe(rename("ilanguage-cloud.min.js"))
+    .pipe(rename('ilanguage-cloud.min.js'))
     .pipe(gulp.dest('./dist/'));
 });
 

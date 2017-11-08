@@ -12,7 +12,7 @@
     require('fielddb/api/corpus/Corpus').Corpus;
 
   var ILanguageClouds = function ILanguageClouds(options) {
-    this.debug("In ILanguageClouds ", options);
+    this.debug('In ILanguageClouds ', options);
     Corpus.apply(this, arguments);
   };
 
