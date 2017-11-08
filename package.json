@@ -58,7 +58,7 @@
     "test": "gulp test",
     "test:browser": "cd test && bower install && open SpecRunner.html",
     "cover": "gulp istanbul",
-    "build": "browserify --standalone ILanguageCloud src/app.js -o dist/ilanguage-cloud.js",
-    "build:gulp": "gulp browserify"
+    "build:browserify": "browserify --standalone ILanguageCloud src/app.js -o dist/ilanguage-cloud.js",
+    "build": "gulp browserify"
   }
 }
