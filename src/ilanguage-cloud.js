@@ -68,9 +68,6 @@
     if (!options.originalText) {
       options.originalText = options.orthography;
     }
-    if (!options.text) {
-      options.text = options.orthography;
-    }
     this.saving = false;
     this.runningSegmenter = false;
     this.runningRender = false;
@@ -184,7 +181,7 @@
           //   this.nonContentWordsArray = null;
           // }
         }
-        this.orthography = this.originalText;
+        // this.orthography = this.originalText;
         this.runningStemmer = false;
         return this;
       }
@@ -292,6 +289,9 @@
                 });
               });
             this.layout.start();
+          } else if (self.orthography !== self.originalText) {
+            self.layout.words(self.wordFrequencies);
+            self.layout.start();
           } else {
             ILanguageCloud.reproduceableDrawFunction({
               element: self.element,

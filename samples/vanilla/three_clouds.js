@@ -65,20 +65,11 @@ cloud3.render();
 // }, 2000);
 //
 document.getElementById("inputText").onblur = function(event) {
-  cloud = new ILanguageCloud({
-    element: 'cloud',
-    orthography: event.target.value,
-    font: 'FreeSans',
-    height: 400,
-    isAndroid: false,
-    userSpecifiedNonContentWords: true,
-    nonContentWordsArray: ['it','the'],
-    caseSensitivity:  'preserve',
-    onWordClick: onWordClick,
-    tokenizeOnTheseArray: [' ','?'],
-    tokenizeOnTheseRegExp: / +/
-  });
-  cloud.runSegmenter().runWordFrequencyGenerator().runStemmer();
-  cloud.render();
+  cloud.orthography = event.target.value;
+  cloud
+    .runSegmenter()
+    .runWordFrequencyGenerator()
+    .runStemmer()
+    .render();
   console.log(cloud);
 }

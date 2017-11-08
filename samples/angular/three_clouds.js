@@ -19,7 +19,7 @@ function SampleController($scope) {
   };
 
   $scope.setRandomCloudText = function() {
-    var whichText = Math.floor(Math.random() * 3) + 1;
+    var whichText =  Math.floor(Math.random() * 3) + 1;
     $scope.orthography0.orthography = $scope["orthography" + whichText].orthography;
     console.log("Loaded text " + whichText + ": ", $scope.orthography0);
   };
