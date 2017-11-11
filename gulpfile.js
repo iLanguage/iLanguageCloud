@@ -8,8 +8,6 @@ var del = require('del');
 var rename = require('gulp-rename');
 
 var browserify = require('browserify');
-// var vinylTransform = require('vinyl-transform');
-// var source = require('vinyl-source-stream');
 var uglify = require('gulp-uglify');
 var through2 = require('through2');
 
@@ -91,7 +89,6 @@ gulp.task('watch', ['test'], function() {
 https://medium.com/@sogko/gulp-browserify-the-gulp-y-way-bb359b3f9623
 https://github.com/substack/node-browserify/issues/1044
 */
-
 gulp.task('browserify', ['clean'], function() {
   var browserified = through2.obj(function(file, enc, next) {
     var options = {
@@ -101,56 +98,35 @@ gulp.task('browserify', ['clean'], function() {
           exports: 'd3'
         }
       },
-      banner: banner()
+      extension: '.min.js',
+      entries: [file.path],
+      derequire: true
     };
-    if (false) {
-      console.log("Old options", options);
-    }
-    browserify({
-        // outfile: 'ilanguage-cloud.js',
-        extension: '.min.js',
-        entries: [file.path],
-        // standalone: "ILanguageCloud",
-        derequire: true
-      })
-      // .transform('stripify')  /* TODO export iLanguage */
+    browserify(options)
       .bundle(function(err, res) {
         if (err) {
-          console.log("unable to browserify. ", err.stack, res);
+          console.log('unable to browserify. ', err.stack, res);
           return;
         }
-        // assumes file.contents is a Buffer
         file.contents = res;
         next(null, file);
       });
   });
-  // vinylTransform(function(filename) {
-  //   var b = browserify(filename);
-  //   return b.bundle();
-  // });
 
   return gulp.src(['./src/app.js'])
     .pipe(browserified)
     .pipe(gap.prependText(banner()))
-    .pipe(rename("ilanguage-cloud.js"))
+    .pipe(rename('ilanguage-cloud.js'))
     .pipe(gulp.dest('./dist/'))
     .pipe(uglify())
-    .pipe(rename("ilanguage-cloud.min.js"))
+    .pipe(rename('ilanguage-cloud.min.js'))
     .pipe(gulp.dest('./dist/'));
 });
 
 /**
 https://medium.com/@sogko/gulp-browserify-the-gulp-y-way-bb359b3f9623
 */
-// gulp.task('naivebrowserify', function() {
-//   return browserify('./src/ilanguage-cloud.js')
-//     .bundle()
-//     .pipe(source('ilanguage-cloud.min.js'))
-//     .pipe(gulp.dest('./'));
-// });
 
 gulp.task('test', ['jshint', 'istanbul']);
-
 gulp.task('release', ['bump']);
-
 gulp.task('default', ['test', 'browserify']);

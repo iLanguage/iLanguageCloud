@@ -86,10 +86,14 @@ describe('lib/word-cloud', function() {
       expect(cloud.wordFrequencies).toEqual([{
         orthography: 'word',
         count: 1,
+        normalizedCount: 1,
+        rank: 0.5,
         categories: ['functionalWord']
       }, {
         orthography: 'here',
         count: 1,
+        normalizedCount: 1,
+        rank: 0.5,
         categories: ['functionalWord']
       }]);
       cloud.orthography = 'some different words';
@@ -97,14 +101,20 @@ describe('lib/word-cloud', function() {
       expect(cloud.wordFrequencies).toEqual([{
         orthography: 'some',
         count: 1,
+        normalizedCount: 1,
+        rank: 1/3,
         categories: ['functionalWord']
       }, {
         orthography: 'different',
         count: 1,
+        normalizedCount: 1,
+        rank: 1/3,
         categories: ['buzzWord']
       }, {
         orthography: 'words',
         count: 1,
+        normalizedCount: 1,
+        rank: 1/3,
         categories: ['functionalWord']
       }]);
 

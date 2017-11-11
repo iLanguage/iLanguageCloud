@@ -9,26 +9,26 @@
 <body>
   <textarea id="inputText">
     runSegmenter: {
-    value: function(options) {
-    if (this.runningSegmenter) {
-    return this;
-  }
-  this.runningSegmenter = true;
-  console.log("runSegmenter");
-  this.morphemes = this.morphemes || this.orthography;
-  for (var rule in this.userDefinedMorphemeSegmentationReWriteRules) {
-  if (!this.userDefinedMorphemeSegmentationReWriteRules.hasOwnProperty(rule)) {
-  continue;
-}
-this.morphemes = this.morphemes.replace(
-new RegExp(this.userDefinedMorphemeSegmentationReWriteRules[rule].source, 'g'),
-this.userDefinedMorphemeSegmentationReWriteRules[rule].target);
-}
-NonContentWords.filterText(this);
-this.runningSegmenter = false;
-return this;
-}
-},
+      value: function(options) {
+        if (this.runningSegmenter) {
+          return this;
+        }
+        this.runningSegmenter = true;
+        console.log("runSegmenter");
+        this.morphemes = this.morphemes || this.orthography;
+        for (var rule in this.userDefinedMorphemeSegmentationReWriteRules) {
+          if (!this.userDefinedMorphemeSegmentationReWriteRules.hasOwnProperty(rule)) {
+            continue;
+          }
+          this.morphemes = this.morphemes.replace(
+            new RegExp(this.userDefinedMorphemeSegmentationReWriteRules[rule].source, 'g'),
+            this.userDefinedMorphemeSegmentationReWriteRules[rule].target);
+        }
+        NonContentWords.filterText(this);
+        this.runningSegmenter = false;
+        return this;
+      }
+    },
 </textarea>
 <table>
   <tr>

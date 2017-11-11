@@ -135,7 +135,7 @@ describe('It should provide a visualization', function() {
       it('should be trim long wordlists so that they fit but to a max vocab size', function() {
         var cloud = new ILanguageCloud({
           orthography: sampleText,
-          debugMode: true,
+          // debugMode: true,
           width: 800,
           height: 400
         });

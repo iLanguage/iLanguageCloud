@@ -1,6 +1,6 @@
 {
   "name": "ilanguage-cloud",
-  "version": "3.0.2",
+  "version": "4.0.0-rc0",
   "description": "Generate interactive wordclouds for any language, with automatic stop word detection and ability to export as svg or png.",
   "keywords": [
     "ilanguage",
@@ -58,7 +58,7 @@
     "test": "gulp test",
     "test:browser": "cd test && bower install && open SpecRunner.html",
     "cover": "gulp istanbul",
-    "build": "browserify --standalone ILanguageCloud src/app.js -o dist/ilanguage-cloud.js",
-    "build:gulp": "gulp browserify"
+    "build:browserify": "browserify --standalone ILanguageCloud src/app.js -o dist/ilanguage-cloud.js",
+    "build": "gulp browserify"
   }
 }

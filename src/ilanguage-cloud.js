@@ -68,9 +68,6 @@
     if (!options.originalText) {
       options.originalText = options.orthography;
     }
-    if (!options.text) {
-      options.text = options.orthography;
-    }
     this.saving = false;
     this.runningSegmenter = false;
     this.runningRender = false;
@@ -184,7 +181,7 @@
           //   this.nonContentWordsArray = null;
           // }
         }
-        this.orthography = this.originalText;
+        // this.orthography = this.originalText;
         this.runningStemmer = false;
         return this;
       }
@@ -256,8 +253,7 @@
             return word;
           });
           maxVocabSize = Math.min(width / 5, self.wordFrequencies.length, maxVocabSize);
-
-          var SEED = 2;
+          this.debug('TODO use randomSeed to regenerate cloud', userChosenRandomSeed);
 
           // Ask d3-cloud to make an cloud object for us
           // and configure our cloud with d3 chaining
@@ -274,6 +270,7 @@
                 return word.rotate;
               })
               .font(self.font || 'Impact')
+              .spiral('archimedean')
               .fontSize(function(word) {
                 return word.size;
               })
@@ -292,6 +289,9 @@
                 });
               });
             this.layout.start();
+          } else if (self.orthography !== self.originalText) {
+            self.layout.words(self.wordFrequencies);
+            self.layout.start();
           } else {
             ILanguageCloud.reproduceableDrawFunction({
               element: self.element,
@@ -477,10 +477,12 @@
       .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
       .selectAll('text')
       .data(context.wordFrequencies.slice(0, maxVocabSize))
+      // .transition()
+      // .duration(1000)
       .enter().append('text')
       .style('font-size', function(word) {
         if (!word.size) {
-          word.size = ILanguageCloud.fontSizeFromRank(word, height * 0.25, 10)
+          word.size = ILanguageCloud.fontSizeFromRank(word, height * 0.25, 10);
         }
         return word.size;
       })

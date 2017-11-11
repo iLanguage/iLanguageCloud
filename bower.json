@@ -1,6 +1,6 @@
 {
   "name": "ilanguage-cloud",
-  "version": "3.0.2",
+  "version": "4.0.0-rc0",
   "homepage": "https://github.com/iLanguage/iLanguageCloud",
   "authors": [
     "iLanguageCloud Contributors <opensource@ilanguage.ca>"
@@ -30,7 +30,7 @@
     ".gitattributes",
     ".gitignore",
     ".npmignore",
-    "Gruntfile.js",
+    "gulpfile.js",
     "CONTRIBUTING.md",
     "package.json"
   ],
