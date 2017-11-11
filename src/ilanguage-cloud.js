@@ -88,7 +88,7 @@
   ILanguageCloud.d3 = locald3;
   ILanguageCloud.d3.layout.cloud = ILanguageCloud.d3.layout.cloud || cloudviz;
   ILanguageCloud.cloudviz = cloudviz;
-
+  ILanguageCloud.version = '4.0.0-rc0';
   ILanguageCloud.prototype = Object.create(LanguageDatum.prototype, /** @lends ILanguageCloud.prototype */ {
     constructor: {
       value: ILanguageCloud
