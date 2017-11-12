@@ -65,6 +65,10 @@
 
   var ILanguageCloud = function ILanguageCloud(options) {
     options = options || {};
+    if (!options.orthography && options.text) {
+      console.warn('text is deprecated, use orthography instead');
+      options.orthography = options.text;
+    }
     if (!options.originalText) {
       options.originalText = options.orthography;
     }
