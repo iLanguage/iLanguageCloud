@@ -9,11 +9,28 @@
     <body ng-controller="SampleController" >
 
 
+    <p>
+
+      Instructions:
+      <ul>
+        <li>
+          Click on a word to edit it's text.
+        </li>
+        <li>
+          Refresh the page to see your edits were saved.
+        </li>
+        <li>
+          Click "Clear saved changes" button to start over with a freshly drawn random word cloud.
+        </li>
+      </ul>
+
+    </p>
+
 
     <table>
         <tr>
             <td colspan="2">
-                <button ng-click="setRandomCloudText()">Ramdon orthography in the first Cloud</button>
+                <button ng-click="redrawSavedClouds()">Clear saved changes</button>
             </td>
         </tr>
 

@@ -395,7 +395,17 @@
             json[aproperty] = this.defaults[aproperty];
           }
         }
-        // delete json.
+
+        if (json.wordFrequencies) {
+          json.wordFrequencies = json.wordFrequencies.map(function(word) {
+            return {
+              categories: word.categories || [],
+              alternates: word.alternates || [],
+              orthography: word.orthography,
+              count: word.count
+            };
+          });
+        }
         return json;
       }
     },
@@ -431,18 +441,13 @@
         delete json.layout;
         delete json.precedenceRelations;
         delete json.element;
+        delete json.svg;
         delete json.saving;
-
-        if (json.wordFrequencies) {
-          json.wordFrequencies = json.wordFrequencies.map(function(word) {
-            return {
-              categories: word.categories || [],
-              alternates: word.alternates || [],
-              orthography: word.orthography,
-              count: word.count
-            };
-          });
+        if (this.svg && this.svg[0] && this.svg[0][0] && this.svg[0][0].attributes && this.svg[0][0].attributes.width) {
+          json.width = json.width || this.svg[0][0].attributes.width.value;
+          json.height = json.height || this.svg[0][0].attributes.height.value;
         }
+
         return json;
       }
     }
