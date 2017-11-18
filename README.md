@@ -70,10 +70,9 @@ cloud.render();
 
 ## Examples
 
-* [Javascript](samples/vanilla)
-* [Angular](samples/angular)
-* [Backbone](samples/backbone)
-* [JQuery-plugin](samples/jquery_plugin)
+* [Javascript](examples/vanilla)
+* [Angular](examples/angular)
+* [Backbone](examples/backbone)
 
 * [Android](https://github.com/iLanguage/iLanguageCloudAndroid)
 * [Chrome App](https://github.com/iLanguage/iLanguageCloudChrome)
