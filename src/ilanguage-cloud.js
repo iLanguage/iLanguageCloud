@@ -211,9 +211,8 @@
           // var isAndroid = userOptions.isAndroid || this.isAndroid;
           var maxVocabSize = userOptions.maxVocabSize || this.maxVocabSize || defaults.maxVocabSize;
           var keepPreviousSVG = userOptions.keepPreviousSVG || this.keepPreviousSVG || defaults.keepPreviousSVG;
-          var width = userOptions.width || this.width || 800;
-          var height = userOptions.height || this.height || 400;
-          var fontSize = userOptions.fontSize || ILanguageCloud.d3.scale.linear().range([10, height * 0.25]);
+          var width = userOptions.width || this.width;
+          var height = userOptions.height || this.height;
           var fill = userOptions.fill || ILanguageCloud.d3.scale.category20();
 
           var localDocument;
@@ -239,6 +238,10 @@
           if (element) {
             this.element = element;
           }
+          width = width || element.clientWidth || 800;
+          height = height || element.clientHeight || 400;
+
+          var fontSize = userOptions.fontSize || ILanguageCloud.d3.scale.linear().range([10, height * 0.25]);
 
           if (!this.wordFrequencies || !this.wordFrequencies.length) {
             this.warn('Must generate wordFrequencies before rendering.');

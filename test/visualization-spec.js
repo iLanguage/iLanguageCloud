@@ -85,7 +85,9 @@ describe('It should provide a visualization', function() {
       it('should clear previous svg by defualt', function() {
         var cloud = new ILanguageCloud({
           orthography: 'should clear prevous svg content by default',
-          element: 'default-redraw'
+          element: 'default-redraw',
+          height: 100,
+          width: 100
         });
         expect(cloud).toBeDefined();
         cloud.render();
@@ -136,17 +138,18 @@ describe('It should provide a visualization', function() {
         var cloud = new ILanguageCloud({
           orthography: sampleText,
           // debugMode: true,
-          width: 800,
-          height: 400
         });
         expect(cloud).toBeDefined();
         cloud.render({
           document: virtualdocument,
-          element: 'sizeable-cloud'
+          element: 'sizeable-cloud',
+          height: 800
         });
         var textElements = cloud.element.getElementsByTagName('text');
         // expect(textElements.length).toEqual(cloud.wordFrequencies.length);
-        expect(textElements.length).toEqual(160);
+        expect(textElements.length).toEqual(274);
+        expect(cloud.svg[0][0].attributes.width.value).toEqual("2000");
+        expect(cloud.svg[0][0].attributes.height.value).toEqual("800");
       });
 
       it('should be able to set the font of one word', function() {
