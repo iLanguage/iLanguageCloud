@@ -1,0 +1,80 @@
+<!doctype html>
+<html ng-app="app">
+
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="three_clouds.css">
+        <style>
+          .palette {
+            cursor: pointer;
+            display: inline-block;
+            vertical-align: bottom;
+            margin: 4px 0 4px 6px;
+            padding: 4px;
+            background: #fff;
+            border: solid 1px #aaa;
+          }
+          .swatch {
+            display: block;
+            vertical-align: middle;
+            width: 37px;
+            height: 22px;
+          }
+        </style>
+    </head>
+
+    <body ng-controller="SampleController" >
+
+
+    <p>
+      Instructions:
+      <ul>
+        <li>
+          Click on a colour palette to change the clouds colour.
+        </li>
+        <li>
+          Click on a word to edit it's text.
+        </li>
+        <li>
+          Refresh the page to see your edits were saved.
+        </li>
+        <li>
+          Click "Clear saved changes" button to start over with a freshly drawn random word cloud.
+        </li>
+      </ul>
+    </p>
+
+    <div id="palettes"></div>
+
+    <table>
+        <tr>
+            <td colspan="2">
+                <button ng-click="redrawSavedClouds()">Clear saved changes</button>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2">
+                <div data-word-cloud data-cloud-content="{{cloud0}}" data-color-palette="colorPalette"></div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div data-word-cloud data-cloud-content="{{cloud2}}" data-color-palette="colorPalette"></div>
+            </td>
+            <td>
+                <div data-word-cloud data-cloud-content="{{cloud3}}" data-color-palette="colorPalette"></div>
+            </td>
+        </tr>
+    </table>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.2/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.2/angular-route.min.js"></script>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <script src="https://bl.ocks.org/mbostock/raw/5577023/14bc68f5c7aa174c53fc6efe8dab8292295da950/colorbrewer.min.js"></script>
+    <script src="../../dist/ilanguage-cloud.js"></script>
+    <script>window.WordCloud = ILanguageCloud;</script>
+    <script src="three_clouds.js"></script>
+
+    </body>
+</html>

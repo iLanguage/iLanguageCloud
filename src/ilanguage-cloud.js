@@ -65,8 +65,15 @@
 
   var ILanguageCloud = function ILanguageCloud(options) {
     options = options || {};
+    if (!options.orthography && options.text) {
+      console.warn('text is deprecated, use orthography instead');
+      options.orthography = options.text;
+    }
     if (!options.originalText) {
       options.originalText = options.orthography;
+    }
+    if (options.svg) {
+      delete options.svg;
     }
     this.saving = false;
     this.runningSegmenter = false;
@@ -88,7 +95,7 @@
   ILanguageCloud.d3 = locald3;
   ILanguageCloud.d3.layout.cloud = ILanguageCloud.d3.layout.cloud || cloudviz;
   ILanguageCloud.cloudviz = cloudviz;
-
+  ILanguageCloud.version = '4.0.0-rc1';
   ILanguageCloud.prototype = Object.create(LanguageDatum.prototype, /** @lends ILanguageCloud.prototype */ {
     constructor: {
       value: ILanguageCloud
@@ -130,6 +137,40 @@
         LexemeFrequency.calculateNonContentWords(this);
         this.runningWordFrequencyGenerator = false;
         return this;
+      }
+    },
+
+    nonContentWordsArray: {
+      get: function() {
+        return this._nonContentWordsArray;
+      },
+      set: function(value) {
+        if (!value) {
+          this._nonContentWordsArray = [];
+        }
+
+        if (Array.isArray(value)) {
+          this._nonContentWordsArray = value;
+          return;
+        }
+
+        if (value instanceof RegExp) {
+          this._nonContentWordsArray = value;
+          return;
+        }
+
+        if (/\/.*\//.test(value)) {
+          this._nonContentWordsArray = new RegExp(value.replace(/^\//, '').replace(/\/$/, ''));
+          return;
+        }
+
+        if (typeof value.split === 'function') {
+          value = value.split(/[,; ]+/).filter(function(item) {
+            return !!item;
+          });
+          this._nonContentWordsArray = value;
+        }
+        this.warn('Value was not a valid nonContentWordsArray', value)
       }
     },
 
@@ -207,10 +248,9 @@
           // var isAndroid = userOptions.isAndroid || this.isAndroid;
           var maxVocabSize = userOptions.maxVocabSize || this.maxVocabSize || defaults.maxVocabSize;
           var keepPreviousSVG = userOptions.keepPreviousSVG || this.keepPreviousSVG || defaults.keepPreviousSVG;
-          var width = userOptions.width || this.width || 800;
-          var height = userOptions.height || this.height || 400;
-          var fontSize = userOptions.fontSize || ILanguageCloud.d3.scale.linear().range([10, height * 0.25]);
-          var fill = userOptions.fill || ILanguageCloud.d3.scale.category20();
+          var width = userOptions.width || this.width;
+          var height = userOptions.height || this.height;
+          var fill = userOptions.fill || this.fill || ILanguageCloud.d3.scale.category20();
 
           var localDocument;
           if (userOptions.document) {
@@ -235,6 +275,10 @@
           if (element) {
             this.element = element;
           }
+          width = width || element.clientWidth || 800;
+          height = height || element.clientHeight || 400;
+
+          var fontSize = userOptions.fontSize || ILanguageCloud.d3.scale.linear().range([10, height * 0.25]);
 
           if (!this.wordFrequencies || !this.wordFrequencies.length) {
             this.warn('Must generate wordFrequencies before rendering.');
@@ -249,7 +293,7 @@
 
           this.wordFrequencies = this.wordFrequencies.map(function(word) {
             word.text = word.orthography;
-            word.size = ILanguageCloud.fontSizeFromRank(word, height * 0.25, 10);
+            word.size = word.size || ILanguageCloud.fontSizeFromRank(word, height * 0.25, 10);
             return word;
           });
           maxVocabSize = Math.min(width / 5, self.wordFrequencies.length, maxVocabSize);
@@ -289,7 +333,7 @@
                 });
               });
             this.layout.start();
-          } else if (self.orthography !== self.originalText) {
+          } else if (self.orthography && self.orthography !== self.originalText) {
             self.layout.words(self.wordFrequencies);
             self.layout.start();
           } else {
@@ -388,7 +432,17 @@
             json[aproperty] = this.defaults[aproperty];
           }
         }
-        // delete json.
+
+        if (json.wordFrequencies) {
+          json.wordFrequencies = json.wordFrequencies.map(function(word) {
+            return {
+              categories: word.categories || [],
+              alternates: word.alternates || [],
+              orthography: word.orthography,
+              count: word.count
+            };
+          });
+        }
         return json;
       }
     },
@@ -424,18 +478,15 @@
         delete json.layout;
         delete json.precedenceRelations;
         delete json.element;
+        delete json.svg;
         delete json.saving;
+        delete json.fill;
 
-        if (json.wordFrequencies) {
-          json.wordFrequencies = json.wordFrequencies.map(function(word) {
-            return {
-              categories: word.categories || [],
-              alternates: word.alternates || [],
-              orthography: word.orthography,
-              count: word.count
-            };
-          });
+        if (this.svg && this.svg[0] && this.svg[0][0] && this.svg[0][0].attributes && this.svg[0][0].attributes.width) {
+          json.width = json.width || this.svg[0][0].attributes.width.value;
+          json.height = json.height || this.svg[0][0].attributes.height.value;
         }
+
         return json;
       }
     }
@@ -445,11 +496,11 @@
     var range = max - min;
     if (word.categories) {
       var categoriesString = word.categories.join(' ');
-      if (categoriesString.indexOf('functionalWord') > -1 || categoriesString.indexOf('userRemovedWord') > -1) {
+      if (categoriesString.indexOf('functionalWord') > -1 || categoriesString.indexOf('userRemovedWord') > -1 || categoriesString.indexOf('userDefinedNonContentWord') > -1) {
         return 0;
       }
     }
-    return min + range * word.normalizedCount;
+    return min + range * word.normalizedCount * (word.boost || 1);
   };
 
   // Declare our own draw function which will be called on the 'end' event
@@ -464,7 +515,7 @@
     var context = options.context;
     var svg = context.svg || ILanguageCloud.d3.select(element).append('svg');
 
-    if (!keepPreviousSVG && element && element.children) {
+    if (context.svg && !keepPreviousSVG && svg.selectAll) {
       svg.selectAll('*').remove();
     }
 

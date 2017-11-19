@@ -1,0 +1,14 @@
+gulpfile.js
+package-lock.json
+assets
+bower_components
+coverage
+node_modules
+test
+.bowerrc
+.editorconfig
+.gitattributes
+.gitignore
+.jscsrc
+.jshintrc
+.travis.yml

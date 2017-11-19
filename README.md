@@ -15,8 +15,9 @@ Generate interactive wordclouds for any language, with automatic stop word detec
 Install the module with: `npm install ilanguage-cloud`
 
 ```javascript
-var ILanguageCloud = require('ilanguage-cloud');
-new ILanguageCloud().render(); // returns a wordcloud object with default options
+var ILanguageCloud = require('ilanguage-cloud').ILanguageCloud;
+var myCloud = new ILanguageCloud({text: 'A cloud is a visible mass ...'});
+myCloud.render();
 ```
 
 ### In the browser
@@ -33,7 +34,8 @@ In your web page:
 ```html
 <script src="ilanguage-cloud.min.js"></script>
 <script>
-  new ILanguageCloud({text: 'A cloud is a visible mass ...'}).render(); // renders the text as a cloud to a div id="cloud" if exists
+  var myCloud = new ILanguageCloud({text: 'A cloud is a visible mass ...'});
+  myCloud.render(); // renders the text as a cloud to a div id="cloud" if exists
 </script>
 ```
 
@@ -52,29 +54,25 @@ var exports = WordCloud;
 
 ## Documentation
 
-Optionally, you can pass an options object to ILanguageCloud.
+You can also specify many options on the cloud, for example how the cloud should be analyzed, and in which element it should render.
 
-```html
-<script>
-  var myOptions = {
-    element: 'cloud',
-    text: 'A cloud is a visible mass of condensed droplets or frozen crystals suspended in the atmosphere.',
-    font: 'FreeSans',
-    nonContentWords: 'a is by in of the or'
-  };
-</script>
-<script src="ilanguage-cloud.min.js"></script>
-<script>
-  new ILanguageCloud(myOptions).render();
-</script>
+```javascript
+var myOptions = {
+  element: document.getElementById('anyElementCanBePassedIn'),
+  orthography: 'A cloud is a visible mass of condensed droplets or frozen crystals suspended in the atmosphere.',
+  morphemes: 'A cloud is a visible mass of condense-ed drop-let-s or frozen crystal-s suspend-ed in the atmosphere.',
+  font: 'FreeSans',
+  nonContentWords: 'a is by in of the or'
+};
+var cloud = new ILanguageCloud(myOptions);
+cloud.render();
 ```
 
 ## Examples
 
-* [Javascript](samples/vanilla)
-* [Angular](samples/angular)
-* [Backbone](samples/backbone)
-* [JQuery-plugin](samples/jquery_plugin)
+* [Javascript](examples/vanilla)
+* [Angular](examples/angular)
+* [Backbone](examples/backbone)
 
 * [Android](https://github.com/iLanguage/iLanguageCloudAndroid)
 * [Chrome App](https://github.com/iLanguage/iLanguageCloudChrome)
@@ -91,6 +89,7 @@ In lieu of a formal styleguide, take care to maintain the existing coding style.
 * v1.0 Feb 9 2012 - Initial word cloud using CSS rotation in vanilla js
 * v2.0 Jan 29 2013 - WordPress plugin with SVG generation in vanilla js
 * v3.0 Nov 15 2013 - Switched to Jason Davies' [d3-cloud](https://github.com/iLanguage/d3-cloud) to generate SVG
+* v4.0 Nov 15 2017 - Updated to d3-cloud v1.2.5-rc1 [d3-cloud](https://github.com/iLanguage/d3-cloud) to generate SVG
 [Download on Google Play](https://play.google.com/store/apps/details?id=ca.ilanguage.ilanguagecloud)
 
 ## License

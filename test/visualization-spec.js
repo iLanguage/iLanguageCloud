@@ -13,7 +13,7 @@ if (typeof document !== 'undefined') {
   d3 = require('d3');
   try {
     var JSDOM = require('jsdom').JSDOM;
-    virtualdocument = new JSDOM('<!DOCTYPE html><body><div id="non-empty-svg"><div id="sizeable-cloud"></div><div id="reproducable-cloud"></div><div id="viztest"></div><div id="angles"></div></body>').window.document;
+    virtualdocument = new JSDOM('<!DOCTYPE html><body><div id="non-empty-svg"><div id="sizeable-cloud"></div><div id="reproducable-cloud"></div> <div id="change-one-word-font-cloud"></div> <div id="change-font-cloud"></div><div id="viztest"></div><div id="angles"></div></body>').window.document;
     global.document = global.document || virtualdocument;
   } catch (e) {
     console.warn('You dont have jsdom installed, if you have python on your system, please install it npm install jsdom', e.stack);
@@ -85,7 +85,9 @@ describe('It should provide a visualization', function() {
       it('should clear previous svg by defualt', function() {
         var cloud = new ILanguageCloud({
           orthography: 'should clear prevous svg content by default',
-          element: 'default-redraw'
+          element: 'default-redraw',
+          height: 100,
+          width: 100
         });
         expect(cloud).toBeDefined();
         cloud.render();
@@ -136,20 +138,54 @@ describe('It should provide a visualization', function() {
         var cloud = new ILanguageCloud({
           orthography: sampleText,
           // debugMode: true,
-          width: 800,
-          height: 400
         });
         expect(cloud).toBeDefined();
         cloud.render({
           document: virtualdocument,
-          element: 'sizeable-cloud'
+          element: 'sizeable-cloud',
+          height: 800
         });
         var textElements = cloud.element.getElementsByTagName('text');
         // expect(textElements.length).toEqual(cloud.wordFrequencies.length);
-        expect(textElements.length).toEqual(160);
+        expect(textElements.length).toEqual(274);
+        expect(cloud.svg[0][0].attributes.width.value).toEqual("2000");
+        expect(cloud.svg[0][0].attributes.height.value).toEqual("800");
       });
 
-      it('should be able to set the font of one word or a render', function() {
+      it('should be able to set the font of one word', function() {
+        var cloud = new ILanguageCloud({
+          orthography: "should be able to set the font of one word or a render",
+          caseSensitivity: false,
+          debugMode: false,
+          font: 'Verdana'
+        });
+        expect(cloud).toBeDefined();
+        cloud.render({
+          document: virtualdocument,
+          element: 'change-one-word-font-cloud'
+        });
+        expect(cloud.wordFrequencies.length).toEqual(13);
+        var textElements = cloud.element.getElementsByTagName('text');
+        expect(textElements.length).toEqual(13);
+
+        var positionOfFirstWord = 0;
+        for (var i = 0; i < textElements.length; i++) {
+          var text = textElements[i].innerHTML;
+          if (text === 'able') {
+            positionOfFirstWord = i;
+            expect(textElements[i].style['font-family']).toEqual('Verdana');
+          }
+        }
+
+        cloud.wordFrequencies[2].orthography = 'changed';
+        cloud.wordFrequencies[2].font = 'Impact';
+
+        cloud.render();
+        expect(textElements[positionOfFirstWord].innerHTML).toEqual('changed');
+        expect(textElements[positionOfFirstWord].style['font-family']).toEqual('Impact');
+      });
+
+      it('should be able to set the font of a render', function() {
         var cloud = new ILanguageCloud({
           orthography: "should be able to set the font of one word or a render",
           caseSensitivity: false,
@@ -158,7 +194,7 @@ describe('It should provide a visualization', function() {
         expect(cloud).toBeDefined();
         cloud.render({
           document: virtualdocument,
-          element: 'reproducable-cloud'
+          element: 'change-font-cloud'
         });
         expect(cloud.wordFrequencies.length).toEqual(13);
         var textElements = cloud.element.getElementsByTagName('text');
@@ -173,19 +209,7 @@ describe('It should provide a visualization', function() {
           }
         }
 
-        cloud.wordFrequencies[2].orthography = 'changed';
-        cloud.wordFrequencies[2].font = 'Verdana';
-
         cloud.render({
-          document: virtualdocument,
-          element: 'reproducable-cloud',
-        });
-        expect(textElements[positionOfFirstWord].innerHTML).toEqual('changed');
-        expect(textElements[positionOfFirstWord].style['font-family']).toEqual('Verdana');
-
-        cloud.render({
-          document: virtualdocument,
-          element: 'reproducable-cloud',
           font: 'Verdana'
         });
         for (var i = 0; i < textElements.length; i++) {
