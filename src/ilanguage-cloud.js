@@ -463,7 +463,7 @@
         return 0;
       }
     }
-    return min + range * word.normalizedCount;
+    return min + range * word.normalizedCount * (word.boost || 1);
   };
 
   // Declare our own draw function which will be called on the 'end' event
