@@ -213,7 +213,7 @@
           var keepPreviousSVG = userOptions.keepPreviousSVG || this.keepPreviousSVG || defaults.keepPreviousSVG;
           var width = userOptions.width || this.width;
           var height = userOptions.height || this.height;
-          var fill = userOptions.fill || ILanguageCloud.d3.scale.category20();
+          var fill = userOptions.fill || this.fill || ILanguageCloud.d3.scale.category20();
 
           var localDocument;
           if (userOptions.document) {
@@ -296,7 +296,7 @@
                 });
               });
             this.layout.start();
-          } else if (self.orthography !== self.originalText) {
+          } else if (self.orthography && self.orthography !== self.originalText) {
             self.layout.words(self.wordFrequencies);
             self.layout.start();
           } else {
@@ -443,6 +443,8 @@
         delete json.element;
         delete json.svg;
         delete json.saving;
+        delete json.fill;
+
         if (this.svg && this.svg[0] && this.svg[0][0] && this.svg[0][0].attributes && this.svg[0][0].attributes.width) {
           json.width = json.width || this.svg[0][0].attributes.width.value;
           json.height = json.height || this.svg[0][0].attributes.height.value;
