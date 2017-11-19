@@ -102,24 +102,23 @@ describe('lib/word-cloud', function() {
         orthography: 'some',
         count: 1,
         normalizedCount: 1,
-        rank: 1/3,
+        rank: 1 / 3,
         categories: ['functionalWord']
       }, {
         orthography: 'different',
         count: 1,
         normalizedCount: 1,
-        rank: 1/3,
+        rank: 1 / 3,
         categories: ['buzzWord']
       }, {
         orthography: 'words',
         count: 1,
         normalizedCount: 1,
-        rank: 1/3,
+        rank: 1 / 3,
         categories: ['functionalWord']
       }]);
 
     });
-
 
     it('should recalculate non content words if requested', function() {
       var originalNonContentWordsArray = ['unrelated', 'words'];
@@ -131,7 +130,6 @@ describe('lib/word-cloud', function() {
       expect(cloud.nonContentWordsArray !== originalNonContentWordsArray).toBeTruthy();
       expect(cloud.nonContentWordsArray).toEqual(['a', 'here', 'word']);
     });
-
 
     it('should not recalculate non content words if user specified their content words', function() {
       var originalNonContentWordsArray = ['unrelated', 'words'];
@@ -250,8 +248,8 @@ describe('lib/word-cloud', function() {
         var cloud = {
           orthography: sampleLongUnicodeText,
           cutoff: 0.015
-            // nonContentWords: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
-            // |სა-, სტა-,იმის,-ში/
+          // nonContentWords: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
+          // |სა-, სტა-,იმის,-ში/
         };
         // console.log('Testing filtered text recursion');
         cloud = new ILanguageCloud(cloud).runStemmer();
@@ -281,7 +279,7 @@ describe('lib/word-cloud', function() {
           orthography: sampleUnicodeText,
           userSpecifiedNonContentWords: true,
           nonContentWordsArray: result6
-            // |სა-, სტა-,იმის,-ში/
+          // |სა-, სტა-,იმის,-ში/
         };
         cloud = new ILanguageCloud(cloud).runStemmer();
         expect(cloud.nonContentWordsArray).toEqual(result6);
@@ -294,10 +292,60 @@ describe('lib/word-cloud', function() {
           height: 200,
           userSpecifiedNonContentWords: true,
           nonContentWordsArray: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
-            // |სა-, სტა-,იმის,-ში/
+          // |სა-, სტა-,იმის,-ში/
         };
         cloud = new ILanguageCloud(cloud).runStemmer();
         expect(cloud.nonContentWordsArray).toEqual(result6);
+      });
+
+      it('should accept a string of non content words', function() {
+        var originalNonContentWordsArray = ['unrelated', 'words'];
+        var cloud = {
+          orthography: 'a buncha words',
+          nonContentWordsArray: 'a;the, or '
+        };
+        cloud = new ILanguageCloud(cloud)
+        expect(cloud.nonContentWordsArray).toEqual(['a', 'the', 'or']);
+      });
+
+      it('should accept a regex string of non content words', function() {
+        var originalNonContentWordsArray = ['unrelated', 'words'];
+        var cloud = {
+          orthography: 'a buncha აის words',
+          userSpecifiedNonContentWords: true,
+          nonContentWordsArray: '/^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/'
+        };
+        cloud = new ILanguageCloud(cloud).runStemmer();
+        expect(cloud.nonContentWordsArray).toEqual(result6);
+        cloud.runWordFrequencyGenerator();
+        expect(cloud.wordFrequencies).toEqual([{
+            "orthography": "a",
+            "count": 1,
+            "rank": 0.25,
+            "normalizedCount": 1
+          },
+          {
+            "orthography": "buncha",
+            "count": 1,
+            "rank": 0.25,
+            "normalizedCount": 1
+          },
+          {
+            "orthography": "აის",
+            "count": 1,
+            "rank": 0.25,
+            "normalizedCount": 1,
+            "categories": [
+              "userDefinedNonContentWord"
+            ]
+          },
+          {
+            "orthography": "words",
+            "count": 1,
+            "rank": 0.25,
+            "normalizedCount": 1
+          }
+        ]);
       });
 
       it('should accept a list of prefixes', function() {
@@ -307,8 +355,8 @@ describe('lib/word-cloud', function() {
           height: 200,
           cutoff: 0.015,
           prefixesArray: ['სა-', 'სტა-']
-            // nonContentWords: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
-            // |სა-, სტა-,იმის,-ში/
+          // nonContentWords: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
+          // |სა-, სტა-,იმის,-ში/
         };
         cloud = new ILanguageCloud(cloud).runStemmer();
         expect(cloud.prefixesArray).toEqual(['სტა-', 'სა-']);

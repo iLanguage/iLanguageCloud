@@ -72,6 +72,9 @@
     if (!options.originalText) {
       options.originalText = options.orthography;
     }
+    if (options.svg) {
+      delete options.svg;
+    }
     this.saving = false;
     this.runningSegmenter = false;
     this.runningRender = false;
@@ -134,6 +137,40 @@
         LexemeFrequency.calculateNonContentWords(this);
         this.runningWordFrequencyGenerator = false;
         return this;
+      }
+    },
+
+    nonContentWordsArray: {
+      get: function() {
+        return this._nonContentWordsArray;
+      },
+      set: function(value) {
+        if (!value) {
+          this._nonContentWordsArray = [];
+        }
+
+        if (Array.isArray(value)) {
+          this._nonContentWordsArray = value;
+          return;
+        }
+
+        if (value instanceof RegExp) {
+          this._nonContentWordsArray = value;
+          return;
+        }
+
+        if (/\/.*\//.test(value)) {
+          this._nonContentWordsArray = new RegExp(value.replace(/^\//, '').replace(/\/$/, ''));
+          return;
+        }
+
+        if (typeof value.split === 'function') {
+          value = value.split(/[,; ]+/).filter(function(item) {
+            return !!item;
+          });
+          this._nonContentWordsArray = value;
+        }
+        this.warn('Value was not a valid nonContentWordsArray', value)
       }
     },
 
@@ -459,7 +496,7 @@
     var range = max - min;
     if (word.categories) {
       var categoriesString = word.categories.join(' ');
-      if (categoriesString.indexOf('functionalWord') > -1 || categoriesString.indexOf('userRemovedWord') > -1) {
+      if (categoriesString.indexOf('functionalWord') > -1 || categoriesString.indexOf('userRemovedWord') > -1 || categoriesString.indexOf('userDefinedNonContentWord') > -1) {
         return 0;
       }
     }
@@ -478,7 +515,7 @@
     var context = options.context;
     var svg = context.svg || ILanguageCloud.d3.select(element).append('svg');
 
-    if (svg && !keepPreviousSVG && element && element.children) {
+    if (context.svg && !keepPreviousSVG && svg.selectAll) {
       svg.selectAll('*').remove();
     }
 
