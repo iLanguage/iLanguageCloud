@@ -256,7 +256,7 @@
 
           this.wordFrequencies = this.wordFrequencies.map(function(word) {
             word.text = word.orthography;
-            word.size = ILanguageCloud.fontSizeFromRank(word, height * 0.25, 10);
+            word.size = word.size || ILanguageCloud.fontSizeFromRank(word, height * 0.25, 10);
             return word;
           });
           maxVocabSize = Math.min(width / 5, self.wordFrequencies.length, maxVocabSize);
@@ -478,7 +478,7 @@
     var context = options.context;
     var svg = context.svg || ILanguageCloud.d3.select(element).append('svg');
 
-    if (!keepPreviousSVG && element && element.children) {
+    if (svg && !keepPreviousSVG && element && element.children) {
       svg.selectAll('*').remove();
     }
 
