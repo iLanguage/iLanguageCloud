@@ -103,6 +103,7 @@
 
     runSegmenter: {
       value: function(options) {
+        var self = this;
         this.debug('Running runSegmenter ', options);
         if (this.runningSegmenter) {
           return this;
@@ -120,6 +121,39 @@
         }
         NonContentWords.filterText(this);
         MorphemeSegmenter.runSegmenter(this);
+
+        if (this.morphemesArray && this.morphemesArray.length) {
+          if (!this.morphemesRegExpArray) {
+            this.morphemesRegExpArray = this.morphemesArray.map(function(morpheme) {
+              if (morpheme.indexOf('-') === 0) {
+                return {
+                  source: new RegExp(morpheme.replace(/-/g, '') + '$'),
+                  target: morpheme
+                };
+              }
+              if (morpheme.indexOf('-') === morpheme.length - 1) {
+                return {
+                  source: new RegExp('^' + morpheme.replace(/-/g, '')),
+                  target: morpheme
+                };
+              }
+            }).filter(function(morpheme) {
+              return !!morpheme;
+            });
+          }
+
+          this.morphemes = this.wordFrequencies.map(function(word) {
+            if (!word.orthography || (word.morphemes && word.morphemes !== word.orthography)) {
+              return word.morphemes || '';
+            }
+            word.morphemes = word.orthography;
+            self.morphemesRegExpArray.forEach(function(morpheme) {
+              word.morphemes = word.morphemes.replace(morpheme.source, morpheme.target);
+            });
+            return word.morphemes;
+          }).join(' ');
+        }
+
         this.runningSegmenter = false;
         return this;
       }
@@ -137,6 +171,40 @@
         LexemeFrequency.calculateNonContentWords(this);
         this.runningWordFrequencyGenerator = false;
         return this;
+      }
+    },
+
+    morphemesArray: {
+      get: function() {
+        return this._morphemesArray;
+      },
+      set: function(value) {
+        if (!value) {
+          this._morphemesArray = [];
+        }
+
+        if (Array.isArray(value)) {
+          this._morphemesArray = value;
+          return;
+        }
+
+        if (value instanceof RegExp) {
+          this._morphemesArray = value;
+          return;
+        }
+
+        if (/\/.*\//.test(value)) {
+          this._morphemesArray = new RegExp(value.replace(/^\//, '').replace(/\/$/, ''));
+          return;
+        }
+
+        if (typeof value.split === 'function') {
+          value = value.split(/[,; ]+/).filter(function(item) {
+            return !!item;
+          });
+          this._morphemesArray = value;
+        }
+        this.warn('Value was not a valid morphemesArray', value)
       }
     },
 
