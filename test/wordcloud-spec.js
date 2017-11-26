@@ -370,7 +370,7 @@ describe('lib/word-cloud', function() {
           'სა-',
           '-ში'
         ]);
-        expect(cloud.morphemesRegExp).toEqual(/(ები-ს$|^სტა|ები$|ური$|^სა|ში$)/);
+        expect(cloud.morphemesRegExp).toEqual(/(ები-ს$|^სტა|ები$|ური$|^სა|ში$)/g);
         expect(cloud.morphemes).toEqual('აზრებისა და ემოციური განცდების გაფორმებაში, შეაძლებინებს მას გარკვეულ ფორმაში');
         cloud.runWordFrequencyGenerator();
         cloud.runSegmenter();
