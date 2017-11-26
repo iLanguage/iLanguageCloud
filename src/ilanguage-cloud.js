@@ -69,6 +69,9 @@
       console.warn('text is deprecated, use orthography instead');
       options.orthography = options.text;
     }
+    if (!options.orthography && options.utterance) {
+      options.orthography = options.utterance;
+    }
     if (!options.originalText) {
       options.originalText = options.orthography;
     }
@@ -348,10 +351,14 @@
 
           var fontSize = userOptions.fontSize || ILanguageCloud.d3.scale.linear().range([10, height * 0.25]);
 
-          if (!this.wordFrequencies || !this.wordFrequencies.length) {
+          var wordFrequencies = this.wordFrequencies;
+          if ((!wordFrequencies || !wordFrequencies.length) && this.lexicon && this.lexicon._collection) {
+            wordFrequencies = this.lexicon._collection;
+          }
+          if (!wordFrequencies || !wordFrequencies.length) {
             this.warn('Must generate wordFrequencies before rendering.');
             this.runWordFrequencyGenerator();
-            this.wordFrequencies = this.wordFrequencies.sort(function(a, b) {
+            wordFrequencies = this.wordFrequencies.sort(function(a, b) {
               // rare words should have first dibs on placing
               // return a.normalizedCount - b.normalizedCount;
               // frequent words should have dibs on placing
@@ -359,13 +366,21 @@
             });
           }
 
-          this.wordFrequencies = this.wordFrequencies.map(function(word) {
-            word.text = word.orthography;
+          wordFrequencies = wordFrequencies.map(function(word) {
+            word.text = self.displayField ? word[self.displayField] : word.orthography;
+            word.normalizedCount = word.normalizedCount || 1;
             word.size = word.size || ILanguageCloud.fontSizeFromRank(word, height * 0.25, 10);
             return word;
           });
-          maxVocabSize = Math.min(width / 5, self.wordFrequencies.length, maxVocabSize);
+          maxVocabSize = Math.min(width / 5, wordFrequencies.length, maxVocabSize);
           this.debug('TODO use randomSeed to regenerate cloud', userChosenRandomSeed);
+
+          // Assign back the modified data
+          if (this.wordFrequencies) {
+            this.wordFrequencies = wordFrequencies;
+          } else {
+            this.lexicon._collection = wordFrequencies;
+          }
 
           // Ask d3-cloud to make an cloud object for us
           // and configure our cloud with d3 chaining
@@ -373,7 +388,7 @@
             this.layout = ILanguageCloud.cloudviz();
             this.layout
               .size([width, height])
-              .words(self.wordFrequencies.slice(0, maxVocabSize))
+              .words(wordFrequencies.slice(0, maxVocabSize))
               .padding(2)
               .rotate(function(word) {
                 if (word.rotate === null || word.rotate === undefined) {
@@ -402,7 +417,7 @@
               });
             this.layout.start();
           } else if (self.orthography && self.orthography !== self.originalText) {
-            self.layout.words(self.wordFrequencies);
+            self.layout.words(self.wordFrequencies || self.lexicon._collection);
             self.layout.start();
           } else {
             ILanguageCloud.reproduceableDrawFunction({
@@ -447,7 +462,7 @@
           c.textAlign = 'center';
           c.fillStyle = word.color;
           c.font = word.count + 'px ' + word.font;
-          c.fillText(word.orthography, 0, 0);
+          c.fillText(word.text, 0, 0);
           c.restore();
         });
         var currentPNG = canvas.toDataURL('image/png');
@@ -582,6 +597,10 @@
     var maxVocabSize = options.maxVocabSize;
     var context = options.context;
     var svg = context.svg || ILanguageCloud.d3.select(element).append('svg');
+    var wordFrequencies = context.wordFrequencies;
+    if ((!wordFrequencies || !wordFrequencies.length) && context.lexicon && context.lexicon._collection) {
+      wordFrequencies = context.lexicon._collection;
+    }
 
     if (context.svg && !keepPreviousSVG && svg.selectAll) {
       svg.selectAll('*').remove();
@@ -595,7 +614,7 @@
       .append('g')
       .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
       .selectAll('text')
-      .data(context.wordFrequencies.slice(0, maxVocabSize))
+      .data(wordFrequencies.slice(0, maxVocabSize))
       // .transition()
       // .duration(1000)
       .enter().append('text')
@@ -628,7 +647,7 @@
         return word.transform;
       })
       .text(function(word) {
-        return word.orthography;
+        return word.text;
       })
       .on('click', function(word) {
         if (typeof context.onWordClick === 'function') {

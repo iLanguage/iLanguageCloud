@@ -220,6 +220,52 @@ describe('It should provide a visualization', function() {
         // expect(virtualdocument.getElementsByTagName('svg')[0]).toBeDefined();
       });
 
+      describe('lexicon', function() {
+        it('should accept a lexicon', function(done) {
+          FieldDB.Database.prototype.BASE_DB_URL = 'http://localhost:5984';
+          var corpus = new FieldDB.Corpus({
+            dbname: "testinglexicon-kartuli",
+            corpusUrl: "http://localhost:5984/testinglexicon-kartuli",
+            prefs: {
+              maxLexiconSize: 400
+            }
+          });
+          var lexicon = new FieldDB.Lexicon({
+            corpus: corpus
+          });
+          expect(lexicon).toBeDefined();
+          expect(lexicon.corpus.dbname).toEqual("testinglexicon-kartuli");
+          lexicon.corpus.login({
+            name: "testinglexicon",
+            password: "testtest"
+          }).then(function() {
+            return lexicon.fetch();
+          }).then(function(results) {
+            expect(results).toBe(lexicon.collection);
+            expect(lexicon.length).toBeGreaterThan(0);
+            expect(lexicon.length).toEqual(99);
+
+            lexicon.normalizeCount();
+
+            var cloud = new ILanguageCloud({
+              lexicon: lexicon,
+              caseSensitivity: true,
+              displayField: 'morphemes',
+              debugMode: true,
+            });
+
+            cloud.render({
+              document: virtualdocument,
+              element: 'igt'
+            });
+
+            var textElements = cloud.element.getElementsByTagName('text');
+            expect(textElements.length).toEqual(99);
+            done();
+          });
+        });
+      });
+
       describe('Redraw a persisted cloud', function() {
         var myFewWordsFactory,
           myColorFunction,
