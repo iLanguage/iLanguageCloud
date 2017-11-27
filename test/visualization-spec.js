@@ -266,18 +266,42 @@ describe('It should provide a visualization', function() {
         });
       });
 
-      describe('It has useful results for graphic designers', function() {
+      describe('features for graphic designers', function() {
         it('should generate batches of wordclouds', function() {
           expect(true).toBeTruthy();
         });
 
-        it('should provide custom interactivity', function() {
-          expect(true).toBeTruthy();
+        it('should provide custom interactivity', function(done) {
+          var itemNumber = 0;
+          var cloud = new ILanguageCloud({
+            orthography: 'should be able to interact with the words',
+            onWordClick: function(word) {
+              word.orthography = 'orthography is changed';
+              word.text = 'changed after click';
+
+              expect(cloud.wordFrequencies[itemNumber].text).toEqual('changed after click');
+              cloud.render();
+
+              var textElementAfter = cloud.element.getElementsByTagName('text');
+              expect(textElementAfter[itemNumber].innerHTML).toEqual('orthography is changed')
+              done();
+            }
+          });
+
+          cloud.render();
+
+          var textElements = cloud.element.getElementsByTagName('text');
+          var evt = new MouseEvent("click", {
+            view: window,
+            bubbles: false,
+            cancelable: true
+          });
+          textElements[itemNumber].dispatchEvent(evt);
         });
 
         it('should handle any webfont', function() {
           var cloud = new ILanguageCloud({
-            orthography: "should be able to to use any webfont like Atomic Age",
+            orthography: 'should be able to use any webfont like Atomic Age',
             element: 'angles',
             font: 'Atomic Age'
           });
@@ -290,8 +314,8 @@ describe('It should provide a visualization', function() {
 
         it('should generate pngs for fast sharing/re-use', function(done) {
           var cloud = new ILanguageCloud({
-            title: "Special Cloud to Save",
-            orthography: "should be able to save",
+            title: 'Special Cloud to Save',
+            orthography: 'should be able to save',
             element: 'angles'
           });
 
@@ -326,7 +350,7 @@ describe('It should provide a visualization', function() {
         });
 
         // Turned off until render of d3 works reliably without canvas installed
-        xit('should be render words randomly', function() {
+        it('should be render words randomly', function() {
           var cloud = new ILanguageCloud({
             orthography: sampleText,
             caseSensitivity: false
