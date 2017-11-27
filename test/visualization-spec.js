@@ -1,16 +1,19 @@
-/* globals document */
+/* globals document, MouseEvent, window, localStorage, alert */
 'use strict';
 
 var d3;
+var FieldDB;
 var ILanguageCloud;
 var virtualdocument;
 
 if (typeof document !== 'undefined') {
   virtualdocument = document;
   d3 = d3;
+  FieldDB = FieldDB;
   ILanguageCloud = ILanguageCloud || require('../src/ilanguage-cloud').ILanguageCloud;
 } else {
   d3 = require('d3');
+  FieldDB = require('fielddb');
   try {
     var JSDOM = require('jsdom').JSDOM;
     virtualdocument = new JSDOM('<!DOCTYPE html><body><div id="non-empty-svg"><div id="sizeable-cloud"></div><div id="reproducable-cloud"></div> <div id="change-one-word-font-cloud"></div> <div id="change-font-cloud"></div><div id="viztest"></div><div id="angles"></div></body>').window.document;
@@ -24,7 +27,7 @@ if (typeof document !== 'undefined') {
 var sampleText = 'A cloud is a visible mass of condensed droplets or frozen crystals suspended in the atmosphere. Cloud(s) may also refer to: Contents  [hide]  1 Information Technology 2 Science 3 Fiction 4 Literature 5 Music 6 Other uses 7 See also Information Technology  Cloud computing, Internet-based development and use of computer technology stored on servers rather than the client computers Cloud (operating system), a browser-based operating system that will instantly be usable after turning on the PC, by the makers of gOS Tag cloud, a visual depiction of user-generated tags used typically to describe the content of web sites Cloud storage, a model of networked online storage Cloud.com, a company that develops open source cloud orchestration software CloudStack, an open source cloud computing software Science  Magellanic Clouds, irregular dwarf galaxies near our galaxy, the Milky Way Interstellar cloud, dense region between stars Molecular cloud, interstellar cloud containing molecules Electron cloud, analogy used to describe an electron that orbits around a nucleus Point cloud, in mathematics, a set of vertices in a three-dimensional coordinate system CLOUD, an experimental facility used to investigate the microphysics between galactic cosmic rays and clouds Cloud chamber, an experimental device used in early studies of particle physics Fiction  Cloud Strife, a character in Final Fantasy VII media Bou Keng Wan (\'Cloud\'), a Kung Fu character from the Hong Kong comic, Fung Wan Cloud (comics), a Marvel comic book character Cloudbase, the fictional skyborne headquarters of Spectrum, from the science fiction television series Captain Scarlet and the Mysterons Clouds (film), a 2000 film written and directed by Don Thompson and produced by Will Arntz Literature  The Clouds, a comedy by Aristophanes Clouds, a 1977 philosophical comedic play by British playwright Michael Frayn The Clouds, a 1797 play by the British writer Richard Cumberland The Cloud of Unknowing, a medieval mystical text Music  Clouds (60s rock band), a Scottish music group that operated in the late 1960s Clouds (Australian band), an indie rock group based in Sydney, Australia in the 1990s The Clouds (UK band), a British indie pop band from the 1980s Cloud (music), sound mass consisting of statistical clouds of microsounds \'Clouds\', a song by Chaka Khan from Naughty \'Clouds\', a song by Level 42 on the album Retroglide \'Clouds\', a song by Spires That in the Sunset Rise on the album This Is Fire \'Clouds\' (Zach Sobiech song) a song by Zach Sobiech Clouds (Joni Mitchell album), 1969 Clouds (Lee Ranaldo album), 1997 Clouds (Tiamat album), 1992 Clouds (EP), an EP by Nosound \'Cloudy\', by Average White Band from the album Cut the Cake Other uses  Cloud (dancer), a b-boy, writer, and director from Florida Cloud (surname) Cloud, California, a former settlement in Kings County Clodoald (522–560), better known as Cloud or Saint Cloud, son of King Chlodomer of Orleans Saint-Cloud, a commune in the western suburbs of Paris, France Cloud (video game), a 2005 third-person computer puzzle game See also  The Cloud (disambiguation) Cloud Nine (disambiguation) Red Cloud (disambiguation) St. Cloud (disambiguation) White Cloud (disambiguation) McCloud (disambiguation)';
 
 var myFewWordsFactory = function(textToUseSoTestingCloudsAreDifferentButGeneratedTheSame) {
-  return textToUseSoTestingCloudsAreDifferentButGeneratedTheSame.split(" ")
+  return textToUseSoTestingCloudsAreDifferentButGeneratedTheSame.split(' ')
     .map(function(word) {
       return {
         text: word,
@@ -45,10 +48,10 @@ describe('It should provide a visualization', function() {
     expect(ILanguageCloud.cloudviz).toBeDefined();
   });
 
-  describe('render', () => {
+  describe('render', function() {
     it('should not render an archived cloud', function() {
       var cloud = new ILanguageCloud({
-        orthography: "this is a small cloud",
+        orthography: 'this is a small cloud',
         caseSensitivity: false,
         archived: true,
       });
@@ -61,7 +64,7 @@ describe('It should provide a visualization', function() {
 
     it('should not render if its running the stemmer', function() {
       var cloud = new ILanguageCloud({
-        orthography: "this is a small cloud",
+        orthography: 'this is a small cloud',
         caseSensitivity: false,
         runningStemmer: true,
       });
@@ -148,13 +151,13 @@ describe('It should provide a visualization', function() {
         var textElements = cloud.element.getElementsByTagName('text');
         // expect(textElements.length).toEqual(cloud.wordFrequencies.length);
         expect(textElements.length).toEqual(274);
-        expect(cloud.svg[0][0].attributes.width.value).toEqual("2000");
-        expect(cloud.svg[0][0].attributes.height.value).toEqual("800");
+        expect(cloud.svg[0][0].attributes.width.value).toEqual('2000');
+        expect(cloud.svg[0][0].attributes.height.value).toEqual('800');
       });
 
       it('should be able to set the font of one word', function() {
         var cloud = new ILanguageCloud({
-          orthography: "should be able to set the font of one word or a render",
+          orthography: 'should be able to set the font of one word or a render',
           caseSensitivity: false,
           debugMode: false,
           font: 'Verdana'
@@ -186,8 +189,10 @@ describe('It should provide a visualization', function() {
       });
 
       it('should be able to set the font of a render', function() {
+        var i;
+        var text;
         var cloud = new ILanguageCloud({
-          orthography: "should be able to set the font of one word or a render",
+          orthography: 'should be able to set the font of one word or a render',
           caseSensitivity: false,
           debugMode: false,
         });
@@ -201,8 +206,8 @@ describe('It should provide a visualization', function() {
         expect(textElements.length).toEqual(13);
 
         var positionOfFirstWord = 0;
-        for (var i = 0; i < textElements.length; i++) {
-          var text = textElements[i].innerHTML;
+        for (i = 0; i < textElements.length; i++) {
+          text = textElements[i].innerHTML;
           if (text === 'able') {
             positionOfFirstWord = i;
             expect(textElements[i].style['font-family']).toEqual('Impact');
@@ -212,8 +217,8 @@ describe('It should provide a visualization', function() {
         cloud.render({
           font: 'Verdana'
         });
-        for (var i = 0; i < textElements.length; i++) {
-          var text = textElements[i].innerHTML;
+        for (i = 0; i < textElements.length; i++) {
+          text = textElements[i].innerHTML;
           expect(textElements[i].style['font-family']).toEqual('Verdana');
         }
         expect(virtualdocument.getElementsByTagName('svg')).toBeDefined();
@@ -224,8 +229,8 @@ describe('It should provide a visualization', function() {
         it('should accept a lexicon', function(done) {
           FieldDB.Database.prototype.BASE_DB_URL = 'http://localhost:5984';
           var corpus = new FieldDB.Corpus({
-            dbname: "testinglexicon-kartuli",
-            corpusUrl: "http://localhost:5984/testinglexicon-kartuli",
+            dbname: 'testinglexicon-kartuli',
+            corpusUrl: 'http://localhost:5984/testinglexicon-kartuli',
             prefs: {
               maxLexiconSize: 400
             }
@@ -234,10 +239,10 @@ describe('It should provide a visualization', function() {
             corpus: corpus
           });
           expect(lexicon).toBeDefined();
-          expect(lexicon.corpus.dbname).toEqual("testinglexicon-kartuli");
+          expect(lexicon.corpus.dbname).toEqual('testinglexicon-kartuli');
           lexicon.corpus.login({
-            name: "testinglexicon",
-            password: "testtest"
+            name: 'testinglexicon',
+            password: 'testtest'
           }).then(function() {
             return lexicon.fetch();
           }).then(function(results) {
@@ -283,7 +288,7 @@ describe('It should provide a visualization', function() {
               cloud.render();
 
               var textElementAfter = cloud.element.getElementsByTagName('text');
-              expect(textElementAfter[itemNumber].innerHTML).toEqual('orthography is changed')
+              expect(textElementAfter[itemNumber].innerHTML).toEqual('orthography is changed');
               done();
             }
           });
@@ -291,7 +296,7 @@ describe('It should provide a visualization', function() {
           cloud.render();
 
           var textElements = cloud.element.getElementsByTagName('text');
-          var evt = new MouseEvent("click", {
+          var evt = new MouseEvent('click', {
             view: window,
             bubbles: false,
             cancelable: true
@@ -345,7 +350,7 @@ describe('It should provide a visualization', function() {
           expect(true).toBeTruthy();
         });
 
-        it("should be able to override dragging the words around", function() {
+        it('should be able to override dragging the words around', function() {
           var item;
           var cloud = new ILanguageCloud({
             orthography: 'should be able to override drag and drop words',
@@ -358,10 +363,10 @@ describe('It should provide a visualization', function() {
           cloud.render();
 
           var textElements = cloud.element.getElementsByTagName('text');
-          var item = textElements[0];
+          item = textElements[0];
           expect(item.attributes.selectable.value).toEqual('false');
 
-          var evt = new MouseEvent("drag", {
+          var evt = new MouseEvent('drag', {
             view: window,
             bubbles: false,
             cancelable: true
@@ -385,26 +390,24 @@ describe('It should provide a visualization', function() {
           });
           expect(cloud.wordFrequencies).toBeDefined();
           expect(cloud.wordFrequencies.length).toEqual(274);
-          expect(virtualdocument.getElementsByTagName("svg")).toBeDefined();
-          expect(virtualdocument.getElementsByTagName("svg")[0]).toBeDefined();
+          expect(virtualdocument.getElementsByTagName('svg')).toBeDefined();
+          expect(virtualdocument.getElementsByTagName('svg')[0]).toBeDefined();
         });
       });
 
       describe('Redraw a persisted cloud', function() {
-        var myFewWordsFactory,
-          myColorFunction,
+        var myColorFunction,
           myReproduceableDrawFunction,
           WIDTH = 400,
-          HEIGHT = 400,
-          SEED = 2;
+          HEIGHT = 400;
 
         // Hoist all vars
         var myPreviousCloudFromAPersistantStore,
           myCloudFromPersistantStore,
           previouslyRenderedCloudElement;
 
-        previouslyRenderedCloudElement = virtualdocument.createElement("div");
-        previouslyRenderedCloudElement.setAttribute("id", "draw-old-cloud");
+        previouslyRenderedCloudElement = virtualdocument.createElement('div');
+        previouslyRenderedCloudElement.setAttribute('id', 'draw-old-cloud');
         virtualdocument.body.appendChild(previouslyRenderedCloudElement);
 
         myPreviousCloudFromAPersistantStore = '{"words":[{"text":"previous","importance":65.73438733117655,"font":"Impact","style":"normal","weight":"normal","rotate":0,"size":65,"padding":5,"width":320,"height":130,"xoff":480,"yoff":0,"x1":160,"y1":64,"x0":-160,"y0":-58,"hasText":true,"x":-32,"y":-43,"color":"#ffbb78","transform":"translate(2,-77)rotate(0)"},{"text":"session","importance":20.795548947062343,"font":"Impact","style":"normal","weight":"normal","rotate":90,"size":20,"padding":5,"width":64,"height":89,"xoff":1888,"yoff":0,"x1":32,"y1":43,"x0":-32,"y0":-42,"hasText":true,"x":101,"y":152,"color":"#7f7f7f","transform":"translate(-75,143)rotate(90)"}]}';
@@ -416,28 +419,28 @@ describe('It should provide a visualization', function() {
           // if (element && element.children) {
           //   element.innerHTML = "";
           // }
-          var svg = d3.select(element).append("svg");
-          svg.attr("width", WIDTH)
-            .attr("height", HEIGHT)
-            .append("g")
-            .attr("transform", "translate(" + WIDTH / 2 + "," + HEIGHT / 2 + ")")
-            .selectAll("text")
+          var svg = d3.select(element).append('svg');
+          svg.attr('width', WIDTH)
+            .attr('height', HEIGHT)
+            .append('g')
+            .attr('transform', 'translate(' + WIDTH / 2 + ',' + HEIGHT / 2 + ')')
+            .selectAll('text')
             .data(words)
-            .enter().append("text")
-            .style("font-size", function(word) {
-              return word.importance + "px";
+            .enter().append('text')
+            .style('font-size', function(word) {
+              return word.importance + 'px';
             })
-            .style("font-family", "Impact")
-            .style("fill", function(word, i) {
+            .style('font-family', 'Impact')
+            .style('fill', function(word, i) {
               if (!word.color) {
                 word.color = myColorFunction(i);
               }
               return word.color;
             })
-            .attr("text-anchor", "middle")
-            .attr("transform", function(word) {
+            .attr('text-anchor', 'middle')
+            .attr('transform', function(word) {
               if (!word.transform) {
-                word.transform = "translate(" + [word.x, word.y] + ")rotate(" + word.rotate + ")";
+                word.transform = 'translate(' + [word.x, word.y] + ')rotate(' + word.rotate + ')';
               }
               return word.transform;
             })
@@ -447,7 +450,7 @@ describe('It should provide a visualization', function() {
         };
 
         // Ask d3-cloud to make an cloud object for us
-        myCloudFromPersistantStore = ILanguageCloud.cloudviz()
+        myCloudFromPersistantStore = ILanguageCloud.cloudviz();
 
         // and configure our cloud with d3 chaining
         myCloudFromPersistantStore

@@ -19,6 +19,7 @@
     "afterEach": false,
     "describe": false,
     "xdescribe": false,
+    "spyOn": false,
     "it": false,
     "xit": false,
     "expect": false

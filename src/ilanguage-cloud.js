@@ -36,6 +36,8 @@
   }
   console.log('Loaded d3-cloud', !!cloudviz);
 
+  var Q = exports.FieldDB ? exports.FieldDB.Q :
+    require('fielddb').Q;
   var LanguageDatum = exports.FieldDB ? exports.FieldDB.LanguageDatum :
     require('fielddb/api/datum/LanguageDatum').LanguageDatum;
   var DatumFields = exports.FieldDB ? exports.FieldDB.DatumFields :
@@ -101,7 +103,8 @@
   ILanguageCloud.version = '4.0.0-rc1';
 
   ILanguageCloud.triggerDownload = function(imgURI, fileName) {
-    var evt = new MouseEvent("click", {
+    /*jshint undef:false */
+    var evt = new MouseEvent('click', {
       view: window,
       bubbles: false,
       cancelable: true
@@ -223,7 +226,7 @@
           });
           this._morphemesArray = value;
         }
-        this.warn('Value was not a valid morphemesArray', value)
+        this.warn('Value was not a valid morphemesArray', value);
       }
     },
 
@@ -257,7 +260,7 @@
           });
           this._nonContentWordsArray = value;
         }
-        this.warn('Value was not a valid nonContentWordsArray', value)
+        this.warn('Value was not a valid nonContentWordsArray', value);
       }
     },
 
@@ -470,10 +473,11 @@
      */
     downloadPNG: {
       value: function() {
-        var deferred = FieldDB.Q.defer();
+        var deferred = Q.defer();
         var self = this;
 
         var svg = this.svg[0][0];
+        /*jshint undef:false */
         var xml = new XMLSerializer().serializeToString(svg);
         var canvas = document.createElement('canvas');
         canvas.width = parseInt(svg.attributes.width.value, 10);
@@ -501,7 +505,7 @@
 
           ILanguageCloud.triggerDownload(imgData, self.title + '_wordCloud.png');
           deferred.resolve(imgData);
-        }
+        };
         img.src = image64;
         return deferred.promise;
       }
@@ -730,16 +734,16 @@
         }
       });
 
-    var drag = d3.behavior.drag()
-      .on("drag", function(word, i) {
+    var drag = ILanguageCloud.d3.behavior.drag()
+      .on('drag', function(word, i) {
         if (typeof context.onWordDrag === 'function') {
           return context.onWordDrag(word, i);
         }
 
-        word.x += d3.event.dx;
-        word.y += d3.event.dy;
-        d3.select(this).attr("transform", function(word, i) {
-          return "translate(" + [word.x, word.y] + ')rotate(' + word.rotate + ')'
+        word.x += ILanguageCloud.d3.event.dx;
+        word.y += ILanguageCloud.d3.event.dy;
+        ILanguageCloud.d3.select(this).attr('transform', function(word) {
+          return 'translate(' + [word.x, word.y] + ')rotate(' + word.rotate + ')';
         });
       });
 
