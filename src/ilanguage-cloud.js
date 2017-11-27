@@ -641,18 +641,22 @@
       svg.selectAll('*').remove();
     }
 
-    svg.attr('width', width)
+    var g = svg.attr('width', width)
       .attr('width', width)
       .attr('height', height)
       .attr('version', '1.1')
       .attr('xmlns', 'http://www.w3.org/2000/svg')
       .append('g')
-      .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
+      .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')');
+
+    var textNodes = g
       .selectAll('text')
       .data(wordFrequencies.slice(0, maxVocabSize))
       // .transition()
       // .duration(1000)
-      .enter().append('text')
+      .enter().append('text');
+
+    textNodes
       .style('font-size', function(word) {
         if (!word.size) {
           word.size = ILanguageCloud.fontSizeFromRank(word, height * 0.25, 10);
@@ -681,6 +685,7 @@
         }
         return word.transform;
       })
+      .attr('selectable', false)
       .text(function(word) {
         return word.text;
       })
@@ -720,10 +725,26 @@
         }
       })
       .on('focusout', function(word) {
-        if (typeof context.onFocusout === 'function') {
+        if (typeof context.onWordFocusout === 'function') {
           return context.onWordFocusout(word);
         }
       });
+
+    var drag = d3.behavior.drag()
+      .on("drag", function(word, i) {
+        if (typeof context.onWordDrag === 'function') {
+          return context.onWordDrag(word, i);
+        }
+
+        word.x += d3.event.dx;
+        word.y += d3.event.dy;
+        d3.select(this).attr("transform", function(word, i) {
+          return "translate(" + [word.x, word.y] + ')rotate(' + word.rotate + ')'
+        });
+      });
+
+    textNodes
+      .call(drag);
 
     context.svg = svg;
     context.runningRender = false;

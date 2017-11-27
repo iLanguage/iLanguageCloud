@@ -133,9 +133,6 @@ describe("tagcloud", function() {
   it("Should work on Chromebooks #73", function() {
     expect(true).toBeTruthy();
   });
-  it("Should be able to move the words around #63", function() {
-    expect(true).toBeTruthy();
-  });
   it("Should be a kid friendly mode #69", function() {
     expect(true).toBeTruthy();
   });

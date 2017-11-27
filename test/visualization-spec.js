@@ -345,6 +345,30 @@ describe('It should provide a visualization', function() {
           expect(true).toBeTruthy();
         });
 
+        it("should be able to override dragging the words around", function() {
+          var item;
+          var cloud = new ILanguageCloud({
+            orthography: 'should be able to override drag and drop words',
+            onWordDrag: function(word, i) {
+              console.log('Overrode dragging', word, i);
+              alert('Overrode dragging ' + word.x);
+            }
+          });
+
+          cloud.render();
+
+          var textElements = cloud.element.getElementsByTagName('text');
+          var item = textElements[0];
+          expect(item.attributes.selectable.value).toEqual('false');
+
+          var evt = new MouseEvent("drag", {
+            view: window,
+            bubbles: false,
+            cancelable: true
+          });
+          item.dispatchEvent(evt);
+        });
+
         it('should accept a visual density level/range', function() {
           expect(true).toBeTruthy();
         });
