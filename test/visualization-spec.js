@@ -276,7 +276,16 @@ describe('It should provide a visualization', function() {
         });
 
         it('should handle any webfont', function() {
-          expect(true).toBeTruthy();
+          var cloud = new ILanguageCloud({
+            orthography: "should be able to to use any webfont like Atomic Age",
+            element: 'angles',
+            font: 'Atomic Age'
+          });
+
+          cloud.render();
+
+          var textElements = cloud.element.getElementsByTagName('text');
+          expect(textElements[0].attributes.style.value).toContain('font-family: "Atomic Age";');
         });
 
         it('should generate pngs for fast sharing/re-use', function(done) {
