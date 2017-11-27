@@ -743,7 +743,8 @@
         word.x += ILanguageCloud.d3.event.dx;
         word.y += ILanguageCloud.d3.event.dy;
         ILanguageCloud.d3.select(this).attr('transform', function(word) {
-          return 'translate(' + [word.x, word.y] + ')rotate(' + word.rotate + ')';
+           word.transform = 'translate(' + [word.x, word.y] + ')rotate(' + word.rotate + ')';
+           return word.transform;
         });
       });
 
