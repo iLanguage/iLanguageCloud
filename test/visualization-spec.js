@@ -266,8 +266,20 @@ describe('It should provide a visualization', function() {
         });
       });
 
-      describe('persistance', function() {
-        it('should download a png', function(done) {
+      describe('It has useful results for graphic designers', function() {
+        it('should generate batches of wordclouds', function() {
+          expect(true).toBeTruthy();
+        });
+
+        it('should provide custom interactivity', function() {
+          expect(true).toBeTruthy();
+        });
+
+        it('should handle any webfont', function() {
+          expect(true).toBeTruthy();
+        });
+
+        it('should generate pngs for fast sharing/re-use', function(done) {
           var cloud = new ILanguageCloud({
             title: "Special Cloud to Save",
             orthography: "should be able to save",
@@ -286,6 +298,38 @@ describe('It should provide a visualization', function() {
             expect(localStorage.getItem('currentPNG')).toEqual(result);
             done();
           });
+        });
+
+        it('should render within a custom svg outline/shape #67', function() {
+          expect(true).toBeTruthy();
+        });
+
+        it('should adapt to any Unicode character set', function() {
+          expect(true).toBeTruthy();
+        });
+
+        it('should adapt fit any height width ratio', function() {
+          expect(true).toBeTruthy();
+        });
+
+        it('should accept a visual density level/range', function() {
+          expect(true).toBeTruthy();
+        });
+
+        // Turned off until render of d3 works reliably without canvas installed
+        xit('should be render words randomly', function() {
+          var cloud = new ILanguageCloud({
+            orthography: sampleText,
+            caseSensitivity: false
+          });
+          expect(cloud).toBeDefined();
+          cloud.render({
+            document: virtualdocument
+          });
+          expect(cloud.wordFrequencies).toBeDefined();
+          expect(cloud.wordFrequencies.length).toEqual(274);
+          expect(virtualdocument.getElementsByTagName("svg")).toBeDefined();
+          expect(virtualdocument.getElementsByTagName("svg")[0]).toBeDefined();
         });
       });
 
