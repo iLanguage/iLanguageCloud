@@ -6,7 +6,7 @@
  * Licensed under the Apache 2.0 license.
  */
 (function(exports) {
-  /* globals document, localStorage, btoa, unescape */
+  /* globals document, Promise, localStorage, btoa, unescape */
   'use strict';
 
   /* Using D3's new browser version  */
@@ -69,6 +69,9 @@
       console.warn('text is deprecated, use orthography instead');
       options.orthography = options.text;
     }
+    if (!options.orthography && options.utterance) {
+      options.orthography = options.utterance;
+    }
     if (!options.originalText) {
       options.originalText = options.orthography;
     }
@@ -96,6 +99,25 @@
   ILanguageCloud.d3.layout.cloud = ILanguageCloud.d3.layout.cloud || cloudviz;
   ILanguageCloud.cloudviz = cloudviz;
   ILanguageCloud.version = '4.0.0-rc1';
+
+  ILanguageCloud.triggerDownload = function(options) {
+    var localDocument = options.document || document;
+    /*jshint undef:false */
+    var evt = new MouseEvent('click', {
+      /*jshint undef:false */
+      view: window,
+      bubbles: false,
+      cancelable: true
+    });
+    var a = localDocument.createElement('a');
+    a.setAttribute('download', options.fileName);
+    a.setAttribute('href', options.imgURI);
+    a.setAttribute('target', '_blank');
+    a.dispatchEvent(evt);
+    a.innerText = 'Click here to open the PNG, if download does not start automatically.';
+    localDocument.body.appendChild(a);
+  };
+
   ILanguageCloud.prototype = Object.create(LanguageDatum.prototype, /** @lends ILanguageCloud.prototype */ {
     constructor: {
       value: ILanguageCloud
@@ -103,6 +125,7 @@
 
     runSegmenter: {
       value: function(options) {
+        var self = this;
         this.debug('Running runSegmenter ', options);
         if (this.runningSegmenter) {
           return this;
@@ -120,6 +143,39 @@
         }
         NonContentWords.filterText(this);
         MorphemeSegmenter.runSegmenter(this);
+
+        if (this.morphemesArray && this.morphemesArray.length) {
+          if (!this.morphemesRegExpArray) {
+            this.morphemesRegExpArray = this.morphemesArray.map(function(morpheme) {
+              if (morpheme.indexOf('-') === 0) {
+                return {
+                  source: new RegExp(morpheme.replace(/-/g, '') + '$'),
+                  target: morpheme
+                };
+              }
+              if (morpheme.indexOf('-') === morpheme.length - 1) {
+                return {
+                  source: new RegExp('^' + morpheme.replace(/-/g, '')),
+                  target: morpheme
+                };
+              }
+            }).filter(function(morpheme) {
+              return !!morpheme;
+            });
+          }
+
+          this.morphemes = this.wordFrequencies.map(function(word) {
+            if (!word.orthography || (word.morphemes && word.morphemes !== word.orthography)) {
+              return word.morphemes || '';
+            }
+            word.morphemes = word.orthography;
+            self.morphemesRegExpArray.forEach(function(morpheme) {
+              word.morphemes = word.morphemes.replace(morpheme.source, morpheme.target);
+            });
+            return word.morphemes;
+          }).join(' ');
+        }
+
         this.runningSegmenter = false;
         return this;
       }
@@ -137,6 +193,40 @@
         LexemeFrequency.calculateNonContentWords(this);
         this.runningWordFrequencyGenerator = false;
         return this;
+      }
+    },
+
+    morphemesArray: {
+      get: function() {
+        return this._morphemesArray;
+      },
+      set: function(value) {
+        if (!value) {
+          this._morphemesArray = [];
+        }
+
+        if (Array.isArray(value)) {
+          this._morphemesArray = value;
+          return;
+        }
+
+        if (value instanceof RegExp) {
+          this._morphemesArray = value;
+          return;
+        }
+
+        if (/\/.*\//.test(value)) {
+          this._morphemesArray = new RegExp(value.replace(/^\//, '').replace(/\/$/, ''));
+          return;
+        }
+
+        if (typeof value.split === 'function') {
+          value = value.split(/[,; ]+/).filter(function(item) {
+            return !!item;
+          });
+          this._morphemesArray = value;
+        }
+        this.warn('Value was not a valid morphemesArray', value);
       }
     },
 
@@ -170,7 +260,7 @@
           });
           this._nonContentWordsArray = value;
         }
-        this.warn('Value was not a valid nonContentWordsArray', value)
+        this.warn('Value was not a valid nonContentWordsArray', value);
       }
     },
 
@@ -280,10 +370,17 @@
 
           var fontSize = userOptions.fontSize || ILanguageCloud.d3.scale.linear().range([10, height * 0.25]);
 
-          if (!this.wordFrequencies || !this.wordFrequencies.length) {
+          var wordFrequencies = this.wordFrequencies;
+          if ((!wordFrequencies || !wordFrequencies.length) && this.lexicon && this.lexicon._collection) {
+            wordFrequencies = this.lexicon._collection;
+          }
+          if (!wordFrequencies || !wordFrequencies.length) {
             this.warn('Must generate wordFrequencies before rendering.');
             this.runWordFrequencyGenerator();
-            this.wordFrequencies = this.wordFrequencies.sort(function(a, b) {
+            if (!this.wordFrequencies || !this.wordFrequencies) {
+              return this;
+            }
+            wordFrequencies = this.wordFrequencies.sort(function(a, b) {
               // rare words should have first dibs on placing
               // return a.normalizedCount - b.normalizedCount;
               // frequent words should have dibs on placing
@@ -291,13 +388,21 @@
             });
           }
 
-          this.wordFrequencies = this.wordFrequencies.map(function(word) {
-            word.text = word.orthography;
+          wordFrequencies = wordFrequencies.map(function(word) {
+            word.text = self.displayField ? word[self.displayField] : word.orthography;
+            word.normalizedCount = word.normalizedCount || 1;
             word.size = word.size || ILanguageCloud.fontSizeFromRank(word, height * 0.25, 10);
             return word;
           });
-          maxVocabSize = Math.min(width / 5, self.wordFrequencies.length, maxVocabSize);
+          maxVocabSize = Math.min(width / 5, wordFrequencies.length, maxVocabSize);
           this.debug('TODO use randomSeed to regenerate cloud', userChosenRandomSeed);
+
+          // Assign back the modified data
+          if (this.wordFrequencies) {
+            this.wordFrequencies = wordFrequencies;
+          } else {
+            this.lexicon._collection = wordFrequencies;
+          }
 
           // Ask d3-cloud to make an cloud object for us
           // and configure our cloud with d3 chaining
@@ -305,7 +410,7 @@
             this.layout = ILanguageCloud.cloudviz();
             this.layout
               .size([width, height])
-              .words(self.wordFrequencies.slice(0, maxVocabSize))
+              .words(wordFrequencies.slice(0, maxVocabSize))
               .padding(2)
               .rotate(function(word) {
                 if (word.rotate === null || word.rotate === undefined) {
@@ -334,7 +439,7 @@
               });
             this.layout.start();
           } else if (self.orthography && self.orthography !== self.originalText) {
-            self.layout.words(self.wordFrequencies);
+            self.layout.words(self.wordFrequencies || self.lexicon._collection);
             self.layout.start();
           } else {
             ILanguageCloud.reproduceableDrawFunction({
@@ -357,35 +462,66 @@
       }
     },
 
-    // Converts a given word cloud to image/png.
     setPNG: {
-      value: function() {
-        // var scale = bounds ? Math.min(
-        //   this.width / Math.abs(bounds[1].x - this.width / 2),
-        //   this.width / Math.abs(bounds[0].x - this.width / 2),
-        //   this.height / Math.abs(bounds[1].y - this.height / 2),
-        //   this.height / Math.abs(bounds[0].y - this.height / 2)) / 2 : 1;
+      value: function(options) {
+        this.warn('setPNG is deprecated');
+        return this.downloadPNG(options);
+      }
+    },
 
-        var canvas = document.createElement('canvas'),
-          c = canvas.getContext('2d');
-        canvas.width = this.width;
-        canvas.height = this.height;
-        c.translate(this.width >> 1, this.height >> 1);
-        // c.scale(scale, scale);
-        this.wordFrequencies.forEach(function(word) {
-          c.save();
-          c.translate(word.x, word.y);
-          c.rotate(word.rotate * Math.PI / 180);
-          c.textAlign = 'center';
-          c.fillStyle = word.color;
-          c.font = word.count + 'px ' + word.font;
-          c.fillText(word.orthography, 0, 0);
-          c.restore();
+    /**
+     * Converts a given word cloud to image/png.
+     *
+     * https://stackoverflow.com/questions/3768565/drawing-an-svg-file-on-a-html5-canvas
+     */
+    downloadPNG: {
+      value: function(options) {
+        var self = this;
+
+        return new Promise(function(resolve) {
+          var localDocument = self.document;
+          if (options && options.document) {
+            localDocument = options.document;
+          } else if (!localDocument) {
+            localDocument = document;
+          }
+          var svg = self.svg[0][0];
+          /*jshint undef:false */
+          var xml = new XMLSerializer().serializeToString(svg);
+          var canvas = localDocument.createElement('canvas');
+          canvas.width = parseInt(svg.attributes.width.value, 10);
+          canvas.height = parseInt(svg.attributes.height.value, 10);
+
+          // Make it base64
+          var svg64 = btoa(xml);
+          var b64Start = 'data:image/svg+xml;base64,';
+
+          // Prepend a header
+          var image64 = b64Start + svg64;
+
+          // Load SVG to Canvas
+          var img = localDocument.createElement('img');
+          img.onload = function() {
+            canvas.getContext('2d').drawImage(img, 0, 0);
+
+            // Convert Canvas to data
+            var imgData = canvas.toDataURL('image/png');
+
+            // Store result in local storage for android
+            localStorage.setItem('currentPNG', imgData);
+            var currentPNGdata = imgData.match(/[^,]*$/)[0];
+            localStorage.setItem('currentPNGdata', currentPNGdata);
+
+            ILanguageCloud.triggerDownload({
+              imgURI: imgData,
+              fileName: self.title + '_wordCloud.png',
+              document: localDocument
+            });
+
+            return resolve(imgData);
+          };
+          img.src = image64;
         });
-        var currentPNG = canvas.toDataURL('image/png');
-        var currentPNGdata = currentPNG.match(/[^,]*$/)[0];
-        localStorage.setItem('currentPNG', currentPNG);
-        localStorage.setItem('currentPNGdata', currentPNGdata);
       }
     },
 
@@ -514,23 +650,31 @@
     var maxVocabSize = options.maxVocabSize;
     var context = options.context;
     var svg = context.svg || ILanguageCloud.d3.select(element).append('svg');
+    var wordFrequencies = context.wordFrequencies;
+    if ((!wordFrequencies || !wordFrequencies.length) && context.lexicon && context.lexicon._collection) {
+      wordFrequencies = context.lexicon._collection;
+    }
 
     if (context.svg && !keepPreviousSVG && svg.selectAll) {
       svg.selectAll('*').remove();
     }
 
-    svg.attr('width', width)
+    var g = svg.attr('width', width)
       .attr('width', width)
       .attr('height', height)
       .attr('version', '1.1')
       .attr('xmlns', 'http://www.w3.org/2000/svg')
       .append('g')
-      .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
+      .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')');
+
+    var textNodes = g
       .selectAll('text')
-      .data(context.wordFrequencies.slice(0, maxVocabSize))
+      .data(wordFrequencies.slice(0, maxVocabSize))
       // .transition()
       // .duration(1000)
-      .enter().append('text')
+      .enter().append('text');
+
+    textNodes
       .style('font-size', function(word) {
         if (!word.size) {
           word.size = ILanguageCloud.fontSizeFromRank(word, height * 0.25, 10);
@@ -559,8 +703,9 @@
         }
         return word.transform;
       })
+      .attr('selectable', false)
       .text(function(word) {
-        return word.orthography;
+        return word.text;
       })
       .on('click', function(word) {
         if (typeof context.onWordClick === 'function') {
@@ -598,10 +743,27 @@
         }
       })
       .on('focusout', function(word) {
-        if (typeof context.onFocusout === 'function') {
+        if (typeof context.onWordFocusout === 'function') {
           return context.onWordFocusout(word);
         }
       });
+
+    var drag = ILanguageCloud.d3.behavior.drag()
+      .on('drag', function(word, i) {
+        if (typeof context.onWordDrag === 'function') {
+          return context.onWordDrag(word, i);
+        }
+
+        word.x += ILanguageCloud.d3.event.dx;
+        word.y += ILanguageCloud.d3.event.dy;
+        ILanguageCloud.d3.select(this).attr('transform', function(word) {
+          word.transform = 'translate(' + [word.x, word.y] + ')rotate(' + word.rotate + ')';
+          return word.transform;
+        });
+      });
+
+    textNodes
+      .call(drag);
 
     context.svg = svg;
     context.runningRender = false;

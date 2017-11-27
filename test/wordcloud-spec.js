@@ -145,64 +145,6 @@ describe('lib/word-cloud', function() {
     });
   });
 
-  describe('It has useful results for graphic designers', function() {
-
-    it('should generate batches of wordclouds', function() {
-      expect(true).toBeTruthy();
-    });
-
-    it('should generate svgs for import into Inkscape/Illustrator #70', function() {
-      expect(true).toBeTruthy();
-    });
-
-    it('should generate pngs for fast sharing/re-use #70', function() {
-      expect(true).toBeTruthy();
-    });
-
-    it('should provide custom interactivity', function() {
-      expect(true).toBeTruthy();
-    });
-
-    it('should handle any webfont', function() {
-      expect(true).toBeTruthy();
-    });
-
-    it('should render within a custom svg outline/shape #67', function() {
-      expect(true).toBeTruthy();
-    });
-
-    it('should adapt to any Unicode character set', function() {
-      expect(true).toBeTruthy();
-    });
-
-    it('should adapt fit any height width ratio', function() {
-      expect(true).toBeTruthy();
-    });
-
-    it('should accept a visual density level/range', function() {
-      expect(true).toBeTruthy();
-    });
-
-    // Turned off until render of d3 works reliably without canvas installed
-    xit('should be render words randomly', function() {
-      var cloud = new ILanguageCloud({
-        orthography: sampleText,
-        caseSensitivity: false
-      });
-      expect(cloud).toBeDefined();
-      cloud.render({
-        document: virtualdocument
-      });
-      expect(cloud.wordFrequencies).toBeDefined();
-      expect(cloud.wordFrequencies.length).toEqual(274);
-      expect(virtualdocument.getElementsByTagName("svg")).toBeDefined();
-      expect(virtualdocument.getElementsByTagName("svg")[0]).toBeDefined();
-    });
-
-
-
-  });
-
   describe('It has useful content for infoviz', function() {
 
     describe('It automatically tries to make informative word clouds', function() {
@@ -350,18 +292,123 @@ describe('lib/word-cloud', function() {
 
       it('should accept a list of prefixes', function() {
         var cloud = {
-          orthography: sampleLongUnicodeText,
+          orthography: 'აზრებისა და ემოციური განცდების გაფორმებაში, შეაძლებინებს მას გარკვეულ ფორმაში',
           element: [],
           height: 200,
           cutoff: 0.015,
-          prefixesArray: ['სა-', 'სტა-']
+          prefixesArray: ['სა-', 'სტა-'],
+          suffixesArray: ['-ები-ს', '-ები', '-ში', '-ური']
           // nonContentWords: /^(და|აის|კასატორი|არ|მე|მიერ|თუ|არა|ფი|ეს|არის|მის|ან)$/
           // |სა-, სტა-,იმის,-ში/
         };
-        cloud = new ILanguageCloud(cloud).runStemmer();
-        expect(cloud.prefixesArray).toEqual(['სტა-', 'სა-']);
+        cloud = new ILanguageCloud(cloud);
+        expect(cloud.prefixesArray).toEqual(['სა-', 'სტა-']);
+        cloud.runStemmer();
+        expect(cloud.morphemesArray).toEqual([
+          '-ები-ს',
+          'სტა-',
+          '-ები',
+          '-ური',
+          'სა-',
+          '-ში'
+        ]);
+        expect(cloud.morphemesRegExp).toEqual(/(ები-ს$|^სტა|ები$|ური$|^სა|ში$)/g);
+        expect(cloud.morphemes).toEqual('აზრებისა და ემოციური განცდების გაფორმებაში, შეაძლებინებს მას გარკვეულ ფორმაში');
+        cloud.runWordFrequencyGenerator();
+        cloud.runSegmenter();
+        expect(cloud.morphemes).toEqual('აზრებისა და ემოცი-ური განცდ-ები-ს გაფორმება-ში შეაძლებინებს მას გარკვეულ ფორმა-ში');
+        expect(cloud.wordFrequencies).toEqual([{
+            "orthography": "აზრებისა",
+            "count": 1,
+            "rank": 0.1111111111111111,
+            "normalizedCount": 1,
+            "categories": [
+              "buzzWord"
+            ],
+            "morphemes": "აზრებისა"
+          },
+          {
+            "orthography": "და",
+            "count": 1,
+            "rank": 0.1111111111111111,
+            "normalizedCount": 1,
+            "categories": [
+              "functionalWord"
+            ],
+            "morphemes": "და"
+          },
+          {
+            "orthography": "ემოციური",
+            "count": 1,
+            "rank": 0.1111111111111111,
+            "normalizedCount": 1,
+            "categories": [
+              "buzzWord"
+            ],
+            "morphemes": "ემოცი-ური"
+          },
+          {
+            "orthography": "განცდების",
+            "count": 1,
+            "rank": 0.1111111111111111,
+            "normalizedCount": 1,
+            "categories": [
+              "buzzWord"
+            ],
+            "morphemes": "განცდ-ები-ს"
+          },
+          {
+            "orthography": "გაფორმებაში",
+            "count": 1,
+            "rank": 0.1111111111111111,
+            "normalizedCount": 1,
+            "categories": [
+              "buzzWord"
+            ],
+            "morphemes": "გაფორმება-ში"
+          },
+          {
+            "orthography": "შეაძლებინებს",
+            "count": 1,
+            "rank": 0.1111111111111111,
+            "normalizedCount": 1,
+            "categories": [
+              "buzzWord"
+            ],
+            "morphemes": "შეაძლებინებს"
+          },
+          {
+            "orthography": "მას",
+            "count": 1,
+            "rank": 0.1111111111111111,
+            "normalizedCount": 1,
+            "categories": [
+              "functionalWord"
+            ],
+            "morphemes": "მას"
+          },
+          {
+            "orthography": "გარკვეულ",
+            "count": 1,
+            "rank": 0.1111111111111111,
+            "normalizedCount": 1,
+            "categories": [
+              "buzzWord"
+            ],
+            "morphemes": "გარკვეულ"
+          },
+          {
+            "orthography": "ფორმაში",
+            "count": 1,
+            "rank": 0.1111111111111111,
+            "normalizedCount": 1,
+            "categories": [
+              "buzzWord"
+            ],
+            "morphemes": "ფორმა-ში"
+          }
+        ]);
       });
-
     });
 
     describe('It lets users interactively clean the cloud', function() {
