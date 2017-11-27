@@ -6,7 +6,7 @@
  * Licensed under the Apache 2.0 license.
  */
 (function(exports) {
-  /* globals document, localStorage, btoa, unescape */
+  /* globals document, Promise, localStorage, btoa, unescape */
   'use strict';
 
   /* Using D3's new browser version  */
@@ -36,8 +36,6 @@
   }
   console.log('Loaded d3-cloud', !!cloudviz);
 
-  var Q = exports.FieldDB ? exports.FieldDB.Q :
-    require('fielddb').Q;
   var LanguageDatum = exports.FieldDB ? exports.FieldDB.LanguageDatum :
     require('fielddb/api/datum/LanguageDatum').LanguageDatum;
   var DatumFields = exports.FieldDB ? exports.FieldDB.DatumFields :
@@ -102,20 +100,22 @@
   ILanguageCloud.cloudviz = cloudviz;
   ILanguageCloud.version = '4.0.0-rc1';
 
-  ILanguageCloud.triggerDownload = function(imgURI, fileName) {
+  ILanguageCloud.triggerDownload = function(options) {
+    var localDocument = options.document || document;
     /*jshint undef:false */
     var evt = new MouseEvent('click', {
+      /*jshint undef:false */
       view: window,
       bubbles: false,
       cancelable: true
     });
-    var a = document.createElement('a');
-    a.setAttribute('download', fileName);
-    a.setAttribute('href', imgURI);
+    var a = localDocument.createElement('a');
+    a.setAttribute('download', options.fileName);
+    a.setAttribute('href', options.imgURI);
     a.setAttribute('target', '_blank');
     a.dispatchEvent(evt);
     a.innerText = 'Click here to open the PNG, if download does not start automatically.';
-    document.body.appendChild(a);
+    localDocument.body.appendChild(a);
   };
 
   ILanguageCloud.prototype = Object.create(LanguageDatum.prototype, /** @lends ILanguageCloud.prototype */ {
@@ -377,6 +377,9 @@
           if (!wordFrequencies || !wordFrequencies.length) {
             this.warn('Must generate wordFrequencies before rendering.');
             this.runWordFrequencyGenerator();
+            if (!this.wordFrequencies || !this.wordFrequencies) {
+              return this;
+            }
             wordFrequencies = this.wordFrequencies.sort(function(a, b) {
               // rare words should have first dibs on placing
               // return a.normalizedCount - b.normalizedCount;
@@ -472,42 +475,53 @@
      * https://stackoverflow.com/questions/3768565/drawing-an-svg-file-on-a-html5-canvas
      */
     downloadPNG: {
-      value: function() {
-        var deferred = Q.defer();
+      value: function(options) {
         var self = this;
 
-        var svg = this.svg[0][0];
-        /*jshint undef:false */
-        var xml = new XMLSerializer().serializeToString(svg);
-        var canvas = document.createElement('canvas');
-        canvas.width = parseInt(svg.attributes.width.value, 10);
-        canvas.height = parseInt(svg.attributes.height.value, 10);
+        return new Promise(function(resolve) {
+          var localDocument = self.document;
+          if (options && options.document) {
+            localDocument = options.document;
+          } else if (!localDocument) {
+            localDocument = document;
+          }
+          var svg = self.svg[0][0];
+          /*jshint undef:false */
+          var xml = new XMLSerializer().serializeToString(svg);
+          var canvas = localDocument.createElement('canvas');
+          canvas.width = parseInt(svg.attributes.width.value, 10);
+          canvas.height = parseInt(svg.attributes.height.value, 10);
 
-        // Make it base64
-        var svg64 = btoa(xml);
-        var b64Start = 'data:image/svg+xml;base64,';
+          // Make it base64
+          var svg64 = btoa(xml);
+          var b64Start = 'data:image/svg+xml;base64,';
 
-        // Prepend a header
-        var image64 = b64Start + svg64;
+          // Prepend a header
+          var image64 = b64Start + svg64;
 
-        // Load SVG to Canvas
-        var img = document.createElement('img');
-        img.onload = function() {
-          canvas.getContext('2d').drawImage(img, 0, 0);
+          // Load SVG to Canvas
+          var img = localDocument.createElement('img');
+          img.onload = function() {
+            canvas.getContext('2d').drawImage(img, 0, 0);
 
-          // Convert Canvas to data
-          var imgData = canvas.toDataURL('image/png');
+            // Convert Canvas to data
+            var imgData = canvas.toDataURL('image/png');
 
-          // Store result in local storage for android
-          localStorage.setItem('currentPNG', imgData);
-          var currentPNGdata = imgData.match(/[^,]*$/)[0];
-          localStorage.setItem('currentPNGdata', currentPNGdata);
+            // Store result in local storage for android
+            localStorage.setItem('currentPNG', imgData);
+            var currentPNGdata = imgData.match(/[^,]*$/)[0];
+            localStorage.setItem('currentPNGdata', currentPNGdata);
 
-          ILanguageCloud.triggerDownload(imgData, self.title + '_wordCloud.png');
-          deferred.resolve(imgData);
-        };
-        img.src = image64;
-        return deferred.promise;
+            ILanguageCloud.triggerDownload({
+              imgURI: imgData,
+              fileName: self.title + '_wordCloud.png',
+              document: localDocument
+            });
+
+            return resolve(imgData);
+          };
+          img.src = image64;
+        });
       }
     },
 
@@ -743,8 +757,8 @@
         word.x += ILanguageCloud.d3.event.dx;
         word.y += ILanguageCloud.d3.event.dy;
         ILanguageCloud.d3.select(this).attr('transform', function(word) {
-           word.transform = 'translate(' + [word.x, word.y] + ')rotate(' + word.rotate + ')';
-           return word.transform;
+          word.transform = 'translate(' + [word.x, word.y] + ')rotate(' + word.rotate + ')';
+          return word.transform;
         });
       });
 

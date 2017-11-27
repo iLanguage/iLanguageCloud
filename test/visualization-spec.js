@@ -16,7 +16,7 @@ if (typeof document !== 'undefined') {
   FieldDB = require('fielddb');
   try {
     var JSDOM = require('jsdom').JSDOM;
-    virtualdocument = new JSDOM('<!DOCTYPE html><body><div id="non-empty-svg"><div id="sizeable-cloud"></div><div id="reproducable-cloud"></div> <div id="change-one-word-font-cloud"></div> <div id="change-font-cloud"></div><div id="viztest"></div><div id="angles"></div></body>').window.document;
+    virtualdocument = new JSDOM('<!DOCTYPE html><body><div id="non-empty-svg"><div id="sizeable-cloud" style="width: 2000px"></div><div id="reproducable-cloud"></div> <div id="change-one-word-font-cloud"></div> <div id="change-font-cloud"></div><div id="viztest"></div><div id="angles"></div></body>').window.document;
     global.document = global.document || virtualdocument;
   } catch (e) {
     console.warn('You dont have jsdom installed, if you have python on your system, please install it npm install jsdom', e.stack);
@@ -314,13 +314,14 @@ describe('It should provide a visualization', function() {
           cloud.render();
 
           var textElements = cloud.element.getElementsByTagName('text');
-          expect(textElements[0].attributes.style.value).toContain('font-family: "Atomic Age";');
+          expect(textElements[0].attributes.style.value).toMatch(/.*font-family: "?Atomic Age"?;.*/);
         });
 
         it('should generate pngs for fast sharing/re-use', function(done) {
           var cloud = new ILanguageCloud({
             title: 'Special Cloud to Save',
             orthography: 'should be able to save',
+            document: virtualdocument,
             element: 'angles'
           });
 
@@ -335,7 +336,7 @@ describe('It should provide a visualization', function() {
 
             expect(localStorage.getItem('currentPNG')).toEqual(result);
             done();
-          });
+          }).catch(done);
         });
 
         it('should render within a custom svg outline/shape #67', function() {
