@@ -266,6 +266,29 @@ describe('It should provide a visualization', function() {
         });
       });
 
+      describe('persistance', function() {
+        it('should download a png', function(done) {
+          var cloud = new ILanguageCloud({
+            title: "Special Cloud to Save",
+            orthography: "should be able to save",
+            element: 'angles'
+          });
+
+          cloud.render();
+          cloud.downloadPNG().then(function(result) {
+            expect(result).toContain('data:image/png;base64,');
+
+            var links = document.getElementsByTagName('a');
+            var link = links[links.length - 1];
+            expect(link.attributes.href.value).toEqual(result);
+            expect(link.attributes.target.value).toEqual('_blank');
+
+            expect(localStorage.getItem('currentPNG')).toEqual(result);
+            done();
+          });
+        });
+      });
+
       describe('Redraw a persisted cloud', function() {
         var myFewWordsFactory,
           myColorFunction,

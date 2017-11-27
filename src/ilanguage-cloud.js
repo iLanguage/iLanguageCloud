@@ -99,6 +99,22 @@
   ILanguageCloud.d3.layout.cloud = ILanguageCloud.d3.layout.cloud || cloudviz;
   ILanguageCloud.cloudviz = cloudviz;
   ILanguageCloud.version = '4.0.0-rc1';
+
+  ILanguageCloud.triggerDownload = function(imgURI, fileName) {
+    var evt = new MouseEvent("click", {
+      view: window,
+      bubbles: false,
+      cancelable: true
+    });
+    var a = document.createElement('a');
+    a.setAttribute('download', fileName);
+    a.setAttribute('href', imgURI);
+    a.setAttribute('target', '_blank');
+    a.dispatchEvent(evt);
+    a.innerText = 'Click here to open the PNG, if download does not start automatically.';
+    document.body.appendChild(a);
+  };
+
   ILanguageCloud.prototype = Object.create(LanguageDatum.prototype, /** @lends ILanguageCloud.prototype */ {
     constructor: {
       value: ILanguageCloud
@@ -440,35 +456,54 @@
       }
     },
 
-    // Converts a given word cloud to image/png.
     setPNG: {
-      value: function() {
-        // var scale = bounds ? Math.min(
-        //   this.width / Math.abs(bounds[1].x - this.width / 2),
-        //   this.width / Math.abs(bounds[0].x - this.width / 2),
-        //   this.height / Math.abs(bounds[1].y - this.height / 2),
-        //   this.height / Math.abs(bounds[0].y - this.height / 2)) / 2 : 1;
+      value: function(options) {
+        this.warn('setPNG is deprecated');
+        return this.downloadPNG(options);
+      }
+    },
 
-        var canvas = document.createElement('canvas'),
-          c = canvas.getContext('2d');
-        canvas.width = this.width;
-        canvas.height = this.height;
-        c.translate(this.width >> 1, this.height >> 1);
-        // c.scale(scale, scale);
-        this.wordFrequencies.forEach(function(word) {
-          c.save();
-          c.translate(word.x, word.y);
-          c.rotate(word.rotate * Math.PI / 180);
-          c.textAlign = 'center';
-          c.fillStyle = word.color;
-          c.font = word.count + 'px ' + word.font;
-          c.fillText(word.text, 0, 0);
-          c.restore();
-        });
-        var currentPNG = canvas.toDataURL('image/png');
-        var currentPNGdata = currentPNG.match(/[^,]*$/)[0];
-        localStorage.setItem('currentPNG', currentPNG);
-        localStorage.setItem('currentPNGdata', currentPNGdata);
+    /**
+     * Converts a given word cloud to image/png.
+     *
+     * https://stackoverflow.com/questions/3768565/drawing-an-svg-file-on-a-html5-canvas
+     */
+    downloadPNG: {
+      value: function() {
+        var deferred = FieldDB.Q.defer();
+        var self = this;
+
+        var svg = this.svg[0][0];
+        var xml = new XMLSerializer().serializeToString(svg);
+        var canvas = document.createElement('canvas');
+        canvas.width = parseInt(svg.attributes.width.value, 10);
+        canvas.height = parseInt(svg.attributes.height.value, 10);
+
+        // Make it base64
+        var svg64 = btoa(xml);
+        var b64Start = 'data:image/svg+xml;base64,';
+
+        // Prepend a header
+        var image64 = b64Start + svg64;
+
+        // Load SVG to Canvas
+        var img = document.createElement('img');
+        img.onload = function() {
+          canvas.getContext('2d').drawImage(img, 0, 0);
+
+          // Convert Canvas to data
+          var imgData = canvas.toDataURL('image/png');
+
+          // Store result in local storage for android
+          localStorage.setItem('currentPNG', imgData);
+          var currentPNGdata = imgData.match(/[^,]*$/)[0];
+          localStorage.setItem('currentPNGdata', currentPNGdata);
+
+          ILanguageCloud.triggerDownload(imgData, self.title + '_wordCloud.png');
+          deferred.resolve(imgData);
+        }
+        img.src = image64;
+        return deferred.promise;
       }
     },
 
