@@ -190,7 +190,12 @@
         this.runningWordFrequencyGenerator = true;
         // console.log('runWordFrequencyGenerator');
         this.wordFrequencies = null;
-        LexemeFrequency.calculateNonContentWords(this);
+        if (this.type === 'TagCloud') {
+          LexemeFrequency.calculateWordFrequencies(this);
+          this.nonContentWordsArray = [];
+        } else {
+          LexemeFrequency.calculateNonContentWords(this);
+        }
         this.runningWordFrequencyGenerator = false;
         return this;
       }
