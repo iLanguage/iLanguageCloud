@@ -250,18 +250,17 @@ describe('tagcloud', function() {
   it('should allow all the words typed to go into the cloud #66', function() {
     var cloud = new ILanguageCloud({
       orthography: longWordCloudText,
-      // type: 'TagCloud'
+      type: 'TagCloud'
     });
     expect(cloud).toBeDefined();
     cloud = cloud.runWordFrequencyGenerator();
-    expect(cloud.nonContentWordsArray.length).toEqual(30);
+    expect(cloud.nonContentWordsArray).toEqual([]);
     expect(cloud.wordFrequencies.length).toEqual(91);
     expect(cloud.wordFrequencies[0]).toEqual({
       orthography: 'patient',
       count: 3,
       rank: 0.03296703296703297,
-      normalizedCount: 1,
-      categories: [ 'buzzWord' ]
+      normalizedCount: 1
     });
   });
 
